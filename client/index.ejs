@@ -1,44 +1,111 @@
-<!-- views/login.ejs -->
-<!doctype html>
-<html>
-<head>
-	<title>Node Authentication</title>
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
-	<style>
-		body 		{ padding-top:80px; }
-	</style>
-</head>
-<body>
-<div class="container">
+<!DOCTYPE html>
+<!--[if IE 8]>			<html ng-app="app" class="ie ie8"> <![endif]-->
+<!--[if IE 9]>			<html ng-app="app" class="ie ie9"> <![endif]-->
+<!--[if gt IE 9]><!-->	<html ng-app="app"> <!--<![endif]-->
+	<head>
 
-<div class="col-sm-6 col-sm-offset-3">
+		<!-- Basic -->
+		<meta charset="utf-8">
+		<title>Topics - Points and Stuff</title>
+		<meta name="keywords" content="HTML5 Template" />
+		<meta name="description" content="Tucson - Responsive HTML5 Template - 1.1.0">
+		<meta name="author" content="okler.net">
 
-	<h1><span class="fa fa-sign-in"></span> Login</h1>
+		<!-- Mobile Metas -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<!-- show any messages that come back with authentication -->
+		<!-- Web Fonts  -->
+		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Alegreya|Alegreya+SC|Oswald:400,300" rel="stylesheet" type="text/css">
 
-	<!-- LOGIN FORM -->
-	<form action="/login" method="post">
-		<div class="form-group">
-			<label>Email</label>
-			<input type="text" class="form-control" name="email">
-		</div>
-		<div class="form-group">
-			<label>Password</label>
-			<input type="password" class="form-control" name="password">
-		</div>
+		<!-- BEGIN THEME STYLES --> 
+		<link rel="stylesheet" href="css/bootstrap.css">
+		<link rel="stylesheet" href="css/fonts/font-awesome/css/font-awesome.css">
+		<link rel="stylesheet" href="vendor/owl-carousel/owl.carousel.css" media="screen" />
+		<link rel="stylesheet" href="vendor/owl-carousel/owl.theme.css" media="screen" />
+		<link rel="stylesheet" href="vendor/rs-plugin/css/settings.css" media="screen" />
+		<link rel="stylesheet" href="vendor/isotope/jquery.isotope.css" media="screen" />
+		<link rel="stylesheet" href="vendor/magnific-popup/magnific-popup.css" media="screen" />
 
-		<button type="submit" class="btn btn-warning btn-lg">Login</button>
-	</form>
+		<!-- Theme CSS -->
+		<link rel="stylesheet" href="css/theme.css">
+		<link rel="stylesheet" href="css/theme-elements.css">
+		<link rel="stylesheet" href="css/theme-animate.css">
 
-	<hr>
+		<!-- Current Page Styles -->
+		<link rel="stylesheet" href="css/theme-blog.css" />
 
-	<p>Need an account? <a href="/signup">Signup</a></p>
-	<p>Or go <a href="/">home</a>.</p>
+		<!-- Skin CSS -->
+		<link rel="stylesheet" href="css/skins/default.css">
 
-</div>
+		<!-- Custom CSS -->
+		<link rel="stylesheet" href="css/custom.css">
 
-</div>
-</body>
+		<!-- Responsive CSS -->
+		<link rel="stylesheet" href="css/theme-responsive.css" />
+
+		<!-- Head Libs -->
+		<script src="vendor/modernizr.js"></script>
+
+		<!--[if IE]>
+			<link rel="stylesheet" href="css/ie.css">
+		<![endif]-->
+
+
+
+	</head>
+	<body>
+
+		<h1> TEST </h1>
+	<button ng-click="count = count + 1" ng-init="count=0">
+  		Increment
+	</button>
+		count: {{count}}
+
+
+		<!-- Libs -->
+		<script src="vendor/jquery.js"></script>
+		<script src="js/plugins.js"></script>
+		<script src="vendor/jquery.easing.js"></script>
+		<script src="vendor/jquery.appear.js"></script>
+		<script src="vendor/jquery.cookie.js"></script>
+		
+		<script src="vendor/bootstrap.js"></script>
+		<script src="vendor/masonry.js"></script>
+		<script src="vendor/twitterjs/twitter.js"></script>
+		<script src="vendor/rs-plugin/js/jquery.themepunch.plugins.min.js"></script>
+		<script src="vendor/rs-plugin/js/jquery.themepunch.revolution.min.js"></script>
+		<script src="vendor/owl-carousel/owl.carousel.js"></script>
+		<script src="vendor/magnific-popup/magnific-popup.js"></script>
+		<script src="vendor/jquery.knob.js"></script>
+		<script src="vendor/jquery.stellar.js"></script>
+		<script src="vendor/jquery.validate.js"></script>
+		<script src="vendor/isotope/jquery.isotope.js"></script>
+
+		<!-- Theme Initializer -->
+		<script src="js/theme.js"></script>
+
+		<!-- Custom JS -->
+		<script src="js/custom.js"></script>
+
+		<!-- Google Analytics: Change UA-XXXXX-X to be your site's ID. Go to http://www.google.com/analytics/ for more information.
+		<script type="text/javascript">
+
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-12345678-1']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+
+		</script>
+		 -->
+
+		 <script src="angular/angular.js"></script>
+		 <script src="angular/angular-route.js"></script>
+		 <script src="app.js"></script>
+	</body>
+
 </html>
