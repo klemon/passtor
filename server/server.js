@@ -3,13 +3,12 @@
 // set up
 // get all the tools we need
 var express = require('express');
-var engine  = require('ejs-locals');
 var app      = express();
 var port     = process.env.PORT || 8080;
 var mongoose = require('mongoose');
 var passport = require('passport');
 var flash 	 = require('connect-flash');
-
+var path = require('path');
 var configDB = require('./config/database.js');
 
 // configuration ===============================================================
@@ -24,21 +23,19 @@ app.configure(function() {
 	app.use(express.cookieParser()); // read cookies (needed for auth)
 	app.use(express.bodyParser()); // get information from html forms
 
-	app.set('views', '../client');
-	app.set('view engine', 'ejs');
-	app.engine('ejs', engine);
-	//app.set('view engine', 'ejs'); // set up ejs for templating
-
+	app.set('view engine', 'ejs'); // set up ejs for templating
+	var distFolder = path.resolve(__dirname, '../client')
+	app.set('views', distFolder);
 	// required for passport
 	app.use(express.session({ secret: 'ilovescotchscotchyscotchscotch' })); // session secret
 	app.use(passport.initialize());
 	app.use(passport.session()); // persistent login  sessions
-  	app.use(flash()); // use connect-flash for flash messages stored in session
+  app.use(flash()); // use connect-flash for flash messages stored in session
 
 });
 
 // routes ======================================================================
-require('./app/routes.js')(app, passport); // load our routes and pass in our app and fully configure passport
+require('./app/routes/security.js')(app, passport); // load our routes and pass in our app and fully configure passport
 
 // launch ======================================================================
 app.listen(port);
