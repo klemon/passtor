@@ -1,0 +1,61 @@
+<div class="body" ng-controller="">
+    <header>
+        <div class="container">
+            <h1 class="logo">
+                <a href="index.html">
+                    <img alt="Tucson" src="/static/img/logo.png" data-small-height="44">
+                </a>
+            </h1>
+            <div class="navbar-collapse nav-main-collapse collapse">
+                <div class="cart">
+                    <a href="shop-cart.html"><i class="icon icon-shopping-cart"></i></a>
+                </div>
+                <div class="search" id="headerSearch">
+                    <a href="#" id="headerSearchOpen"><i class="icon icon-search"></i></a>
+                    <div class="search-input">
+                        <form id="headerSearchForm" action="page-search-results.html" method="get">
+                            <div class="input-group">
+                                <input type="text" class="form-control search" name="q" id="q" placeholder="Search...">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button"><i class="icon icon-search"></i></button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <nav class="nav-main mega-menu">
+                    <ul class="nav nav-pills nav-main" id="mainMenu">
+                        <li class="dropdown" ng-show="isAuthenticated()">
+                            <a class="dropdown-toggle" ng-click="logout()">
+                                Logout
+                            </a>
+                        </li>
+                        <li class="dropdown" ng-hide="isAuthenticated()">
+                            <a class="dropdown-toggle" href="/login">
+                                Login
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" href="/store">
+                                Store
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" href="dashboard.tpl.html">
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" href="#">
+                                Contact Us
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <button class="btn btn-responsive-nav btn-inverse" data-toggle="collapse" data-target=".nav-main-collapse">
+                <i class="icon icon-bars"></i>
+            </button>
+        </div>
+    </header>
+</div>

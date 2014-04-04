@@ -28,7 +28,7 @@ app.configure(function() {
 	app.set('views', distFolder);
 	// required for passport
 	app.use(express.session({ secret: 'ilovescotchscotchyscotchscotch' })); // session secret
-	app.use(express.static(path.resolve(__dirname, '../client/public')));
+	app.use(express.static(path.resolve(__dirname, '../client')));
 	app.use(passport.initialize());
 	app.use(passport.session()); // persistent login  sessions
   app.use(flash()); // use connect-flash for flash messages stored in session

@@ -1,16 +1,17 @@
 'use strict'
 
-angular.module('app', [])
+angular.module('app', [
+	'ngRoute'
+	// ,
+	// 'dashboard'
+	]);
 
-.config(['$routeProvider', function ($routeProvider) {
-  $routeProvider.when('/', {
-    controller:'appCtrl'
-  });
-}])
+angular.module('app').config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+  $locationProvider.html5Mode(true);
+  $routeProvider.otherwise({redirectTo:'/dashboard'});
+}]);
 
-.controller('appCtrl', ['$scope' function ($scope) {
+angular.module('app').controller('AppCtrl', ['$scope', function($scope) {
 
-  $scope.submit = function() {
-    
-  };
+
 }]);
