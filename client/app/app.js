@@ -2,7 +2,9 @@ var appX = angular.module('app', [
 	'ngRoute',
 	'dashboard',
 	'store',
-	'login'
+	'login',
+	'signup',
+	'profile'
 	]);
 
 appX.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
