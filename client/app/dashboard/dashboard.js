@@ -1,16 +1,15 @@
-angular.module('dashboard', [])
+var dashboardX = angular.module('dashboard', []);
 
-.config(['$routeProvider', function ($routeProvider) {
+dashboardX.config(['$routeProvider', function ($routeProvider) {
   $routeProvider.when('/dashboard', {
-    templateUrl:'app/dashboard/dashboard.tpl.html',
-    controller:'DashboardCtrl'
+    templateUrl:'app/dashboard/dashboard.tpl.ejs',
+    resolve: dashboardX.resolve
   });
-}])
+}]);
 
-.controller('DashboardCtrl', ['$scope' function ($scope) {
-  $scope.post = {};
 
-  $scope.submit = function() {
-    //var request = $http.post('/post', {email: $scope.post.title, password: $scope.post.description});
-  };
+
+dashboardX.controller('DashboardCtrl', ['$scope', function($scope) {
+
+
 }]);

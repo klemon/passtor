@@ -1,17 +1,17 @@
-'use strict'
-
-angular.module('app', [
-	'ngRoute'
-	// ,
-	// 'dashboard'
+var appX = angular.module('app', [
+	'ngRoute',
+	'dashboard'
 	]);
 
-angular.module('app').config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+appX.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+  
+  $routeProvider.otherwise({redirectTo:'/'});
   $locationProvider.html5Mode(true);
-  $routeProvider.otherwise({redirectTo:'/dashboard'});
-}]);
+  
+  }]);
 
-angular.module('app').controller('AppCtrl', ['$scope', function($scope) {
+
+appX.controller('AppCtrl', ['$scope', function($scope) {
 
 
 }]);
