@@ -39,6 +39,7 @@ app.configure(function() {
 //app.use(express.static(path.join(__dirname, 'views')));
 require('./app/routes/security.js')(app, passport); // load our routes and pass in our app and fully configure passport
 require('./app/routes/appFile.js')(app, distFolder);
+require('./app/routes/routes.js')(app);
 
 // launch ======================================================================
 app.listen(port);

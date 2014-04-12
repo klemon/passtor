@@ -12,10 +12,10 @@ createPost.config(['$routeProvider', function ($routeProvider) {
 .controller('CreateCtrl', ['$scope', '$http', function($scope, $http) {
 	$scope.test = 'Edit Profile';
 	$formData = {};
-	$scope.createPost = function() {
+	$scope.createNew = function() {
 		$http.post('/createPost', $scope.formData)
 			.success(function(data) {
-				
+				$scope.posts = data;
 			})
 			.error(function(data) {
 				console.log('Error: ' + data);
