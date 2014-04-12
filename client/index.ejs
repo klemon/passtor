@@ -87,23 +87,29 @@
 	</head>
 
 	<body ng-controller="AppCtrl">
-	<div ng-include src="'app/header.tpl.ejs'"></div>
-	  <div class="container-fluid" ng-view></div>
-	<button ng-click="count = count + 1" ng-init="count=0">
-  		Increment
-	</button>
-		count: {{count}}
-		<div ng-include src="'app/footer.tpl.ejs'"></div>
+		<div class="body">
+			<header>
+				<div ng-include src="'app/header.tpl.ejs'"></div>
+			</header>
+	  	
+	  		<div class="container-fluid" ng-view></div>
+		
+			<footer>
+				<div ng-include src="'app/footer.tpl.ejs'"></div>
+			</footer>
+		</div>
 
 		 <script src="public/angular/angular.js"></script>
 		 <script src="public/angular/angular-route.js"></script>
-		 
+
 		 <script src="app/app.js"></script>
 		 <script src="app/dashboard/dashboard.js"></script>
+		 <script src="app/dashboard/createPost.js"></script>
 		 <script src="app/store/store.js"></script>
 		 <script src="app/security/login.js"></script>
 		 <script src="app/security/signup.js"></script>
 		 <script src="app/profile/profile.js"></script>
+		 <script src="app/profile/edit.js"></script>
 	</body>
 
 </html>

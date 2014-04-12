@@ -10,6 +10,6 @@ dashboard.config(['$routeProvider', function ($routeProvider) {
 
 
 dashboard.controller('DashboardCtrl', ['$scope', function($scope) {
-
+	$scope.formData = {};
 
 }]);
