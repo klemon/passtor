@@ -25,12 +25,17 @@ module.exports = function(app) {
 
 	// create a todo, information comes from AJAX request from Angular
 	app.post('/createPost', function(req, res) {
+		console.log("Trying to create post");
 		Post.create({
 			title : req.body.title,
 			description : req.body.description
 		}, function(err, post) {
 			if (err)
+			{
+				console.log("Could not create post. :(");
 				res.send(err);
+			}
+			console.log("Created post. :)");
 
 			// get and return all the todos after you create another
 			Post.find(function(err, posts) {
