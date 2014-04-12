@@ -28,8 +28,12 @@ app.factory('AuthService', ['$http', function($http) {
 	var currentUser;
 
 	return {
-		login: function() {
-
+		login: function(email, password) {
+			var request = $http.post('/login', {email: email, password: password});
+			return request.then(function(response) {
+	        	currentUser = response.data.user;
+	        	return isAuthenticated();
+      			});
 		},
 		logout: function() {
 
@@ -37,7 +41,12 @@ app.factory('AuthService', ['$http', function($http) {
 		isLoggedIn: function() {
 
 		},
-		currentUser: function() { return currentUser; }
+		currentUser: function() { 
+			return currentUser; 
+		},
+		isAuthenticated: function(){
+      	return !!currentUser;
+    	}
 	};
 }]);
 
