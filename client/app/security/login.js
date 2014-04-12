@@ -10,6 +10,8 @@ login.config(['$routeProvider', function ($routeProvider) {
 
 
 login.controller('LoginCtrl', ['$scope', function($scope) {
-
-
+	$scope.message = "Hello!";
+	$scope.getMessage = function() {
+		return $scope.message;
+	}
 }]);
