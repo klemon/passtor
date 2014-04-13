@@ -28,18 +28,29 @@ app.factory('AuthService', ['$http', function($http) {
 	var currentUser;
 
 	return {
-		login: function(email, password) {
-			var request = $http.post('/login', {email: email, password: password});
-			return request.then(function(response) {
-	        	currentUser = response.data.user;
-	        	return isAuthenticated();
-      			});
+		login: function(data) {
+			// var request = $http.post('/login', {email: data.email, password: data.password});
+			// return request.then(function(response) {
+	  //       	currentUser = response.email;
+	  //       	//return isAuthenticated();
+   //    			});
+		$http.post('/login', {email: data.email, password: data.password})
+			.success(function(res) {
+				console.log('Workerd?');
+				currentUser = 'worked?';
+			})
+			.error(function(data) {
+				console.log('Error: ' + data);
+			});
+
 		},
 		logout: function() {
 
 		},
 		isLoggedIn: function() {
-
+			if(currentUser)
+				return true;
+			return false;
 		},
 		currentUser: function() { 
 			return currentUser; 
