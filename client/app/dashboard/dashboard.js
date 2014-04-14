@@ -10,7 +10,12 @@ dashboard.config(['$routeProvider', function ($routeProvider) {
 
 
 
-dashboard.controller('DashboardCtrl', ['$scope', function($scope) {
-	$scope.formData = {};
-
+dashboard.controller('DashboardCtrl', ['$scope', '$http', function($scope, $http) {
+	$http.get('/posts')
+		.success(function(data) {
+			$scope.posts = data;
+		})
+		.error(function(data) {
+			console.log('Error: ' + data);
+	});
 }]);

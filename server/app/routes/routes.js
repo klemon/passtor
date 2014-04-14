@@ -2,26 +2,21 @@ var Post = require('../models/post');
 
 module.exports = function(app) {
 
-	// api ---------------------------------------------------------------------
+	// api --------------------------------------------------------------------
+	
+	// get all post
+	app.get('/posts', function(req, res) {
 
-	// create post and send back all posts after creation
-	// app.post('/createPost', function(req, res) {
+		// use mongoose to get all todos in the database
+		Post.find(function(err, posts) {
 
-	//  // create the post
- //        var newPost                 = new Post();
+			// if there is an error retrieving, send the error. nothing after res.send(err) will execute
+			if (err)
+				res.send(err)
 
- //        // set the user's local credentials
- //        newPost.local.title         = 'test';
- //        newPost.local.description      = 'doesntMatter';
-
- //        // save the user
- //        newPost.save(function(err) {
- //          if(err)
- //            throw err;
- //          return done(null, newPost);
- //        });
-
-	// });
+			res.json(posts); // return all todos in JSON format
+		});
+	});
 
 	// create a todo, information comes from AJAX request from Angular
 	app.post('/createPost', function(req, res) {
