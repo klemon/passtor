@@ -23,12 +23,21 @@
 									<div class="row">
 										<div class="form-group">
 											<div class="col-md-12">
-												<label>{{formData.description}}</label>
-												<input ng-model="formData.description" type="text" value="" class="form-control">
+												<label>Description</label>
+												<textarea maxlength="5000" ng-model="formData.description" rows="10" class="form-control" name="comment" id="comment"></textarea>
 											</div>
 										</div>
 									</div>
 									
+									<div ng-show="{{posts}}" class="row">
+										<div class="form-group">
+											<div class="col-md-12">
+												<label>{{posts.title}}</label>
+												<textarea maxlength="5000" ng-model="formData.description" rows="10" class="form-control" name="comment" id="comment"></textarea>
+											</div>
+										</div>
+									</div>
+
 									<div class="row">
 										<div class="col-md-6">
 											<input type="submit" ng-click="createNew()" value="Create Post" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading...">

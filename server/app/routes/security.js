@@ -24,9 +24,11 @@ module.exports = function(app, passport) {
   }));
 
   // process login form
-  app.post('/login', passport.authenticate('local-login'), function(req, res) {
-    res.send(req)
-  });
+  app.post('/login', passport.authenticate('local-login', {
+    successRedirect : '/', // redirect to home section
+    failureRedirect : '/login', // redirect back to the signup page if there is an error
+    failureFlash : true // allow flash messages
+  }));
 };
 
 
