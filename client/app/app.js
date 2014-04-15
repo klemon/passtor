@@ -15,8 +15,12 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
   $locationProvider.html5Mode(true);
   
   }])
-.controller('AppCtrl', ['$scope', function($scope) {
-
+.controller('AppCtrl', ['$scope', '$location', 'AuthService',
+	function($scope, $location, AuthService) {
+	if(AuthService.isLoggedIn())
+		$location.path('/dashboard');
+	else
+		$location.path('/login');
 }])
 
 .controller('HeaderCtrl', ['$scope', '$http', function($scope, $http){
@@ -37,7 +41,7 @@ app.factory('AuthService', ['$http', function($http) {
 		$http.post('/login', {email: data.email, password: data.password})
 			.success(function(res) {
 				console.log('Workerd?');
-				currentUser = 'worked?';
+				currentUser = res;
 			})
 			.error(function(data) {
 				console.log('Error: ' + data);
