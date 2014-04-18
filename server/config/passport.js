@@ -93,11 +93,15 @@ module.exports = function(passport) {
     User.findOne({ 'local.email' : email }, function(err, user) {
       // if there are any errors, return the error
       if (err)
+      {
+        console.log("Error in signing up user.")
         return done(err);
+      }
 
       // check to see if theres already a user with that email
       if (user) {
-        return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
+        console.log("Use already exists.");
+        return done(null, false, "That email is already taken.");
       } else {
 
         // if there is no user with that email
@@ -112,6 +116,7 @@ module.exports = function(passport) {
         newUser.save(function(err) {
           if(err)
             throw err;
+          console.log("Created a new user.");
           return done(null, newUser);
         });
       }

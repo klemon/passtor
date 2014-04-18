@@ -17,11 +17,16 @@ module.exports = function(app, passport) {
   });
 
   // process signup form
-  app.post('/signup', passport.authenticate('local-signup', {
-    successRedirect : '/', // redirect to the secure profile section
-    failureRedirect : '/signup', // redirect back to the signup page if there is an error
-    failureFlash : true // allow flash messages
-  }));
+ app.post('/signup', function(req, res, next) {
+  passport.authenticate('local-signup', function(err, user, message) {
+    if (err) { return next(err); }
+    if (!user) { return res.json({err: err, user: false, message: message}); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return res.json({err: err, user: user.local.email, message: message});
+    });
+  })(req, res, next);
+});
 
 app.post('/login', function(req, res, next) {
   passport.authenticate('local-login', function(err, user, message) {

@@ -49,7 +49,6 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 			.error(function(data) {
 				console.log('Error: ' + data);
 			});
-
 		},
 		logout: function() {
 			console.log('logout');
@@ -63,6 +62,15 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 		},
 		currentUser: function() { 
 			return currentUser; 
+		},
+		signup: function(data, done) {
+		$http.post('/signup', {email: data.email, password: data.password})
+			.success(function(res) {
+				done(res.message);
+			})
+			.error(function(data) {
+				console.log('Error: ' + data);
+			});
 		}
 	};
 }]);

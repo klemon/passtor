@@ -19,6 +19,16 @@ login.controller('LoginCtrl', ['$scope', '$location','AuthService', function($sc
   	});
 
 	$scope.login = function() {
+		if(!$scope.formData.email)
+		{
+			$scope.message = "Please provide an email.";
+			return;
+		}
+		else if(!$scope.formData.password)
+		{
+			$scope.message = "Please provide a password.";
+			return;
+		}
 		AuthService.login($scope.formData, function(message){
 			$scope.message = message;
 			if(!message)
