@@ -23,8 +23,9 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 		$location.path('/login');
 }])
 
-.controller('HeaderCtrl', ['$scope', 'AuthService', '$http', function($scope, AuthService, $http){
+.controller('HeaderCtrl', ['$scope', '$location','AuthService', '$http', function($scope, $location, AuthService, $http){
 	$scope.logout = function(){
+		$location.path('/login');
 		AuthService.logout();
 	}
 	$scope.currentUser = function(){
@@ -52,6 +53,7 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 		},
 		logout: function() {
 			console.log('logout');
+			currentUser = "";
 			$http.get('./logout');
 		},
 		isLoggedIn: function() {
