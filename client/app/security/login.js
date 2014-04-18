@@ -9,8 +9,8 @@ login.config(['$routeProvider', function ($routeProvider) {
 
 
 
-login.controller('LoginCtrl', ['$scope', 'AuthService', function($scope, AuthService) {
-	$scope.message = "Hello User!";
+login.controller('LoginCtrl', ['$scope', '$location','AuthService', function($scope, $location, AuthService) {
+	$scope.message;
 	$scope.formData = {};
 
 	$scope.$watch( AuthService.isLoggedIn, function ( isLoggedIn ) {
@@ -19,12 +19,10 @@ login.controller('LoginCtrl', ['$scope', 'AuthService', function($scope, AuthSer
   	});
 
 	$scope.login = function() {
-		AuthService.login($scope.formData);
-	}
-
-	$scope.getMessage = function() {
-		if ($scope.isLoggedIn)
-			return $scope.currentUser;
-		return $scope.message;
+		AuthService.login($scope.formData, function(message){
+			$scope.message = message;
+			if(!message)
+				$location.path('/dashboard');
+		});
 	}
 }]);

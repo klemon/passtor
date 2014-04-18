@@ -27,11 +27,11 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 	$scope.logout = function(){
 		AuthService.logout();
 	}
-	$scope.isLoggedIn = function(){
-		return AuthService.isLoggedIn();
-	}
 	$scope.currentUser = function(){
 		return AuthService.currentUser();
+	}
+	$scope.isLoggedIn = function() {
+		return AuthService.isLoggedIn();
 	}
 }]);
 
@@ -39,19 +39,13 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 	var currentUser;
 
 	return {
-		login: function(data) {
-			// var request = $http.post('/login', {email: data.email, password: data.password});
-			// return request.then(function(response) {
-	  //       	currentUser = response.email;
-	  //       	//return isAuthenticated();
-   //    			});
-		
+		login: function(data, done) {
 		$http.post('/login', {email: data.email, password: data.password})
 			.success(function(res) {
-				currentUser = res;
+				currentUser = res.user;
+				done(res.message);
 			})
 			.error(function(data) {
-				currentUser = NULL;
 				console.log('Error: ' + data);
 			});
 
@@ -67,10 +61,7 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 		},
 		currentUser: function() { 
 			return currentUser; 
-		},
-		isAuthenticated: function(){
-      	return !!currentUser;
-    	}
+		}
 	};
 }]);
 

@@ -24,12 +24,12 @@ module.exports = function(app, passport) {
   }));
 
 app.post('/login', function(req, res, next) {
-  passport.authenticate('local-login', function(err, user, info) {
+  passport.authenticate('local-login', function(err, user, message) {
     if (err) { return next(err); }
-    if (!user) { return res.json({err: err, user: user, info: info}); }
+    if (!user) { return res.json({err: err, user: false, message: message}); }
     req.logIn(user, function(err) {
       if (err) { return next(err); }
-      return res.json({err: err, user: user, info: info});
+      return res.json({err: err, user: user.local.email, message: message});
     });
   })(req, res, next);
 });

@@ -1,7 +1,7 @@
 <div class="container" ng-controller="HeaderCtrl">
     <h1 class="logo" ng-show=isLoggedIn()>
         <a href="/">
-            
+            {{currentUser()}}
             <!-- <img alt="Tucson" src="/public/img/logo.png" data-small-height="44"> -->
         </a>
     </h1>
@@ -24,17 +24,17 @@
         </div>
         <nav class="nav-main mega-menu">
             <ul class="nav nav-pills nav-main" id="mainMenu">
-                <li class="dropdown">
+                <li class="dropdown" ng-show=isLoggedIn()>
                     <a class="dropdown-toggle" style="cursor: hand;cursor: pointer;" ng-click="logout()">
                         Logout
                     </a>
                 </li>
-                <li class="dropdown">
+                <li class="dropdown" ng-hide=isLoggedIn()>
                     <a class="dropdown-toggle" href="/signup">
                         Sign Up
                     </a>
                 </li>
-                <li class="dropdown" ng-hide="isAuthenticated()">
+                <li class="dropdown" ng-hide=isLoggedIn()>
                     <a class="dropdown-toggle" href="/login">
                         Login
                     </a>
