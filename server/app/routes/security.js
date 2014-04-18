@@ -23,13 +23,19 @@ module.exports = function(app, passport) {
     failureFlash : true // allow flash messages
   }));
 
-  // process login form
-  app.post('/login', passport.authenticate('local-login', {
-    successRedirect : '/', // redirect to home section
-    failureRedirect : '/login', // redirect back to the signup page if there is an error
-    failureFlash : true // allow flash messages
-  }));
+app.post('/login', function(req, res, next) {
+  passport.authenticate('local-login', function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.json({err: err, user: user, info: info}); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return res.json({err: err, user: user, info: info});
+    });
+  })(req, res, next);
+});
+
+//app.post('/login', passport.authenticate('local-login'), function(req, res) {
+    //console.log(req);
+     //res.json({user: req.body.email});
+    //});
 };
-
-
-
