@@ -9,10 +9,18 @@ editProfile.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('EditCtrl', ['$scope', function($scope) {
+.controller('EditCtrl', ['$scope', '$http', '$location', 'AuthService', function($scope, $http, $location, AuthService) {
 	$scope.test = 'Edit Profile';
-	// $scope.test = function (){
-
-	// };
+	$scope.userAttributes = {curEmail: AuthService.currentUser()};
+	$scope.update = function (userAttributes){
+		$http.post('/updateProfile', $scope.userAttributes)
+			.success(function(data) {
+				console.log(data);
+				$location.path('/profile');
+			})
+			.error(function(data) {
+				console.log('Error: ' + data);
+			});
+	};
 
 }]);
