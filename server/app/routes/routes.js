@@ -42,7 +42,7 @@ module.exports = function(app) {
 	app.post("/updateProfile", function(req,res){
 		console.log("YOU ARE TRYING TO CHANGE PROFILE INFO");
 		// we are checking to see if the user trying to login already exists
-	    User.findOne({ 'local.email' : req.body.curEmail }, function(err, user) {
+	    User.findOne({ 'local.email' : req.body.curEmail }, function(err, user, done) {
 	      // if there are any errors, return the error before anything else
 	      if (err)
 	      {
@@ -54,7 +54,7 @@ module.exports = function(app) {
 	      if(!user)
 	      {
 	        console.log("No user is found");
-	        return done(null, false, "User does not exist."); // req.flash is the way to set flashdata using connect-flash
+	        return done(null, false, "User does not exist.");
 	      }
 
 	      user.local.username = req.body.username;
@@ -68,7 +68,7 @@ module.exports = function(app) {
 				} else {
 					console.log(err);
 				}
-				return res.send(user);
+				return res.json(user);
 			});
 	    });
 

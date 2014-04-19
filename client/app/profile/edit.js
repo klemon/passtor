@@ -15,7 +15,7 @@ editProfile.config(['$routeProvider', function ($routeProvider) {
 	$scope.update = function (userAttributes){
 		$http.post('/updateProfile', $scope.userAttributes)
 			.success(function(data) {
-				console.log(data);
+				AuthService.update(data.local.email);
 				$location.path('/profile');
 			})
 			.error(function(data) {

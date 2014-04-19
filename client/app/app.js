@@ -71,6 +71,9 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 			.error(function(data) {
 				console.log('Error: ' + data);
 			});
+		},
+		update: function(data) {
+			currentUser = data;
 		}
 	};
 }]);
