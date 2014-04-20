@@ -31,7 +31,9 @@ login.controller('LoginCtrl', ['$scope', '$location','AuthService', function($sc
 		}
 		AuthService.login($scope.formData, function(message){
 			$scope.message = message;
-			if(!message)
+			if(AuthService.isStoreOwner())
+				$location.path('/inventory');
+			else if(!$scope.message)
 				$location.path('/dashboard');
 		});
 	}

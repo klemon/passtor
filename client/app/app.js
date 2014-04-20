@@ -6,7 +6,8 @@ var app = angular.module('app', [
 	'signup',
 	'profile',
 	'editProfile',
-	'createPost'
+	'createPost',
+	'inventory'
 	]);
 
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
@@ -20,10 +21,11 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 	if(AuthService.isLoggedIn())
 		$location.path('/dashboard');
 	else
-		$location.path('/login');
+		$location.path('/inventory');
 }])
 
 .controller('HeaderCtrl', ['$scope', '$location','AuthService', '$http', function($scope, $location, AuthService, $http){
+	
 	$scope.logout = function(){
 		$location.path('/login');
 		AuthService.logout();
@@ -34,16 +36,20 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 	$scope.isLoggedIn = function() {
 		return AuthService.isLoggedIn();
 	}
+	$scope.isStoreOwner = function() {
+		return AuthService.isStoreOwner();
+	}
 }]);
 
 app.factory('AuthService', ['$http', '$location', function($http, $location) {
 	var currentUser;
-
+	var isStoreOwner;
 	return {
 		login: function(data, done) {
 		$http.post('/login', {email: data.email, password: data.password})
 			.success(function(res) {
 				currentUser = res.user;
+				//isStoreOwner = currentUser; for testing
 				done(res.message);
 			})
 			.error(function(data) {
@@ -53,6 +59,7 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 		logout: function() {
 			console.log('logout');
 			currentUser = "";
+			isStoreOwner = false;
 			$http.get('./logout');
 		},
 		isLoggedIn: function() {
@@ -62,6 +69,9 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 		},
 		currentUser: function() { 
 			return currentUser; 
+		},
+		isStoreOwner: function() {
+			return isStoreOwner;
 		},
 		signup: function(data, done) {
 		$http.post('/signup', {email: data.email, password: data.password})
