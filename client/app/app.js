@@ -60,6 +60,7 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 		logout: function() {
 			console.log('logout');
 			currentUser = "";
+			storeName = "";
 			isStoreOwner = false;
 			$http.get('./logout');
 		},
