@@ -23,7 +23,7 @@ module.exports = function(app, passport) {
     if (!user) { return res.json({err: err, user: false, message: message}); }
     req.logIn(user, function(err) {
       if (err) { return next(err); }
-      return res.json({err: err, user: user.local.email, message: message});
+      return res.json({err: err, user: user.local.email});
     });
   })(req, res, next);
 });
@@ -34,7 +34,8 @@ app.post('/login', function(req, res, next) {
     if (!user) { return res.json({err: err, user: false, message: message}); }
     req.logIn(user, function(err) {
       if (err) { return next(err); }
-      return res.json({err: err, user: user.local.email, message: message});
+      return res.json({err: err, user: user.local.email, storeName: user.local.storeName,
+                        points: user.local.points, coins: user.local.coins});
     });
   })(req, res, next);
 });

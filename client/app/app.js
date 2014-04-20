@@ -7,7 +7,8 @@ var app = angular.module('app', [
 	'profile',
 	'editProfile',
 	'createPost',
-	'inventory'
+	'inventory',
+	'createItem'
 	]);
 
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
@@ -21,7 +22,7 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 	if(AuthService.isLoggedIn())
 		$location.path('/dashboard');
 	else
-		$location.path('/inventory');
+		$location.path('/login');
 }])
 
 .controller('HeaderCtrl', ['$scope', '$location','AuthService', '$http', function($scope, $location, AuthService, $http){
@@ -36,21 +37,21 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 	$scope.isLoggedIn = function() {
 		return AuthService.isLoggedIn();
 	}
-	$scope.isStoreOwner = function() {
-		return AuthService.isStoreOwner();
+	$scope.storeName = function() {
+		return AuthService.storeName();
 	}
 }]);
 
 app.factory('AuthService', ['$http', '$location', function($http, $location) {
 	var currentUser;
-	var isStoreOwner;
+	var storeName;
 	return {
 		login: function(data, done) {
 		$http.post('/login', {email: data.email, password: data.password})
 			.success(function(res) {
 				currentUser = res.user;
-				//isStoreOwner = currentUser; for testing
-				done(res.message);
+				storeName = res.storeName;
+				done(res.message, res.storeName);
 			})
 			.error(function(data) {
 				console.log('Error: ' + data);
@@ -70,8 +71,8 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 		currentUser: function() { 
 			return currentUser; 
 		},
-		isStoreOwner: function() {
-			return isStoreOwner;
+		storeName: function() {
+			return storeName;
 		},
 		signup: function(data, done) {
 		$http.post('/signup', {email: data.email, password: data.password})

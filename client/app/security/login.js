@@ -29,9 +29,9 @@ login.controller('LoginCtrl', ['$scope', '$location','AuthService', function($sc
 			$scope.message = "Please provide a password.";
 			return;
 		}
-		AuthService.login($scope.formData, function(message){
+		AuthService.login($scope.formData, function(message, storeName){
 			$scope.message = message;
-			if(AuthService.isStoreOwner())
+			if(storeName)
 				$location.path('/inventory');
 			else if(!$scope.message)
 				$location.path('/dashboard');

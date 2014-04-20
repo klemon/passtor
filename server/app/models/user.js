@@ -12,8 +12,9 @@ var userSchema = mongoose.Schema({
     email               : String,
     firstName           : String,
     lastName            : String,
-    //points              : String,
-    //coins               : String,
+    storeName           : String,
+    points              : Number,
+    coins               : Number
    
   },
   facebook              : {

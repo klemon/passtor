@@ -1,5 +1,5 @@
 <div class="container" ng-controller="HeaderCtrl">
-    <div ng-hide=isStoreOwner()>
+    <div ng-hide=storeName()>
         <h5 class="logo" ng-show=isLoggedIn()>
             <a href="/">
                 {{currentUser()}}
@@ -64,7 +64,7 @@
     </div>
 
 <!-- This is the header for store owners -->
-    <div ng-show=isStoreOwner()>
+    <div ng-show=storeName()>
         <h5 class="logo">
             <a href="/">
                 {{currentUser()}}
