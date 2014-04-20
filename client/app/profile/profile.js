@@ -9,8 +9,19 @@ profile.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('ProfileCtrl', ['$scope', '$http', function($scope, $http) {
+.controller('ProfileCtrl', ['$scope', '$http', 'AuthService', function($scope, $http, AuthService) {
 	$scope.test = 'Edit Profile';
+	$scope.user;
+	$http.get('/user', {
+    params: { email: AuthService.currentUser() }
+		})
+		.success(function(data) {
+			$scope.user = data.local;
+		})
+		.error(function(data) {
+			console.log('Error: ' + data);
+	});
+
 	$scope.logout = function(){
 		$http.get('./logout')
 		.success(function() {

@@ -1,48 +1,80 @@
 <div role="main" class="main">
 
-		<div class="container">
+	<div class="container">
 
-			<div class="row">
-				<div class="col-md-9">
-					<div class="blog-posts">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="blog-posts">
 
+					<article class="post post-medium">
+						<div class="row">
+							<div class="col-md-5">
+								<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fade", "autoHeight": true}'>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-1.jpg" alt="">
+										</div>
+									</div>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-2.jpg" alt="">
+										</div>
+									</div>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-3.jpg" alt="">
+										</div>
+									</div>
+									<div>
+										<div class="post-video">
+											<iframe src="//player.vimeo.com/video/28614006?color=0088CC" width="1280" height="720" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+										</div>
+									</div>
+									<div>
+										<div class="post-audio">
+											<iframe scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F67943430&amp;show_artwork=true&amp;maxwidth=132&amp;maxheight=1000"></iframe>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-7">
+
+								<div class="post-content">
+
+									<h2><a href="blog-post.html">Post Format - Image Gallery</a></h2>
+									<p>Euismod atras vulputate iltricies etri elit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nulla nunc dui, tristique in semper vel, congue sed ligula. Nam dolor ligula, faucibus id sodales in, auctor fringilla libero. Pellentesque pellentesque tempor tellus eget hendrerit. Morbi id aliquam ligula. Aliquam id dui sem. Proin rhoncus consequat nisl, eu ornare mauris tincidunt vitae. [...]</p>
+
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="post-meta">
+									<span><i class="icon icon-calendar"></i> January 10, 2013 </span>
+									<span><i class="icon icon-user"></i> By <a href="#">John Doe</a> </span>
+									<span><i class="icon icon-tag"></i> <a href="#">Duis</a>, <a href="#">News</a> </span>
+									<span><i class="icon icon-comments"></i> <a href="#">12 Comments</a></span>
+									<a href="/createPost" class="btn btn-xs btn-primary pull-right">Create New Post</a>
+								</div>
+							</div>
+						</div>
+					</article>
+
+					<div ng-repeat="post in posts">
 						<article class="post post-medium">
 							<div class="row">
+
 								<div class="col-md-5">
-									<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fade", "autoHeight": true}'>
-										<div>
-											<div class="post-image">
-												<img class="img-responsive img-rounded" src="img/blog/blog-image-1.jpg" alt="">
-											</div>
-										</div>
-										<div>
-											<div class="post-image">
-												<img class="img-responsive img-rounded" src="img/blog/blog-image-2.jpg" alt="">
-											</div>
-										</div>
-										<div>
-											<div class="post-image">
-												<img class="img-responsive img-rounded" src="img/blog/blog-image-3.jpg" alt="">
-											</div>
-										</div>
-										<div>
-											<div class="post-video">
-												<iframe src="//player.vimeo.com/video/28614006?color=0088CC" width="1280" height="720" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-											</div>
-										</div>
-										<div>
-											<div class="post-audio">
-												<iframe scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F67943430&amp;show_artwork=true&amp;maxwidth=132&amp;maxheight=1000"></iframe>
-											</div>
-										</div>
+									<div class="post-image single">
+										<img class="img-thumbnail" src="public/img/blog-medium-image-2.jpg" alt="">
 									</div>
 								</div>
 								<div class="col-md-7">
 
 									<div class="post-content">
 
-										<h2><a href="blog-post.html">Post Format - Image Gallery</a></h2>
-										<p>Euismod atras vulputate iltricies etri elit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nulla nunc dui, tristique in semper vel, congue sed ligula. Nam dolor ligula, faucibus id sodales in, auctor fringilla libero. Pellentesque pellentesque tempor tellus eget hendrerit. Morbi id aliquam ligula. Aliquam id dui sem. Proin rhoncus consequat nisl, eu ornare mauris tincidunt vitae. [...]</p>
+										<h2><a href="">{{post.title}}</a></h2>
+										<p>{{post.description}}</p>
 
 									</div>
 								</div>
@@ -54,57 +86,25 @@
 										<span><i class="icon icon-user"></i> By <a href="#">John Doe</a> </span>
 										<span><i class="icon icon-tag"></i> <a href="#">Duis</a>, <a href="#">News</a> </span>
 										<span><i class="icon icon-comments"></i> <a href="#">12 Comments</a></span>
-										<a href="/createPost" class="btn btn-xs btn-primary pull-right">Create New Post</a>
+										<a href="" class="btn btn-xs btn-primary pull-right">Read more...</a>
 									</div>
 								</div>
 							</div>
 						</article>
-
-						<div ng-repeat="post in posts">
-							<article class="post post-medium">
-								<div class="row">
-
-									<div class="col-md-5">
-										<div class="post-image single">
-											<img class="img-thumbnail" src="public/img/blog-medium-image-2.jpg" alt="">
-										</div>
-									</div>
-									<div class="col-md-7">
-
-										<div class="post-content">
-
-											<h2><a href="">{{post.title}}</a></h2>
-											<p>{{post.description}}</p>
-
-										</div>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-md-12">
-										<div class="post-meta">
-											<span><i class="icon icon-calendar"></i> January 10, 2013 </span>
-											<span><i class="icon icon-user"></i> By <a href="#">John Doe</a> </span>
-											<span><i class="icon icon-tag"></i> <a href="#">Duis</a>, <a href="#">News</a> </span>
-											<span><i class="icon icon-comments"></i> <a href="#">12 Comments</a></span>
-											<a href="" class="btn btn-xs btn-primary pull-right">Read more...</a>
-										</div>
-									</div>
-								</div>
-							</article>
-						</div>
-
-						<ul class="pagination pagination-lg pull-right">
-							<li><a href="#"><i class="icon icon-chevron-left"></i></a></li>
-							<li class="active"><a href="#">1</a></li>
-							<li><a href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><a href="#"><i class="icon icon-chevron-right"></i></a></li>
-						</ul>
-
 					</div>
+
+					<ul class="pagination pagination-lg pull-right">
+						<li><a href="#"><i class="icon icon-chevron-left"></i></a></li>
+						<li class="active"><a href="#">1</a></li>
+						<li><a href="#">2</a></li>
+						<li><a href="#">3</a></li>
+						<li><a href="#"><i class="icon icon-chevron-right"></i></a></li>
+					</ul>
+
 				</div>
 			</div>
-
 		</div>
 
 	</div>
+
+</div>

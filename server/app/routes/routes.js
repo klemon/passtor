@@ -19,6 +19,28 @@ module.exports = function(app) {
 		});
 	});
 
+	// get all post
+	app.get('/user', function(req, res) {
+		console.log(req);
+		User.findOne({ 'local.email' : req.query.email }, function(err, user) {
+	      // if there are any errors, return the error before anything else
+	      if (err)
+	      {
+	        console.log("Error in logging in");
+	        return res.send(err);
+	      }
+
+	      // if no user is found, return the message
+	      if(!user)
+	      {
+	        console.log("No user is found");
+	        return res.send("User does not exist.");
+	      }
+			return res.json(user);
+	    });
+	});
+
+
 	// create a todo, information comes from AJAX request from Angular
 	app.post('/createPost', function(req, res) {
 		Post.create({
@@ -39,8 +61,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.post("/updateProfile", function(req,res){
-		console.log("YOU ARE TRYING TO CHANGE PROFILE INFO");
+	app.post('/updateProfile', function(req,res){
 		// we are checking to see if the user trying to login already exists
 	    User.findOne({ 'local.email' : req.body.curEmail }, function(err, user, done) {
 	      // if there are any errors, return the error before anything else
@@ -71,25 +92,6 @@ module.exports = function(app) {
 				return res.json(user);
 			});
 	    });
-
-
-	// 	console.log("you made it this far");
-	// 	console.log(req.params.info);
-	// 	return User.find({email: req.params.info}, function(err, user){
-	// 		user.username = req.body.username;
-	// 		user.email = req.body.email;
-	// 		user.firstName = req.body.firstName;
-	// 		user.lastName = req.body.lastName;
-	// 		console.log("You should have assigned everything");
-	// 		return user.save(function (err){
-	// 			if(!err){
-	// 				console.log("updated profile!");
-	// 			} else {
-	// 				console.log(err);
-	// 			}
-	// 			return res.send(user);
-	// 		});
-	// 	});
 	 });
 
 }
