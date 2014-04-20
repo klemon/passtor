@@ -10,7 +10,9 @@ dashboard.config(['$routeProvider', function ($routeProvider) {
 
 
 
-dashboard.controller('DashboardCtrl', ['$scope', '$http', function($scope, $http) {
+dashboard.controller('DashboardCtrl', ['$scope', '$http', '$location', '$rootScope', function($scope, $http,
+ $location, $rootScope) {
+
 	$http.get('/posts')
 		.success(function(data) {
 			$scope.posts = data;
@@ -18,4 +20,10 @@ dashboard.controller('DashboardCtrl', ['$scope', '$http', function($scope, $http
 		.error(function(data) {
 			console.log('Error: ' + data);
 	});
+
+	// delete a todo after checking it
+	$scope.view = function(id) {
+		$rootScope.postID = id;
+		$location.path('/loadPost');
+	};
 }]);

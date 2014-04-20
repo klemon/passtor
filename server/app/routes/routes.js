@@ -39,6 +39,25 @@ module.exports = function(app) {
 	    });
 	});
 
+	// get all post
+	app.get('/loadpost', function(req, res) {
+		Post.findOne({ '_id' : req.query.id }, function(err, post) {
+	      // if there are any errors, return the error before anything else
+	      if (err)
+	      {
+	        console.log("Error in logging in");
+	        return res.send(err);
+	      }
+
+	      // if no user is found, return the message
+	      if(!post)
+	      {
+	        console.log("No post is found");
+	        return res.send("Post does not exist.");
+	      }
+			return res.json(post);
+	    });
+	});
 
 	// create a todo, information comes from AJAX request from Angular
 	app.post('/createPost', function(req, res) {

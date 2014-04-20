@@ -8,7 +8,8 @@ var app = angular.module('app', [
 	'editProfile',
 	'createPost',
 	'inventory',
-	'createItem'
+	'createItem',
+	'post'
 	]);
 
 app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
