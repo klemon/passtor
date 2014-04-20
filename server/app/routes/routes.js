@@ -1,4 +1,5 @@
 var Post = require('../models/post');
+var User = require('../models/user');
 
 module.exports = function(app) {
 
@@ -38,4 +39,61 @@ module.exports = function(app) {
 		});
 	});
 
+	app.post("/updateProfile", function(req,res){
+		console.log("YOU ARE TRYING TO CHANGE PROFILE INFO");
+		// we are checking to see if the user trying to login already exists
+	    User.findOne({ 'local.email' : req.body.curEmail }, function(err, user, done) {
+	      // if there are any errors, return the error before anything else
+	      if (err)
+	      {
+	        console.log("Error in logging in");
+	        return done(err);
+	      }
+
+	      // if no user is found, return the message
+	      if(!user)
+	      {
+	        console.log("No user is found");
+	        return done(null, false, "User does not exist.");
+	      }
+
+	      user.local.username = req.body.username;
+		  user.local.email = req.body.email;
+		  user.local.firstName = req.body.firstName;
+		  user.local.lastName = req.body.lastName;
+		  console.log("You should have assigned everything");
+			return user.save(function (err){
+				if(!err){
+					console.log("updated profile!");
+				} else {
+					console.log(err);
+				}
+				return res.json(user);
+			});
+	    });
+
+
+	// 	console.log("you made it this far");
+	// 	console.log(req.params.info);
+	// 	return User.find({email: req.params.info}, function(err, user){
+	// 		user.username = req.body.username;
+	// 		user.email = req.body.email;
+	// 		user.firstName = req.body.firstName;
+	// 		user.lastName = req.body.lastName;
+	// 		console.log("You should have assigned everything");
+	// 		return user.save(function (err){
+	// 			if(!err){
+	// 				console.log("updated profile!");
+	// 			} else {
+	// 				console.log(err);
+	// 			}
+	// 			return res.send(user);
+	// 		});
+	// 	});
+	 });
+
 }
+
+
+
+
