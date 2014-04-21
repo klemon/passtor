@@ -6,11 +6,12 @@
 					<div class="featured-box default">
 						<div class="box-content">
 							<h4>Create New Item!</h4>
+							<div class="alert alert-danger" ng-show="message">{{message}}</div>
 							<form action="" id="contactForm" type="post">
 								<div class="row">
 									<div class="form-group">
 										<label>Name</label>
-										<input type="text" value="" class="form-control">
+										<input type="text" value="" class="form-control" ng-model="formData.name">
 									</div>
 								</div>
 								<div class="row">
@@ -24,18 +25,18 @@
 										<label>Coins</label>
 										<form enctype="multipart/form-data" method="post" class="cart">
 										<div class="quantity">
-											<input type="button" class="minus" value="-">
-											<input type="number" class="input-text qty text" title="Qty" value="1" name="quantity" min="1" step="1">
-											<input type="button" class="plus" value="+">
+											<input type="button" class="minus" value="-" ng-click="decrement()">
+											<input type="number" class="input-text qty text" title="Qty" value="1" name="quantity" min="1" step="1" ng-model="formData.cost">
+											<input type="button" class="plus" value="+" ng-click="increment()">
 										</div>
 										</form>
 									</div>
 								</div>
 								<div class="row">
 									<div class="col-md-6">
-										<input type="submit" ng-click=cancel() value="Cancel" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading...">
+										<a href="/inventory" class="btn btn-primary pull-right push-bottom">Cancel</a>
 										</div><div class="col-md-4">
-										<input type="submit" ng-click="createNew()" value="Create Item" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading...">
+										<input type="submit" value="Create Item" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading..." ng-click="createItem()">
 									</div>
 								</div>
 							</form>

@@ -42,14 +42,17 @@ app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $lo
 	}
 }]);
 
+
 app.factory('AuthService', ['$http', '$location', function($http, $location) {
 	var currentUser;
+	var password;
 	var storeName;
 	return {
 		login: function(data, done) {
 		$http.post('/login', {email: data.email, password: data.password})
 			.success(function(res) {
 				currentUser = res.user;
+				password = data.password;
 				storeName = res.storeName;
 				done(res.message, res.storeName);
 			})
@@ -86,8 +89,50 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 		},
 		update: function(data) {
 			currentUser = data;
+		},
+		password: function() {
+			return password;
 		}
 	};
 }]);
 
+
+app.factory('Store', ['$http', '$location', 'AuthService', function($http, $location, AuthService) {
+	var items;
+	var storeName;
+	return {
+		update: function(data) {
+			currentUser = data;
+		},
+		createItem: function(data, done) {
+			$http.post('/createItem', 
+				{email: AuthService.currentUser(), password: AuthService.password(), item: data})
+				.success(function(res) {
+					console.log(res);
+					items = res.items;
+					done(res.message);
+				})
+				.error(function(data) {
+					console.log('Error: ' + data);
+				});
+		},
+		items: function(done) {
+			if(!items)
+			{
+				$http.post('/getItems',
+					{email: AuthService.currentUser(), password: AuthService.password()})
+				.success(function(res) {
+					console.log(res);
+					items = res.items;
+					done(items);
+				})
+				.error(function(data) {
+					console.log("Error: " + data);
+					done(items);
+				});
+			}
+			done(items);
+		}
+	};
+}]);
 

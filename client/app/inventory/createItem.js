@@ -10,9 +10,33 @@ createItem.config(['$routeProvider', function ($routeProvider) {
 
 
 
-createItem.controller('CreateItemCtrl', ['$scope', '$location','AuthService', function($scope, $location, AuthService) {
-	$scope.cancel = function() {
-		$location.path('/inventory');
+createItem.controller('CreateItemCtrl', ['$scope', '$location', '$http', 'Store', function($scope, $location, $http, Store) {
+	$scope.formData = {cost : 1} // name, description, coins, expires
+	$scope.message;
+	$scope.increment = function() {
+		$scope.formData.cost += 1;
 	}
-
+	$scope.decrement = function() {
+		$scope.formData.cost -= 1;
+		if($scope.formData.cost < 1)
+			$scope.formData.cost = 1;
+	}
+	$scope.createItem = function() {
+		$scope.message = "";
+		if(!$scope.formData.name)
+		{
+			$scope.message = "The item must have a name.";
+			return;
+		}
+		if(!$scope.formData.description)
+		{
+			$scope.message = "The item must have a description.";
+			return;
+		}
+		Store.createItem($scope.formData, function(message) {
+			$scope.message =  message;
+			if(!message)
+				$location.path('/inventory');
+		});
+	}
 }]);

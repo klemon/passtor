@@ -10,7 +10,11 @@ inventory.config(['$routeProvider', function ($routeProvider) {
 
 
 
-inventory.controller('InventoryCtrl', ['$scope', '$location','AuthService', function($scope, $location, AuthService) {
-	
-
+inventory.controller('InventoryCtrl', ['$scope', '$location','Store', function($scope, $location, Store) {
+	$scope.items;
+	Store.items(function(items) {
+		console.log("retrieving items");
+		$scope.items = items;
+		console.log(items);
+	})
 }]);
