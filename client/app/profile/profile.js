@@ -10,7 +10,6 @@ profile.config(['$routeProvider', function ($routeProvider) {
 	
 
 .controller('ProfileCtrl', ['$scope', '$http', 'AuthService', function($scope, $http, AuthService) {
-	$scope.test = 'Edit Profile';
 	$scope.user;
 	$http.get('/user', {
     params: { email: AuthService.currentUser() }

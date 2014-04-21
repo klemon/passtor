@@ -38,20 +38,20 @@
 						<div class="col-md-12">
 							<ul>
 								<li>
-									<a href="#" rel="tooltip" data-original-title="Like"><i class="icon icon-heart"></i>{{user.email}}</a>
+									<a href="#" rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>{{user.points}}</a>
 								</li>
 								<li>
-									<i class="icon icon-calendar"></i> 21 November 2013
+									<i class="icon  icon-dot-circle-o"></i>{{user.coins}}
 								</li>
 								<li>
-									<a href="/editProfile"><span  class="label label-default">{{test}}!</span></a>
+									<a href="/editProfile"><span  class="label label-default">Edit Profile</span></a>
 								</li>
 							</ul>
 						</div>
 					</div>
 				</div>
 
-				<p class="portfolio-description taller lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tempus nibh sed elimttis adipiscing. Fusce in hendrerit purus. Suspendisse potenti. Proin quis eros odio, dapibus dictum mauris. Donec nisi libero, adipiscing id pretium eget, consectetur sit amet leo.</p>
+				<p class="portfolio-description taller lead">{{user.description}}</p>
 
 				<a ng-click="logout()" class="btn btn-primary btn-icon btn-lg"><i class="icon icon-external-link"></i>Live Preview</a>
 
@@ -80,7 +80,7 @@
 		<div class="row">
 
 			<div class="col-md-12">
-				<h2>Related <strong>Work</strong></h2>
+				<h2>Recent <strong>Activity</strong></h2>
 			</div>
 
 			<ul class="portfolio-list">

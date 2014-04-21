@@ -22,7 +22,6 @@ module.exports = function(app) {
 
 	// get all post
 	app.get('/user', function(req, res) {
-		console.log(req);
 		User.findOne({ 'local.email' : req.query.email }, function(err, user) {
 	      // if there are any errors, return the error before anything else
 	      if (err)
@@ -41,6 +40,25 @@ module.exports = function(app) {
 	    });
 	});
 
+	// get all post
+	app.get('/loadpost', function(req, res) {
+		Post.findOne({ '_id' : req.query.id }, function(err, post) {
+	      // if there are any errors, return the error before anything else
+	      if (err)
+	      {
+	        console.log("Error in logging in");
+	        return res.send(err);
+	      }
+
+	      // if no user is found, return the message
+	      if(!post)
+	      {
+	        console.log("No post is found");
+	        return res.send("Post does not exist.");
+	      }
+			return res.json(post);
+	    });
+	});
 
 	// create a todo, information comes from AJAX request from Angular
 	app.post('/createPost', function(req, res) {
@@ -78,12 +96,21 @@ module.exports = function(app) {
 	        console.log("No user is found");
 	        return done(null, false, "User does not exist.");
 	      }
-
-	      user.local.username = req.body.username;
+	      if(req.body.username){
+	      	user.local.username = req.body.username;
+	      }
+		  if(req.body.email){
 		  user.local.email = req.body.email;
-		  user.local.firstName = req.body.firstName;
-		  user.local.lastName = req.body.lastName;
-		  console.log("You should have assigned everything");
+		  }
+		  if(req.body.firstName){
+		  	user.local.firstName = req.body.firstName;
+		  }
+		  if(req.body.lastName){
+		  	user.local.lastName = req.body.lastName;
+		  }
+		  if(req.body.description){
+		  	user.local.description = req.body.description;
+		  }
 			return user.save(function (err){
 				if(!err){
 					console.log("updated profile!");

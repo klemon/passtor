@@ -14,7 +14,8 @@ var userSchema = mongoose.Schema({
     lastName            : String,
     storeName           : String,
     points              : Number,
-    coins               : Number
+    coins               : Number,
+    description         : String 
    
   },
   facebook              : {
