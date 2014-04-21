@@ -54,8 +54,11 @@ a.mine {text-align:left; margin-left:5%; margin-right:5%}
 								</div>
 							</div>
 							<div class="row">
-								<div class="col-md-12">
-									<a href="" class="btn btn-xs btn-primary pull-right">Read more...</a>
+								<div class="col-md-4 col-md-offset-2">
+									<a href="" class="btn btn-xs btn-primary pull-right" ng-click=edit(item)>Edit</a>
+								</div>
+								<div class="col-md-4">
+									<a href="" class="btn btn-xs btn-primary pull-right" ng-click=delete(item)>Delete</a>
 								</div>
 							</div>
 							</div>
@@ -66,50 +69,4 @@ a.mine {text-align:left; margin-left:5%; margin-right:5%}
 		</div>
 		</div>
 		</div>
-
-<!--
-			<div class="row">
-				<ul class="products thumb-info-list">
-					<li class="col-md-3 product" ng-repeat="item in items">	
-					<div class="blog-posts">
-
-								
-													
-						<article class="timeline-box post-medium">
-							<div class="row">
-								<div class="col-md-12">
-									<div class="post-content">
-										<h4>{{item.name}}</h4>
-										<p>{{item.description}}</p>
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<div class="post-meta">
-										<span><i class="icon icon-calendar"></i> January 10, 2013 </span><br>
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<div class="post-meta">
-										<span><i class="icon icon-user"></i> By <a href="#">John Doe</a> </span>
-										<span><i class="icon icon-tag"></i> <a href="#">Duis</a>, <a href="#">News</a> </span>
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<a href="blog-post.html" class="btn btn-xs btn-primary pull-right">Read more...</a>
-								</div>
-							</div>
-						</article>
-						</div>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div> -->
-
 <a href="/createItem" class="btn btn-xs btn-primary pull-right">Create New Item</a>

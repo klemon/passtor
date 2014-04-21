@@ -133,6 +133,19 @@ app.factory('Store', ['$http', '$location', 'AuthService', function($http, $loca
 				});
 			}
 			done(items);
+		},
+		deleteItem: function(item, done) {
+			$http.post('/deleteItem',
+					{email: AuthService.currentUser(), password: AuthService.password(), item: item})
+				.success(function(res) {
+					console.log(res);
+					items = res.items;
+					done(items);
+				})
+				.error(function(data) {
+					console.log("Error: " + data);
+					done(items);
+				});
 		}
 	};
 }]);
