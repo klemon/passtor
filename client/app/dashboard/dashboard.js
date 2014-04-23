@@ -12,7 +12,6 @@ dashboard.config(['$routeProvider', function ($routeProvider) {
 
 dashboard.controller('DashboardCtrl', ['$scope', '$http', '$location', '$rootScope', function($scope, $http,
  $location, $rootScope) {
-
 	$http.get('/posts')
 		.success(function(data) {
 			$scope.posts = data;

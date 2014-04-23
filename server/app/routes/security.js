@@ -20,10 +20,12 @@ module.exports = function(app, passport) {
  app.post('/signup', function(req, res, next) {
   passport.authenticate('local-signup', function(err, user, message) {
     if (err) { return next(err); }
-    if (!user) { return res.json({err: err, user: false, message: message}); }
+    if (!user) { 
+      console.log("where?");
+      return res.json({err: err, user: false, message: message}); }
     req.logIn(user, function(err) {
       if (err) { return next(err); }
-      return res.json({err: err, user: user.local.email});
+      return res.json({err: err, user: user.local.username});
     });
   })(req, res, next);
 });
@@ -34,7 +36,7 @@ app.post('/login', function(req, res, next) {
     if (!user) { return res.json({err: err, user: false, message: message}); }
     req.logIn(user, function(err) {
       if (err) { return next(err); }
-      return res.json({err: err, user: user.local.email, storeName: user.local.storeName,
+      return res.json({err: err, user: user.local.username, storeName: user.local.storeName,
                         points: user.local.points, coins: user.local.coins});
     });
   })(req, res, next);
