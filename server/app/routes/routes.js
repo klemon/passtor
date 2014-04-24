@@ -62,7 +62,6 @@ module.exports = function(app) {
 
 	// create a todo, information comes from AJAX request from Angular
 	app.post('/createPost', function(req, res) {
-		console.log(req);
 		Post.create({
 			title : req.body.title,
 			description : req.body.description,
