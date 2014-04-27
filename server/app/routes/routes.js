@@ -22,7 +22,7 @@ module.exports = function(app) {
 
 	// get all post
 	app.get('/user', function(req, res) {
-		User.findOne({ 'local.email' : req.query.email }, function(err, user) {
+		User.findOne({ 'local.username' : req.query.username }, function(err, user) {
 	      // if there are any errors, return the error before anything else
 	      if (err)
 	      {
@@ -64,7 +64,9 @@ module.exports = function(app) {
 	app.post('/createPost', function(req, res) {
 		Post.create({
 			title : req.body.title,
-			description : req.body.description
+			description : req.body.description,
+			creator : req.body.creator,
+			created : req.body.created
 		}, function(err, post) {
 			if (err)
 			{
@@ -82,7 +84,7 @@ module.exports = function(app) {
 
 	app.post('/updateProfile', function(req,res){
 		// we are checking to see if the user trying to login already exists
-	    User.findOne({ 'local.email' : req.body.curEmail }, function(err, user, done) {
+	    User.findOne({ 'local.username' : req.body.username }, function(err, user, done) {
 	      // if there are any errors, return the error before anything else
 	      if (err)
 	      {

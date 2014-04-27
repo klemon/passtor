@@ -28,14 +28,73 @@
 							<div class="row">
 								<div class="col-md-12">
 									<div class="post-meta">
-										<span><i class="icon icon-calendar"></i> January 10, 2013 </span>
-										<span><i class="icon icon-user"></i> By <a href="#">John Doe</a> </span>
+										<span><i class="icon icon-calendar"></i>{{post.created}}</span>
+										<span><i class="icon icon-user"></i> By <a href="#">{{post.creator}}</a> </span>
 										<span><i class="icon icon-tag"></i> <a href="#">Duis</a>, <a href="#">News</a> </span>
 										<span><i class="icon icon-comments"></i> <a href="#">12 Comments</a></span>
 										<a href="" class="btn btn-xs btn-primary pull-right">Read more...</a>
 									</div>
 								</div>
 							</div>
+
+							<div class="post-block post-comments clearfix">
+											<h3>Comments (3)</h3>
+
+											<ul class="comments">
+												<li>
+													<div class="comment">
+														<div class="img-thumbnail">
+															<img class="avatar" alt="" src="img/avatar-2.jpg">
+														</div>
+														<div class="comment-block">
+															<div class="comment-arrow"></div>
+															<span class="comment-by">
+																<strong>John Doe</strong>
+																<span class="pull-right">
+																	<span> <a href="#"><i class="icon icon-reply"></i> Reply</a></span>
+																</span>
+															</span>
+															<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae, gravida pellentesque urna varius vitae. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae. Sed dui lorem, adipiscing in adipiscing et, interdum nec metus. Mauris ultricies, justo eu convallis placerat, felis enim ornare nisi, vitae mattis nulla ante id dui.</p>
+															<span class="date pull-right">January 12, 2013 at 1:38 pm</span>
+														</div>
+													</div>
+												</li>
+											</ul>
+
+										</div>
+
+										<div class="post-block post-leave-comment">
+											<h3>Leave a comment</h3>
+
+											<form action="" type="post">
+												<div class="row">
+													<div class="form-group">
+														<div class="col-md-6">
+															<label>Your name *</label>
+															<input type="text" value="" maxlength="100" class="form-control" name="name" id="name">
+														</div>
+														<div class="col-md-6">
+															<label>Your email address *</label>
+															<input type="email" value="" maxlength="100" class="form-control" name="email" id="email">
+														</div>
+													</div>
+												</div>
+												<div class="row">
+													<div class="form-group">
+														<div class="col-md-12">
+															<label>Comment *</label>
+															<textarea maxlength="5000" rows="10" class="form-control" name="comment" id="comment"></textarea>
+														</div>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-12">
+														<input type="submit" value="Post Comment" class="btn btn-primary btn-lg" data-loading-text="Loading...">
+													</div>
+												</div>
+											</form>
+										</div>
+
 						</article>
 
 					</div>

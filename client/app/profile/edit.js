@@ -11,11 +11,11 @@ editProfile.config(['$routeProvider', function ($routeProvider) {
 
 .controller('EditCtrl', ['$scope', '$http', '$location', 'AuthService', function($scope, $http, $location, AuthService) {
 	$scope.test = 'Edit Profile';
-	$scope.userAttributes = {curEmail: AuthService.currentUser()};
+	$scope.userAttributes = {username: AuthService.currentUser()};
 	$scope.update = function (userAttributes){
 		$http.post('/updateProfile', $scope.userAttributes)
 			.success(function(data) {
-				AuthService.update(data.local.email);
+				AuthService.update(data.local.username);
 				$location.path('/profile');
 			})
 			.error(function(data) {

@@ -51,7 +51,7 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 	var storeName;
 	return {
 		login: function(data, done) {
-		$http.post('/login', {email: data.email, password: data.password})
+		$http.post('/login', {username: data.username, password: data.password})
 			.success(function(res) {
 				currentUser = res.user;
 				password = data.password;
@@ -81,7 +81,7 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 			return storeName;
 		},
 		signup: function(data, done) {
-		$http.post('/signup', {email: data.email, password: data.password})
+		$http.post('/signup', {username: data.username, password: data.password})
 			.success(function(res) {
 				done(res.message);
 			})
