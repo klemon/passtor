@@ -18,11 +18,10 @@ inventory.controller('InventoryCtrl', ['$scope', '$location','Store', function($
 		console.log(items);
 	})
 	$scope.edit = function(item) {
-
+		Store.prepareToEditItem(item);
 	}
 	$scope.delete = function(item) {
 		Store.deleteItem(item, function(items) {
-			console.log(items);
 			$scope.items = items;
 		});
 	}

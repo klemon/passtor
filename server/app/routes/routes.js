@@ -220,6 +220,7 @@ app.post('/createItem', function(req, res, next) {
 	    });
 	 });
 
+// The same as /inventory right now but might change
 app.post('/getItems', function(req, res, next) {
 		// Check to see if user exists
 	    User.findOne({ 'local.email' : req.body.email }, function(err, user) {
@@ -330,6 +331,64 @@ app.post('/deleteItem', function(req, res, next) {
 				  			return res.json({err:null, items:model.items})
 				  		}
 				  	});
+		  		}
+		  	});
+		  })
+	    });
+	 });
+
+app.post('/editItem', function(req, res, next) {
+		// Check to see if user exists
+	    User.findOne({ 'local.email' : req.body.email }, function(err, user) {
+	      // if there are any errors, return the error before anything else
+	      if (err)
+	      {
+	        console.log("Error in finding user");
+	        return next(err);
+	      }
+
+	      // if no user is found, return the message
+	      if(!user)
+	      {
+	        console.log("No user is found");
+	        return res.json({err: null, items: false, message: "User does not exist."});
+	      }
+
+	      // if user does not have a store then they can't create items
+	      if(!user.local.storeName)
+	      {
+	      	console.log("User does not have a store");
+	      	return res.json({err: null, items: false, message: "User does not have a store"});
+	      }
+
+		  console.log("User has a store");
+
+		  Store.find(user.local.storeName, function(err, store) {
+		  	if(err)
+		  	{
+		  		console.log("Error in finding store");
+		  		return next(err);
+		  	}
+		  	if(!store)
+		  	{
+		  		console.log("User's store is undefined (no data)");
+		  		return res.json({err: null, items: false, message: "No store found"});
+		  	}
+		  	console.log("Found store");
+		  	// TODO: Probably should make sure item is valid eg name, desc are nonempty, coins is positive, date is valid
+		  	Store.update({items: { "items.$._id": req.body.item._id}},{$set:{"items.$":req.body.item}},{}, function(err, model) {
+
+		  		if(err){
+		  			console.log(err);
+		  			return res.json({err:err});
+		  		}
+		  		else{
+		  			if(!model){
+		  				console.log("Failed to edit item");
+		  				return res.json({err:null, items: model.items});
+		  			}
+		  			console.log("Succesfully edited item");
+		  			return res.json({err:null, items:model.items})
 		  		}
 		  	});
 		  })

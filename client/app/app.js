@@ -9,6 +9,7 @@ var app = angular.module('app', [
 	'createPost',
 	'inventory',
 	'createItem',
+	'editItem',
 	'post'
 	]);
 
@@ -101,6 +102,7 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 app.factory('Store', ['$http', '$location', 'AuthService', function($http, $location, AuthService) {
 	var items;
 	var storeName;
+	var editItem;
 	return {
 		update: function(data) {
 			currentUser = data;
@@ -146,6 +148,26 @@ app.factory('Store', ['$http', '$location', 'AuthService', function($http, $loca
 					console.log("Error: " + data);
 					done(items);
 				});
+		},
+		editItem: function(item, done) {
+			$http.post('/editItem',
+					{email: AuthService.currentUser(), password: AuthService.password(), item: item})
+				.success(function(res) {
+					console.log(res);
+					items = res.items;
+					done(res.message);
+				})
+				.error(function(data) {
+					console.log("Error: " + data);
+					done(res.message);
+				});
+		},
+		prepareToEditItem: function(item) {
+			editItem = item;
+			$location.path('/editItem');
+		},
+		getEditItem: function() {
+			return editItem;
 		}
 	};
 }]);
