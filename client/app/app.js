@@ -49,6 +49,8 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 	var currentUser;
 	var password;
 	var storeName;
+	var coins;
+	var points;
 	return {
 		login: function(data, done) {
 		$http.post('/login', {username: data.username, password: data.password})
@@ -56,6 +58,8 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 				currentUser = res.user;
 				password = data.password;
 				storeName = res.storeName;
+				coins = res.coins;
+				points = res.points;
 				done(res.message, res.storeName);
 			})
 			.error(function(data) {
@@ -109,7 +113,7 @@ app.factory('Store', ['$http', '$location', 'AuthService', function($http, $loca
 		},
 		createItem: function(data, done) {
 			$http.post('/createItem', 
-				{email: AuthService.currentUser(), password: AuthService.password(), item: data})
+				{username: AuthService.currentUser(), password: AuthService.password(), item: data})
 				.success(function(res) {
 					console.log(res);
 					items = res.items;
@@ -123,7 +127,7 @@ app.factory('Store', ['$http', '$location', 'AuthService', function($http, $loca
 			if(!items)
 			{
 				$http.post('/getItems',
-					{email: AuthService.currentUser(), password: AuthService.password()})
+					{username: AuthService.currentUser(), password: AuthService.password()})
 				.success(function(res) {
 					console.log(res);
 					items = res.items;
@@ -138,7 +142,7 @@ app.factory('Store', ['$http', '$location', 'AuthService', function($http, $loca
 		},
 		deleteItem: function(item, done) {
 			$http.post('/deleteItem',
-					{email: AuthService.currentUser(), password: AuthService.password(), item: item})
+					{username: AuthService.currentUser(), password: AuthService.password(), item: item})
 				.success(function(res) {
 					console.log(res);
 					items = res.items;
@@ -151,7 +155,7 @@ app.factory('Store', ['$http', '$location', 'AuthService', function($http, $loca
 		},
 		editItem: function(item, done) {
 			$http.post('/editItem',
-					{email: AuthService.currentUser(), password: AuthService.password(), item: item})
+					{username: AuthService.currentUser(), password: AuthService.password(), item: item})
 				.success(function(res) {
 					console.log(res);
 					items = res.items;

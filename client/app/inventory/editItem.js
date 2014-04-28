@@ -33,6 +33,7 @@ editItem.controller('EditItemCtrl', ['$scope', '$location', '$http', 'Store', fu
 			$scope.message = "The item must have a description.";
 			return;
 		}
+		console.log("EditItem: ", $scope.formData);
 		Store.editItem($scope.formData, function(message) {
 			$scope.message =  message;
 			if(!message)
