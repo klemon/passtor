@@ -360,8 +360,8 @@ app.post('/editItem', function(req, res, next) {
 		  	
 			var id = mongoose.Types.ObjectId(req.body.item._id);
 			Store.update(
-				{name: req.body.item.storeName, "items.name" : id},
-				{$set:{"items.$.name":req.body.item.name}},
+				{name: req.body.item.storeName, "items.name" : id}, // Might be an error here
+				{$set:{"items.$.name":req.body.item.name}}, // Just trying to at least update the name
 				{upsert: true},
 				function(err){
 					if(err) {
