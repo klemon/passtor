@@ -64,24 +64,35 @@ module.exports = function(app) {
 
 	// create a todo, information comes from AJAX request from Angular
 	app.post('/createPost', function(req, res) {
-		Post.create({
-			title : req.body.title,
-			description : req.body.description,
-			creator : req.body.creator,
-			created : req.body.created
-		}, function(err, post) {
-			if (err)
-			{
-				res.send(err);
+		User.findOne({'local.username' : req.body.creator}, function(err, user, done){
+			if(err) {
+				console.log("Error in finding username of creator of post.");
+				return done(err); // TODO: change this? Are we sending DB err to user?
+			} else if(!user) {
+				console.log("Didn't find username of creator of post.");
+				return done(null, false, "Username does not exist.");
+			} else if(!user.validPassword(req.body.password)) {
+				console.log("User with invalid password trying to create a post.")
+			} else {
+				Post.create({
+					title : req.body.title,
+					description : req.body.description,
+					creator : req.body.creator
+				}, function(err, post) {
+					if (err) {
+						//res.send(err);
+						res.send("Error");
+					}
+					res.json(post);
+					// get and return all the todos after you create another
+					/*Post.find(function(err, posts) {
+						if (err)
+							res.send(err)
+						res.json(posts);
+					});*/
+				});
 			}
-
-			// get and return all the todos after you create another
-			Post.find(function(err, posts) {
-				if (err)
-					res.send(err)
-				res.json(posts);
-			});
-		});
+		})
 	});
 
 	app.post('/updateProfile', function(req,res){

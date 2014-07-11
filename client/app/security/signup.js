@@ -23,6 +23,11 @@ signup.controller('SignupCtrl', ['$scope', '$location','AuthService', function($
 			$scope.message = "Please provide a password.";
 			return;
 		}
+		else if(!$scope.formData.email)
+		{
+			$scope.message = "Please provide an email.";
+			return;
+		}
 		AuthService.signup($scope.formData, function(message){
 			$scope.message = message;
 			if(!message)

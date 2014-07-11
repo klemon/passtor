@@ -1,10 +1,14 @@
-// app/models/user.js
+// app/models/post.js
 // load the things we need
 var mongoose = require('mongoose');
 
-module.exports = mongoose.model('Post', {
+var Post = mongoose.Schema({
   title : String,
   description : String,
+  created : {type : Date, default : Date.now},
   creator : String,
-  created : String
+  likes : {type : Number, default : 0}
 });
+
+// create the model for users and expose it to our app
+module.exports = mongoose.model('Post', Post);

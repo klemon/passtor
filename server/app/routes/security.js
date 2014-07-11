@@ -21,7 +21,6 @@ module.exports = function(app, passport) {
   passport.authenticate('local-signup', function(err, user, message) {
     if (err) { return next(err); }
     if (!user) { 
-      console.log("where?");
       return res.json({err: err, user: false, message: message}); }
     req.logIn(user, function(err) {
       if (err) { return next(err); }

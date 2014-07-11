@@ -18,7 +18,8 @@ createPost.config(['$routeProvider', function ($routeProvider) {
 	var day = d.getDate();
 	$scope.data = year + "-" + month + "-" + day;
 	console.log(" )) ");
-	$scope.formData = {creator: AuthService.currentUser(), created: $scope.date };
+	$scope.formData = {creator: AuthService.currentUser(), created: $scope.date,
+	password: AuthService.password()};
 	$scope.createNew = function() {
 		$http.post('/createPost', $scope.formData)
 			.success(function(data) {

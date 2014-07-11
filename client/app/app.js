@@ -85,7 +85,11 @@ app.factory('AuthService', ['$http', '$location', function($http, $location) {
 			return storeName;
 		},
 		signup: function(data, done) {
-		$http.post('/signup', {username: data.username, password: data.password})
+		$http.post('/signup', {username: data.username,
+								password: data.password,
+								email: data.email,
+								firstName: data.firstName,
+								lastName: data.lastName})
 			.success(function(res) {
 				done(res.message);
 			})

@@ -34,13 +34,12 @@ module.exports = function(passport) {
   // by default, if there was no name, it would just be called 'local'
 
   passport.use('local-login', new LocalStrategy({
-    // by default, local strategy uses username and password, we will override with email
+    // by default, local strategy uses username and password
     usernameField : 'username',
     passwordField : 'password',
     passReqToCallback : true // allows us to pass back the entire request to the callback
   },
   function(req, username, password, done) {
-    // find a user whose email is the same as forms email
     // we are checking to see if the user trying to login already exists
     User.findOne({ 'local.username' : username }, function(err, user) {
       // if there are any errors, return the error before anything else
@@ -77,7 +76,7 @@ module.exports = function(passport) {
   // by default, if there was no name, it would just be called 'local'
 
   passport.use('local-signup', new LocalStrategy({
-    // by default, local strategy uses username and password, we will override with username
+    // by default, local strategy uses username and password
     usernameField : 'username',
     passwordField : 'password',
     passReqToCallback : true // allows us to pass back the entire request to the callback
@@ -93,39 +92,52 @@ module.exports = function(passport) {
     User.findOne({ 'local.username' : username }, function(err, user) {
       // if there are any errors, return the error
       
-      if (err)
-      {
+      if (err) {
         console.log("Error in signing up user.")
         return done(err);
       }
 
       // check to see if theres already a user with that username
       if (user) {
-        console.log("Use already exists.");
+        console.log("User already exists.");
         return done(null, false, "That username is already taken.");
       } else {
-
-        // if there is no user with that username
-        // create the user
-        var newUser                 = new User();
-        // set the user's local credentials
-        newUser.local.username      = username;
-        newUser.local.email         = "";
-        newUser.local.password      = newUser.generateHash(password);
-        newUser.local.storeName     = "";
-        newUser.local.points        = 15;
-        newUser.local.coins         = 0;
-
-        // save the user
-        newUser.save(function(err) {
-          if(err)
+        User.findOne({ 'local.email' : req.body.email }, function(err, user) {
+          // if there are any errors, return the error before anything else
+          if (err) {
+            console.log("Error in finding if email exists.");
             throw err;
-          console.log("Created a new user.");
-          return done(null, newUser);
+          }
+          if (user) {
+            console.log("Email is already in use. :)");
+            return done(null, false, "That email is already being used.");
+          } else {
+            // if there is no user with that username
+            // create the user
+            var newUser                 = new User();
+            // set the user's local credentials
+            newUser.local.username      = username;
+            newUser.local.email         = req.body.email;
+            newUser.local.firstName     = req.body.firstName;
+            newUser.local.lastName      = req.body.lastName;
+            newUser.local.password      = newUser.generateHash(password);
+            newUser.local.likes        = 15;
+            newUser.local.coins         = 0;
+            // save the user
+            newUser.save(function(err) {
+              if(err)
+                throw err;
+              console.log("Created a new user.");
+              return done(null, newUser);
+            });
+          }
         });
       }
-
     });
+
+    
+
+    
 
     });
 
