@@ -2,7 +2,7 @@ var dashboard = angular.module('dashboard', []);
 
 dashboard.config(['$routeProvider', function ($routeProvider) {
   $routeProvider.when('/dashboard', {
-    templateUrl:'app/dashboard/dashboard.tpl.ejs',
+    templateUrl:'app/dashboard/dashboard.tpl.html',
     controller: 'DashboardCtrl',
     resolve: dashboard.resolve
   });
@@ -10,19 +10,15 @@ dashboard.config(['$routeProvider', function ($routeProvider) {
 
 
 
-dashboard.controller('DashboardCtrl', ['$scope', '$http', '$location', '$rootScope', function($scope, $http,
- $location, $rootScope) {
-	$http.get('/posts')
-		.success(function(data) {
-			$scope.posts = data;
-		})
-		.error(function(data) {
-			console.log('Error: ' + data);
+dashboard.controller('DashboardCtrl', ['$scope', '$location', 'User', 'AuthService', 'Posts',
+	function($scope, $location, User, AuthService, Posts) {
+	AuthService.send('/posts', {all: true}, function(err, res) {
+		$scope.posts = res.posts;
 	});
-
-	// delete a todo after checking it
-	$scope.view = function(id) {
-		$rootScope.postID = id;
-		$location.path('/loadPost');
-	};
+	$scope.view = function(post) {Posts.view(post);}
+	$scope.monthToStr = function(num) {return Posts.monthToStr(num);}
+	$scope.profile = function(post) {
+		User.setOtherUsername(post.creator);
+		$location.path('/profile');
+	}
 }]);

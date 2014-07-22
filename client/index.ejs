@@ -100,13 +100,13 @@ div.mx
 	<body ng-controller="AppCtrl">
 		<div class="body">
 			<header>
-				<div ng-include src="'app/header.tpl.ejs'"></div>
+				<div ng-include src="'app/header.tpl.html'"></div>
 			</header>
 	  	
 	  		<div ng-view></div>
 		
 			<footer>
-				<div ng-include src="'app/footer.tpl.ejs'"></div>
+				<div ng-include src="'app/footer.tpl.html'"></div>
 			</footer>
 		</div>
 
@@ -116,11 +116,13 @@ div.mx
 		 <script src="app/app.js"></script>
 		 <script src="app/dashboard/dashboard.js"></script>
 		 <script src="app/dashboard/createPost.js"></script>
+		 <script src="app/dashboard/editPost.js"></script>
 		 <script src="app/store/store.js"></script>
 		 <script src="app/security/login.js"></script>
 		 <script src="app/security/signup.js"></script>
 		 <script src="app/profile/profile.js"></script>
 		 <script src="app/profile/edit.js"></script>
+		 <script src="app/profile/posts.js"></script>
 		 <script src="app/inventory/inventory.js"></script>
 		 <script src="app/inventory/createItem.js"></script>
 		 <script src="app/inventory/editItem.js"></script>

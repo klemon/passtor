@@ -25,35 +25,12 @@
 											<img class="img-responsive img-rounded" src="img/blog/blog-image-3.jpg" alt="">
 										</div>
 									</div>
-									<div>
-										<div class="post-video">
-											<iframe src="//player.vimeo.com/video/28614006?color=0088CC" width="1280" height="720" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-										</div>
-									</div>
-									<div>
-										<div class="post-audio">
-											<iframe scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F67943430&amp;show_artwork=true&amp;maxwidth=132&amp;maxheight=1000"></iframe>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="col-md-7">
-
-								<div class="post-content">
-
-									<h2><a href="blog-post.html">Post Format - Image Gallery</a></h2>
-									<p>Euismod atras vulputate iltricies etri elit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nulla nunc dui, tristique in semper vel, congue sed ligula. Nam dolor ligula, faucibus id sodales in, auctor fringilla libero. Pellentesque pellentesque tempor tellus eget hendrerit. Morbi id aliquam ligula. Aliquam id dui sem. Proin rhoncus consequat nisl, eu ornare mauris tincidunt vitae. [...]</p>
-
 								</div>
 							</div>
 						</div>
 						<div class="row">
 							<div class="col-md-12">
 								<div class="post-meta">
-									<span><i class="icon icon-calendar"></i> January 10, 2013 </span>
-									<span><i class="icon icon-user"></i> By <a href="#">John Doe</a> </span>
-									<span><i class="icon icon-tag"></i> <a href="#">Duis</a>, <a href="#">News</a> </span>
-									<span><i class="icon icon-comments"></i> <a href="#">12 Comments</a></span>
 									<a href="/createPost" class="btn btn-xs btn-primary pull-right">Create New Post</a>
 								</div>
 							</div>
@@ -63,12 +40,12 @@
 					<div ng-repeat="post in posts">
 						<article class="post post-medium">
 							<div class="row">
-
-								<div class="col-md-5">
+								<!--<div class="col-md-5">
 									<div class="post-image single">
 										<img class="img-thumbnail" src="public/img/blog-medium-image-2.jpg" alt="">
 									</div>
-								</div>
+								</div>-->
+
 								<div class="col-md-7">
 
 									<div class="post-content">
@@ -82,11 +59,9 @@
 							<div class="row">
 								<div class="col-md-12">
 									<div class="post-meta">
-										<span><i class="icon icon-calendar"></i>{{post.created}}</span>
-										<span><i class="icon icon-user"></i> By <a href="#">{{post.creator}}</a> </span>
-										<span><i class="icon icon-tag"></i> <a href="#">Duis</a>, <a href="#">News</a> </span>
-										<span><i class="icon icon-comments"></i> <a href="#">12 Comments</a></span>
-										<a ng-click="view(post._id)" class="btn btn-xs btn-primary pull-right">Read more...</a>
+										<span><i class="icon icon-user"></i> By <a ng-click="profile(post)">{{post.creator}}</a> </span>
+										<span><i class="icon icon-calendar"></i>{{monthToStr(post.created.month)}} {{post.created.day}}, {{post.created.year}}</span>
+										<a ng-click="view(post)" class="btn btn-xs btn-primary pull-right">Read more...</a>
 									</div>
 								</div>
 							</div>

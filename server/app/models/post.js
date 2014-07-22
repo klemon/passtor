@@ -5,7 +5,7 @@ var mongoose = require('mongoose');
 var Post = mongoose.Schema({
   title : String,
   description : String,
-  created : {type : Date, default : Date.now},
+  created : {year: Number, month: Number, day: Number},
   creator : String,
   likes : {type : Number, default : 0}
 });

@@ -2,21 +2,17 @@ var login = angular.module('login', []);
 
 login.config(['$routeProvider', function ($routeProvider) {
   $routeProvider.when('/login', {
-    templateUrl:'app/security/login.tpl.ejs',
+    templateUrl:'app/security/login.tpl.html',
     resolve: login.resolve
   });
 }]);
 
 
 
-login.controller('LoginCtrl', ['$scope', '$location','AuthService', function($scope, $location, AuthService) {
+login.controller('LoginCtrl', ['$scope', '$rootScope', '$location','AuthService', 'User',
+ function($scope, $rootScope, $location, AuthService, User) {
 	$scope.message;
 	$scope.formData = {};
-
-	$scope.$watch( AuthService.isLoggedIn, function ( isLoggedIn ) {
-    	$scope.isLoggedIn = isLoggedIn;
-    	$scope.currentUser = AuthService.currentUser();
-  	});
 
 	$scope.login = function() {
 		if(!$scope.formData.username)
@@ -29,12 +25,59 @@ login.controller('LoginCtrl', ['$scope', '$location','AuthService', function($sc
 			$scope.message = "Please provide a password.";
 			return;
 		}
-		AuthService.login($scope.formData, function(message, storeName){
-			$scope.message = message;
-			if(storeName)
-				$location.path('/inventory');
-			else if(!$scope.message)
-				$location.path('/dashboard');
+		AuthService.send('/login', $scope.formData, function(err, res){
+			if(err)
+				$scope.message = err;
+			else if(res.message) {
+				console.log("res.messsage: " + res.messsage);
+				$scope.message = res.message;
+				$location.path('/login');
+			} else {
+				User.setUser(res.user);
+				$rootScope.$broadcast('loggedIn');
+				AuthService.setToken(res.token, res.expires);
+				if(res.user.storeName)
+					$location.path('/inventory');
+				else
+					$location.path('/dashboard');
+			}
 		});
 	}
 }]);
+/*
+
+login: function(data, done) {
+		$http.post('/login', data)
+			.success(function(res) {
+				$rootScope.username = data.username;
+				$window.localStorage.setItem('username', $rootScope.username);
+				$rootScope.password = data.password;
+				$window.localStorage.setItem('password', $rootScope.password);
+				$rootScope.storeName = res.storeName;
+				$rootScope.firstName = res.firstName;
+				$rootScope.lastName = res.lastName;
+				$rootScope.coins = res.coins;
+				$rootScope.likes = res.likes;
+				$rootScope.email  = res.email;
+				expires = res.expires;
+				$rootScope.token = res.token;
+				$window.localStorage.setItem('token', $rootScope.token);
+
+			if(storeName) {
+				console.log("to the store");
+				$location.path('/inventory');
+			}
+			else if(!res.message) {
+				console.log("to the dashboard");
+				$location.path('/dashboard');
+			} else {
+				console.log("res.messsage: " + res.messsage);
+				$location.path('/login');
+			}
+
+				done(res.message);
+			})
+			.error(function(data) {
+				console.log('Error: ' + data);
+			});
+		},*/

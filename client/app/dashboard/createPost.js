@@ -9,25 +9,12 @@ createPost.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('CreateCtrl', ['$scope', '$http', '$location', 'AuthService', function($scope, $http, $location, AuthService) {
-	var d = new Date();
-	var year = d.getFullYear();
-	var month = d.getMonth() + 1;
-	if (month < 10)
-		month = "0" + month;
-	var day = d.getDate();
-	$scope.data = year + "-" + month + "-" + day;
-	console.log(" )) ");
-	$scope.formData = {creator: AuthService.currentUser(), created: $scope.date,
-	password: AuthService.password()};
+.controller('CreateCtrl', ['$scope', '$location', 'AuthService', '$rootScope', 
+	function($scope, $location, AuthService, $rootScope) {
 	$scope.createNew = function() {
-		$http.post('/createPost', $scope.formData)
-			.success(function(data) {
-				$location.path('/dashboard');
-			})
-			.error(function(data) {
-				console.log('Error: ' + data);
-			});
+		AuthService.send('/createPost', $scope.formData, function(res) {
+			$location.path('/dashboard');
+		});
 	};
 
 }]);

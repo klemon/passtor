@@ -17,12 +17,14 @@ module.exports = function(passport) {
 
   // used to serialize the user for the session
   passport.serializeUser(function(user, done) {
+    console.log("serialize user");
     done(null, user.id);
   });
 
   // used to deserialize the user
   passport.deserializeUser(function(id, done) {
     User.findById(id, function(err, user) {
+      console.log("deserialize user");
       done(err, user);
     });
   });
@@ -86,6 +88,11 @@ module.exports = function(passport) {
     // asynchronous
     // User.findOne won't fire unless data is sent back
     process.nextTick(function() {
+    if(!req.body.email) {
+      console.log("User must provide an email.");
+      return done(null, false, "Please provide an email.");
+    }
+
 
    // find a user whose username is the same as the forms username
    // we are checking to see if the user trying to login already exists

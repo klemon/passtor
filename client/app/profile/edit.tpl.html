@@ -11,14 +11,14 @@
 							<div class="box-content">
 								<h4>Edit User Information</h4>
 								<form action="" id="contactForm" type="post">
-									<div class="row">
+									<!--<div class="row">
 										<div class="form-group">
 											<div class="col-md-12">
 												<label>Username</label>
 												<input type="text" ng-model="userAttributes.username" value="" class="form-control">
 											</div>
 										</div>
-									</div>
+									</div>-->
 
 									<div class="row">
 										<div class="form-group">
@@ -53,6 +53,12 @@
 												<label>Description</label>
 												<textarea maxlength="5000" ng-model="userAttributes.description" rows="10" class="form-control" name="comment" id="comment"></textarea>
 											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="form-group">
+											<div class="alert alert-danger" ng-show="message">{{message}}</div>
 										</div>
 									</div>
 									

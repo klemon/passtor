@@ -1,5 +1,5 @@
 <div class="container" ng-controller="HeaderCtrl">
-    <div ng-hide=storeName()>
+    <div ng-hide=storeName>
         <h1 class="logo" >
             <a href="/">
                 <img alt="Tucson" src="/public/img/logo.png" data-small-height="44">
@@ -24,17 +24,17 @@
             </div>
             <nav class="nav-main mega-menu">
                 <ul class="nav nav-pills nav-main" id="mainMenu">
-                    <li class="dropdown" ng-show=isLoggedIn()>
+                    <li class="dropdown" ng-show=isLoggedIn>
                         <a class="dropdown-toggle" style="cursor: hand;cursor: pointer;" ng-click="logout()">
                             Logout
                         </a>
                     </li>
-                    <li class="dropdown" ng-hide=isLoggedIn()>
+                    <li class="dropdown" ng-hide=isLoggedIn>
                         <a class="dropdown-toggle" href="/signup">
                             Sign Up
                         </a>
                     </li>
-                    <li class="dropdown" ng-hide=isLoggedIn()>
+                    <li class="dropdown" ng-hide=isLoggedIn>
                         <a class="dropdown-toggle" href="/login">
                             Login
                         </a>
@@ -49,9 +49,9 @@
                             Dashboard
                         </a>
                     </li>
-                    <li class="dropdown" ng-show=isLoggedIn()>
-                        <a class="dropdown-toggle" href="/profile">
-                            {{currentUser()}}
+                    <li class="dropdown" ng-show=isLoggedIn>
+                        <a class="dropdown-toggle" ng-click="profile()">
+                            {{username}}
                         </a>
                     </li>
                 </ul>
@@ -63,7 +63,7 @@
     </div>
 
 <!-- This is the header for store owners -->
-    <div ng-show=storeName()>
+    <div ng-show=storeName>
         <h1 class="logo">
             <a href="/">
                 <img alt="Tucson" src="/public/img/logo.png" data-small-height="44">    
@@ -72,7 +72,7 @@
         <div class="navbar-collapse nav-main-collapse collapse">
             <nav class="nav-main mega-menu">
                 <ul class="nav nav-pills nav-main" id="mainMenu">
-                    <li class="dropdown" ng-show=isLoggedIn()>
+                    <li class="dropdown" ng-show=isLoggedIn>
                         <a class="dropdown-toggle" style="cursor: hand;cursor: pointer;" ng-click="logout()">
                             Logout
                         </a>
@@ -84,7 +84,7 @@
                     </li>
                     <li class="dropdown">
                         <a class="dropdown-toggle" href="/profile">
-                            {{storeName()}}
+                            {{storeName}}
                         </a>
                     </li>
                 </ul>

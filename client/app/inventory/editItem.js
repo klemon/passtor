@@ -10,7 +10,7 @@ editItem.config(['$routeProvider', function ($routeProvider) {
 
 
 
-editItem.controller('EditItemCtrl', ['$scope', '$location', '$http', 'Store', function($scope, $location, $http, Store) {
+editItem.controller('EditItemCtrl', ['$scope', '$location', 'Store', function($scope, $location, Store) {
 	$scope.formData = Store.getEditItem(); // name, description, coins, expires
 	$scope.message;
 	$scope.increment = function() {

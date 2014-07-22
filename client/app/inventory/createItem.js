@@ -10,11 +10,11 @@ createItem.config(['$routeProvider', function ($routeProvider) {
 
 
 
-createItem.controller('CreateItemCtrl', ['$scope', '$location', '$http', 'Store', function($scope, $location, $http, Store) {
+createItem.controller('CreateItemCtrl', ['$scope', '$location', 'Store', function($scope, $location, Store) {
 	$scope.formData = {cost : 1} // name, description, coins, expires
 	$scope.message;
 	$scope.increment = function() {
-		$scope.formData.cost += 1;
+		$scope.formData.cost += 1; 
 	}
 	$scope.decrement = function() {
 		$scope.formData.cost -= 1;

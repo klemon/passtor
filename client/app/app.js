@@ -10,101 +10,160 @@ var app = angular.module('app', [
 	'inventory',
 	'createItem',
 	'editItem',
-	'post'
+	'post',
+	'posts',
+	'editPost'
 	]);
 
-app.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+app.config(['$routeProvider', '$locationProvider',
+ function ($routeProvider, $locationProvider) {
   
   $routeProvider.otherwise({redirectTo:'/'});
   $locationProvider.html5Mode(true);
   
   }])
-.controller('AppCtrl', ['$scope', '$location', 'AuthService',
-	function($scope, $location, AuthService) {
-	if(AuthService.isLoggedIn())
+.controller('AppCtrl', ['$rootScope', '$location', 'User', '$timeout',
+	function($rootScope, $location, User, $timeout) {
+	User.restoreData();
+	if(User.isLoggedIn()) {
+		//$timeout(function(){
+	      //  $rootScope.$broadcast('loggedIn');
+	    //}, 100);
+		$rootScope.$broadcast('loggedIn');
 		$location.path('/dashboard');
+	}
 	else
 		$location.path('/login');
 }])
+.controller('HeaderCtrl', ['$scope', '$location','AuthService', 'User',
+	function($scope, $location, AuthService, User){
 
-.controller('HeaderCtrl', ['$scope', '$location','AuthService', '$http', function($scope, $location, AuthService, $http){
-	
-	$scope.logout = function(){
+	$scope.username = User.currentUser().username;
+	$scope.storeName = User.currentUser().storeName;
+	$scope.isLoggedIn = User.isLoggedIn();
+	$scope.$on('loggedIn', function(event, args) {
+		$scope.isLoggedIn = true;
+		if(User.currentUser().username)
+			$scope.username = User.currentUser().username;
+		else
+			$scope.storeName = User.currentUser().storeName;
+	});
+	$scope.logout = function() {
+		User.clearData();
+		$scope.username = "";
+		$scope.storeName = "";
+		$scope.isLoggedIn = false;
 		$location.path('/login');
-		AuthService.logout();
+		//$http.post('/logout', {token: $rootScope.token}, function(res) {
+		//});
 	}
-	$scope.currentUser = function(){
-		return AuthService.currentUser();
-	}
-	$scope.isLoggedIn = function() {
-		return AuthService.isLoggedIn();
-	}
-	$scope.storeName = function() {
-		return AuthService.storeName();
+	$scope.profile = function() {
+		User.setOtherUser(User.currentUser().username);
+		$location.path('/profile');
 	}
 }]);
 
-
-app.factory('AuthService', ['$http', '$location', function($http, $location) {
-	var currentUser;
-	var password;
-	var storeName;
-	var coins;
-	var points;
+app.factory('AuthService', ['$http', '$location', '$rootScope', '$window',
+ function($http, $location, $rootScope, $window) {
+	var expires;
+	var token;
 	return {
-		login: function(data, done) {
-		$http.post('/login', {username: data.username, password: data.password})
+		send: function(url, data, done){
+			data.token = token;
+			$http.post(url, data)
 			.success(function(res) {
-				currentUser = res.user;
-				password = data.password;
-				storeName = res.storeName;
-				coins = res.coins;
-				points = res.points;
-				done(res.message, res.storeName);
+				if(res.exp) {
+					$http.post('/login', {username: $rootScope.username, password: $rootScope.password}, 
+						function(res) {
+						// TODO: set login message here somehow
+					});
+				}
+				done(false, res);
 			})
 			.error(function(data) {
 				console.log('Error: ' + data);
-			});
-		},
-		logout: function() {
-			console.log('logout');
-			currentUser = "";
-			storeName = "";
-			isStoreOwner = false;
-			$http.get('./logout');
-		},
-		isLoggedIn: function() {
-			if(currentUser)
-				return true;
-			return false;
-		},
-		currentUser: function() { 
-			return currentUser; 
-		},
-		storeName: function() {
-			return storeName;
-		},
-		signup: function(data, done) {
-		$http.post('/signup', {username: data.username,
-								password: data.password,
-								email: data.email,
-								firstName: data.firstName,
-								lastName: data.lastName})
-			.success(function(res) {
-				done(res.message);
+				done(data, res);
 			})
-			.error(function(data) {
-				console.log('Error: ' + data);
-			});
 		},
-		update: function(data) {
-			currentUser = data;
+		setToken: function(tok){
+			token = tok;
+			$window.localStorage.setItem('token', token);
 		},
-		password: function() {
-			return password;
+		setExpires: function(exp) {
+			expires = exp;
+			$window.localStorage.setItem('expires', expires);
 		}
 	};
 }]);
+
+app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
+	var user = {username: "", storeName: ""};
+	var otherUsername = "";
+	return {
+		setOtherUsername: function(usrname) {
+			otherUsername = usrname;
+		},
+		otherUsername: function() {
+			return otherUsername;
+		},
+		currentUser: function() {
+			return  user;
+		},
+		password: function() {
+			return password;
+		},
+		update: function(data) {
+			user.username = data;
+			$window.localStorage.setItem('username', user.username);
+		},
+		clearData: function() {
+			user = {};
+			$window.localStorage.clear();
+		},
+		isLoggedIn: function() {
+			return user.username;
+		},
+		storeName: function() {
+			return user.storeName;
+		},
+		restoreData: function() {
+			if(!$window.localStorage.getItem('username')) {
+				return;
+			} else {
+				user.username = $window.localStorage.getItem('username');
+				user.password = $window.localStorage.getItem('password');
+				user.email = $window.localStorage.getItem('email');
+				user.firstName = $window.localStorage.getItem('firstName');
+				user.lastName = $window.localStorage.getItem('lastName');
+				user.coins = $window.localStorage.getItem('coins');
+				user.likes = $window.localStorage.getItem('likes');
+				AuthService.setToken($window.localStorage.getItem('token'));
+				AuthService.setExpires($window.localStorage.getItem('expires'));
+			}
+		},
+		setUser: function(usr) {
+			user = usr;
+			$window.localStorage.setItem('username', user.username);
+			$window.localStorage.setItem('password', user.password);
+			$window.localStorage.setItem('email', user.email);
+			$window.localStorage.setItem('firstName', user.firstName);
+			$window.localStorage.setItem('lastName', user.lastName);
+			$window.localStorage.setItem('coins', user.coins);
+			$window.localStorage.setItem('likes', user.likes);
+		}
+	};
+}]);
+/*
+isLoggedIn: function() {
+			if($window.localStorage.getItem('username')) {
+				$rootScope.username = $window.localStorage.getItem('username');
+				$rootScope.password = $window.localStorage.getItem('password');
+				$rootScope.token = $window.localStorage.getItem('token');
+				return true;
+			}
+			return false;
+		},*/
+
 
 
 app.factory('Store', ['$http', '$location', 'AuthService', function($http, $location, AuthService) {
@@ -180,3 +239,45 @@ app.factory('Store', ['$http', '$location', 'AuthService', function($http, $loca
 	};
 }]);
 
+app.factory('Posts', ['$http', '$location', 'AuthService', function($http, $location, AuthService) {
+	var post;
+	return {
+		edit: function(p) {
+			post = p;
+			$location.path('/editPost');
+		},
+		getPost: function() {
+			return post;
+		},
+		view: function(p) {
+			post = p;
+			$location.path('/post');
+		},
+		monthToStr: function(num) {
+			if(num == 1)
+				return "January";
+			else if(num == 2)
+				return "February";
+			else if(num == 3)
+				return "March";
+			else if(num == 4)
+				return "April";
+			else if(num == 5)
+				return "May";
+			else if(num == 6)
+				return "June";
+			else if(num == 7)
+				return "July";
+			else if(num == 8)
+				return "August";
+			else if(num == 9)
+				return "September";
+			else if(num == 10)
+				return "October";
+			else if(num == 11)
+				return "November";
+			else
+				return "December";
+		}	
+	};
+}]);

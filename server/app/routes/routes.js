@@ -2,49 +2,62 @@ var Post = require('../models/post');
 var User = require('../models/user');
 var Store = require('../models/store');
 var mongoose = require('mongoose');
+var express = require('express');
+var moment = require('moment');
 
 
-module.exports = function(app) {
+module.exports = function(app, jwtauth) {
 
 	// api --------------------------------------------------------------------
 	
-	// get all post
-	app.get('/posts', function(req, res) {
+	// ======================================
+	// HOME PAGE (with login links) =========
+	// ======================================
+	app.get('/', function(req, res) {
+	  res.render('index.ejs'); // load the index.ejs file
+	});
 
-		// use mongoose to get all todos in the database
-		Post.find(function(err, posts) {
-
-			// if there is an error retrieving, send the error. nothing after res.send(err) will execute
-			if (err)
-				res.send(err)
-
-			res.json(posts); // return all todos in JSON format
+	app.post('/', function(req, res) {
+	  res.render('index.ejs'); // load the index.ejs file
+	});
+	
+	app.post('/posts', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		var postList = [];
+		var filter = {}
+		if(req.body.all) {
+			filter = {}
+		} else if(req.body.mine) {
+			filter = {'creator': req.username};
+		}
+		Post.find(filter, function (err, posts){
+			for (var i = 0; i < posts.length; i++) {
+				postList.push({title: posts[i].title, description: posts[i].description,
+						creator: posts[i].creator, created: posts[i].created,
+						id: posts[i]._id});
+			}
+			res.json({posts: postList});
 		});
 	});
 
-	// get all post
-	app.get('/user', function(req, res) {
-		User.findOne({ 'local.username' : req.query.username }, function(err, user) {
-	      // if there are any errors, return the error before anything else
-	      if (err)
-	      {
-	        console.log("Error in logging in");
-	        return res.send(err);
-	      }
-
-	      // if no user is found, return the message
-	      if(!user)
-	      {
-	        console.log("No user is found");
-	        return res.send("User does not exist.");
-	      }
-			return res.json(user);
+	app.post('/user', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		User.findOne({'local.username' : req.body.otherUsername}, function(err, user) {
+			if (err) {
+				console.log("Error in finding user");
+				return res.json({err: "Error in finding user"});
+			} else if(!user) {
+				console.log("No user is found.");
+				return res.json({err: "Couldn't find user."});
+			} else {
+				return res.json({user: {username: user.local.username, email: user.local.username,
+					firstName: user.local.firstName, lastName: user.local.lastName}});
+			}
 	    });
 	});
 
-	// get all post
-	app.get('/loadpost', function(req, res) {
-		Post.findOne({ '_id' : req.query.id }, function(err, post) {
+	// not currently being used, A post is chosen from a list of posts currently so there
+	// is no need to load a single post
+	app.post('/loadpost', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		Post.findOne({ '_id' : req.id }, function(err, post) {
 	      // if there are any errors, return the error before anything else
 	      if (err)
 	      {
@@ -58,86 +71,91 @@ module.exports = function(app) {
 	        console.log("No post is found");
 	        return res.send("Post does not exist.");
 	      }
-			return res.json(post);
+			return res.json({post: post});
 	    });
+	});
+
+	app.post('/editPost', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		Post.findById(req.body.id, function(err, post) {
+			var text = "\nEdit: ";
+			text = text + req.body.edit;
+			console.log(text);
+			post.description = post.description + text;
+			post.save(function(err, editedPost, numberAffected) {
+				if(err) {
+					console.log("Error in editing post.");
+					console.log(err);
+					res.json({err: err});
+				} else {
+					res.json({post: {title: editedPost.title, description: editedPost.description,
+						creator: editedPost.creator, created: editedPost.created,
+						id: editedPost._id}});
+				}
+			});
+		});
 	});
 
 	// create a todo, information comes from AJAX request from Angular
-	app.post('/createPost', function(req, res) {
-		User.findOne({'local.username' : req.body.creator}, function(err, user, done){
-			if(err) {
-				console.log("Error in finding username of creator of post.");
-				return done(err); // TODO: change this? Are we sending DB err to user?
-			} else if(!user) {
-				console.log("Didn't find username of creator of post.");
-				return done(null, false, "Username does not exist.");
-			} else if(!user.validPassword(req.body.password)) {
-				console.log("User with invalid password trying to create a post.")
+	app.post('/createPost', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		var today = new Date();
+		var day = today.getDate();
+		var month = today.getMonth()+1; //January is 0!
+		var year = today.getFullYear();
+		Post.create({
+			title: req.body.title,
+			description: req.body.description,
+			creator: req.user.username,
+			created: {year: year, month: month, day: day}
+		}, function(err, post) {
+			if (err) {
+				console.log(err);
+				res.json({err:"Error when creating post."});
 			} else {
-				Post.create({
-					title : req.body.title,
-					description : req.body.description,
-					creator : req.body.creator
-				}, function(err, post) {
-					if (err) {
-						//res.send(err);
-						res.send("Error");
+				console.log("created post");
+				User.findByIdAndUpdate(req.id, {$push: {'local.Posts': post._id}}, 
+					{safe: true, upsert: true}, function(err, user) {
+					if(err) {
+						console.log(err);
+						Post.findByIdAndRemove(post._id, function(err) {
+							console.log(err);
+							console.log("Error in removing post after creating it");
+						})
+						res.json({err: "Error in updating user when creating post"});
+					} else if(!user) {
+						console.log("Couldn't find user when creating post");
+						Post.findByIdAndRemove(post._id, function(err) {
+							console.log(err);
+							console.log("Error in removing post after creating it");
+						})
+						res.json({err: "Couldn't find user when creating post"});
+					} else {
+						console.log("updated user for creating post");
+						res.json({post: post});
 					}
-					res.json(post);
-					// get and return all the todos after you create another
-					/*Post.find(function(err, posts) {
-						if (err)
-							res.send(err)
-						res.json(posts);
-					});*/
 				});
 			}
-		})
+		});
 	});
 
-	app.post('/updateProfile', function(req,res){
-		// we are checking to see if the user trying to login already exists
-	    User.findOne({ 'local.username' : req.body.username }, function(err, user, done) {
-	      // if there are any errors, return the error before anything else
-	      if (err)
-	      {
-	        console.log("Error in logging in");
-	        return done(err);
-	      }
-
-	      // if no user is found, return the message
-	      if(!user)
-	      {
-	        console.log("No user is found");
-	        return done(null, false, "User does not exist.");
-	      }
-	      if(req.body.username){
-	      	user.local.username = req.body.username;
-	      }
-		  if(req.body.email){
-		  user.local.email = req.body.email;
-		  }
-		  if(req.body.firstName){
-		  	user.local.firstName = req.body.firstName;
-		  }
-		  if(req.body.lastName){
-		  	user.local.lastName = req.body.lastName;
-		  }
-		  if(req.body.description){
-		  	user.local.description = req.body.description;
-		  }
-			return user.save(function (err){
-				if(!err){
-					console.log("updated profile!");
-				} else {
-					console.log(err);
-				}
-				return res.json(user);
-			});
-	    });
+	app.post('/updateProfile', [express.json(), express.urlencoded(), jwtauth], function(req,res){
+		if(!req.body.email) 
+		User.findByIdAndUpdate(req.id, {$set: {'local.firstName': req.body.firstName, 
+		'local.lastName': req.body.lastName, 'local.email': req.body.email}}, 
+			{safe: true, upsert: true}, function(err, user) {
+			if(err) {
+				console.log(err);
+				res.json({err: "Error in updating user info"});
+			} else if(!user) {
+				console.log("Couldn't find user when updating info");
+				res.json({err: "Couldn't find user when updating info"});
+			} else {
+				console.log("updated user info");
+				res.json({user: user});
+			}
+		});
 	 });
 
-	app.post('/inventory', function(req, res, next) {
+	app.post('/inventory', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
 		// Check to see if user exists
 	    User.findOne({ 'local.username' : req.body.username }, function(err, user) {
 	      // if there are any errors, return the error before anything else
@@ -179,7 +197,7 @@ module.exports = function(app) {
 	    });
 	 });
 
-app.post('/createItem', function(req, res, next) {
+app.post('/createItem', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
 		// Check to see if user exists
 	    User.findOne({ 'local.username' : req.body.username }, function(err, user) {
 	      // if there are any errors, return the error before anything else
@@ -236,7 +254,7 @@ app.post('/createItem', function(req, res, next) {
 	 });
 
 // The same as /inventory right now but might change
-app.post('/getItems', function(req, res, next) {
+app.post('/getItems', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
 		// Check to see if user exists
 	    User.findOne({ 'local.username' : req.body.username }, function(err, user) {
 	      // if there are any errors, return the error before anything else
@@ -282,7 +300,7 @@ app.post('/getItems', function(req, res, next) {
 	    });
 	 });
 
-app.post('/deleteItem', function(req, res, next) {
+app.post('/deleteItem', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
 		// Check to see if user exists
 	    User.findOne({ 'local.username' : req.body.username }, function(err, user) {
 	      // if there are any errors, return the error before anything else
@@ -346,7 +364,7 @@ app.post('/deleteItem', function(req, res, next) {
 	    });
 	 });
 
-app.post('/editItem', function(req, res, next) {
+app.post('/editItem', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
 		// Check to see if user exists
 	    User.findOne({ 'local.username' : req.body.username }, function(err, user) {
 			// if there are any errors, return the error before anything else
@@ -369,7 +387,7 @@ app.post('/editItem', function(req, res, next) {
 
 			console.log("User has a store");
 		  	
-			var id = mongoose.Types.ObjectId(req.body.item._id);
+			var id = mongoose.Types.ObjectId(req.body.item.id);
 			Store.update(
 				{name: req.body.item.storeName, "items.name" : id}, // Might be an error here
 				{$set:{"items.$.name":req.body.item.name}}, // Just trying to at least update the name
