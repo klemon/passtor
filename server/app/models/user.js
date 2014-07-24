@@ -14,8 +14,7 @@ var User = mongoose.Schema({
     lastName            : String,
     likes               : Number,
     coins               : Number,
-    StoreOwner          : mongoose.Schema.ObjectId,
-    Posts               : [{type : mongoose.Schema.ObjectId}]
+    StoreOwner          : mongoose.Schema.ObjectId
   },
   facebook              : {
     id                  : String,

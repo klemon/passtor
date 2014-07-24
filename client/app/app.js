@@ -35,8 +35,8 @@ app.config(['$routeProvider', '$locationProvider',
 	else
 		$location.path('/login');
 }])
-.controller('HeaderCtrl', ['$scope', '$location','AuthService', 'User',
-	function($scope, $location, AuthService, User){
+.controller('HeaderCtrl', ['$scope', '$location','AuthService', 'User', '$route',
+	function($scope, $location, AuthService, User, $route){
 
 	$scope.username = User.currentUser().username;
 	$scope.storeName = User.currentUser().storeName;
@@ -54,12 +54,14 @@ app.config(['$routeProvider', '$locationProvider',
 		$scope.storeName = "";
 		$scope.isLoggedIn = false;
 		$location.path('/login');
-		//$http.post('/logout', {token: $rootScope.token}, function(res) {
-		//});
 	}
 	$scope.profile = function() {
-		User.setOtherUser(User.currentUser().username);
-		$location.path('/profile');
+		User.setOtherUsername(User.currentUser().username);
+		if($location.path() == "/profile")
+			$route.reload();
+		else {
+			$location.path('/profile');
+		}
 	}
 }]);
 
@@ -82,7 +84,7 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', '$window',
 			})
 			.error(function(data) {
 				console.log('Error: ' + data);
-				done(data, res);
+				done(data, null);
 			})
 		},
 		setToken: function(tok){
@@ -100,6 +102,15 @@ app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 	var user = {username: "", storeName: ""};
 	var otherUsername = "";
 	return {
+		send : function(url, data, done) {
+			AuthService.send(url, data, function(err, res) {
+				if(res.coins) {
+					user.coins = res.coins;
+					user.likes = res.likes;
+				}
+				done(err, res);
+			});
+		},
 		setOtherUsername: function(usrname) {
 			otherUsername = usrname;
 		},
@@ -139,6 +150,12 @@ app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 				user.likes = $window.localStorage.getItem('likes');
 				AuthService.setToken($window.localStorage.getItem('token'));
 				AuthService.setExpires($window.localStorage.getItem('expires'));
+				AuthService.send('/update', {}, function(err, res) {
+					$window.localStorage.setItem('coins', res.coins);
+					$window.localStorage.setItem('likes', res.likes);
+					user.coins = res.coins;
+					user.likes = res.likes;
+				});
 			}
 		},
 		setUser: function(usr) {

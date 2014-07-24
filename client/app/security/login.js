@@ -25,7 +25,7 @@ login.controller('LoginCtrl', ['$scope', '$rootScope', '$location','AuthService'
 			$scope.message = "Please provide a password.";
 			return;
 		}
-		AuthService.send('/login', $scope.formData, function(err, res){
+		User.send('/login', $scope.formData, function(err, res){
 			if(err)
 				$scope.message = err;
 			else if(res.message) {

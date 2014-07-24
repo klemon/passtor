@@ -33,7 +33,8 @@ app.post('/login', function(req, res, next) {
 
       return res.json({err : err, token : token, expires : expires, user: {username: user.local.username,
         password: req.body.password, coins : user.local.coins, likes : user.local.likes, email: user.local.email,
-        firstName: user.local.firstName, lastName: user.local.lastName}});
+        firstName: user.local.firstName, lastName: user.local.lastName}, coins: user.local.coins, 
+        likes: user.local.likes});
     }
   })(req, res, next);
 });

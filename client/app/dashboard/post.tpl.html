@@ -29,7 +29,8 @@
 								<div class="col-md-12">
 									<div class="post-meta">
 										<span><i class="icon icon-user"></i> By <a ng-click="profile(post)">{{post.creator}}</a> </span>
-										<span><i class="icon icon-calendar"></i>{{getMonth(post.created.month)}} {{post.created.day}}, {{post.created.year}}</span>
+										<span><i class="icon icon-calendar"></i>{{monthToStr(post.created.month)}} {{post.created.day}}, {{post.created.year}}</span>
+										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>{{post.likes}}</span>
 									</div>
 								</div>
 							</div>
@@ -38,63 +39,47 @@
 								<a ng-click="edit()"><span class="label label-default">Edit Post</span></a>
 							</div>
 
+							<div ng-show=canLike class="post-block post-leave-comment">
+								<h3>Like and Comment</h3>
+									<div class="row">
+										<div class="form-group">
+											<div class="col-md-12">
+												<label>Comment (optional)*</label>
+												<textarea maxlength="5000" ng-model="text" rows="2" class="form-control" name="comment" id="comment"></textarea>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-12">
+											<input type="submit" ng-click="like()" value="Like" class="btn btn-primary btn-lg" data-loading-text="Loading...">
+										</div>
+									</div>
+								</form>
+							</div>
+							
 							<div class="post-block post-comments clearfix">
-											<h3>Comments (3)</h3>
-
-											<ul class="comments">
-												<li>
-													<div class="comment">
-														<div class="img-thumbnail">
-															<img class="avatar" alt="" src="img/avatar-2.jpg">
-														</div>
-														<div class="comment-block">
-															<div class="comment-arrow"></div>
-															<span class="comment-by">
-																<strong>John Doe</strong>
-																<span class="pull-right">
-																	<span> <a href="#"><i class="icon icon-reply"></i> Reply</a></span>
-																</span>
-															</span>
-															<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae, gravida pellentesque urna varius vitae. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae. Sed dui lorem, adipiscing in adipiscing et, interdum nec metus. Mauris ultricies, justo eu convallis placerat, felis enim ornare nisi, vitae mattis nulla ante id dui.</p>
-															<span class="date pull-right">January 12, 2013 at 1:38 pm</span>
-														</div>
-													</div>
-												</li>
-											</ul>
-
+								<h3>Comments ({{comments.length}})</h3>
+								<ul class="comments">
+									<li ng-repeat="comment in comments">
+										<div class="comment">
+											<div class="img-thumbnail">
+												<img class="avatar" alt="" src="img/avatar-2.jpg">
+											</div>
+											<div class="comment-block">
+												<div class="comment-arrow"></div>
+												<span class="comment-by">
+													<a ng-click="profile(comment)"><strong>{{comment.creator}}</strong></a>
+													<!--<span class="pull-right">
+														<span> <a href="#"><i class="icon icon-reply"></i> Reply</a></span>
+													</span> -->
+												</span>
+												<p>{{comment.text}}</p>
+												<span class="date pull-right">{{monthToStr(comment.created.month)}} {{comment.created.day}}, {{comment.created.year}}</span>
+											</div>
 										</div>
-
-										<div class="post-block post-leave-comment">
-											<h3>Leave a comment</h3>
-
-											<form action="" type="post">
-												<div class="row">
-													<div class="form-group">
-														<div class="col-md-6">
-															<label>Your name *</label>
-															<input type="text" value="" maxlength="100" class="form-control" name="name" id="name">
-														</div>
-														<div class="col-md-6">
-															<label>Your email address *</label>
-															<input type="email" value="" maxlength="100" class="form-control" name="email" id="email">
-														</div>
-													</div>
-												</div>
-												<div class="row">
-													<div class="form-group">
-														<div class="col-md-12">
-															<label>Comment *</label>
-															<textarea maxlength="5000" rows="10" class="form-control" name="comment" id="comment"></textarea>
-														</div>
-													</div>
-												</div>
-												<div class="row">
-													<div class="col-md-12">
-														<input type="submit" value="Post Comment" class="btn btn-primary btn-lg" data-loading-text="Loading...">
-													</div>
-												</div>
-											</form>
-										</div>
+									</li>
+								</ul>
+							</div>
 
 						</article>
 

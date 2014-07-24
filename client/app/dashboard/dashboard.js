@@ -10,9 +10,9 @@ dashboard.config(['$routeProvider', function ($routeProvider) {
 
 
 
-dashboard.controller('DashboardCtrl', ['$scope', '$location', 'User', 'AuthService', 'Posts',
-	function($scope, $location, User, AuthService, Posts) {
-	AuthService.send('/posts', {all: true}, function(err, res) {
+dashboard.controller('DashboardCtrl', ['$scope', '$location', 'User', 'User', 'Posts',
+	function($scope, $location, User, User, Posts) {
+	User.send('/posts', {all: true}, function(err, res) {
 		$scope.posts = res.posts;
 	});
 	$scope.view = function(post) {Posts.view(post);}

@@ -50,23 +50,23 @@ jwtauth = function(req, res, next) {
 		try {
 			var decoded = jwt.decode(token, app.get('jwtTokenSecret'));
 			if(decoded.exp <= Date.now()) {
-        console.log("decoded token is expired");
+        		console.log("decoded token is expired");
 				res.json({err: "Access token has expired", exp: true});
 			} else {
-        console.log("decoded token is still good");
+        		console.log("decoded token is still good");
 				User.findOne({_id : decoded.iss}, function(err, user) {
-          if(err) {
-            console.log("Error in finding user in jwtauth");
-            res.json({err: "Error in token auth"});
-          } else if(!user) {
-            console.log("Did not find user in jwtauth");
-            res.json({err: "Error in token auth"});
-          } else {
-            console.log("found user in jwtauth");
-            req.user = user.local;
-            req._id = user.id;
-            next();
-          }
+					if(err) {
+						console.log("Error in finding user in jwtauth");
+						res.json({err: "Error in token auth"});
+					} else if(!user) {
+						console.log("Did not find user in jwtauth");
+						res.json({err: "Error in token auth"});
+					} else {
+						console.log("found user in jwtauth");
+						req.user = user.local;
+						req.id = user._id;
+						next();
+					}
 				});
 			}
 		} catch (err) {

@@ -9,9 +9,9 @@ posts.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('PostsCtrl', ['$scope', 'User', 'Posts', 'AuthService', '$location',
- function($scope, User, Posts, AuthService, $location) {
-	AuthService.send('/posts', {username: User.otherUsername()}, function(err, res) {
+.controller('PostsCtrl', ['$scope', 'User', 'Posts', '$location',
+ function($scope, User, Posts, $location) {
+	User.send('/posts', {username: User.otherUsername()}, function(err, res) {
 		$scope.posts = res.posts;
 	});
 	$scope.monthToStr = function(num) {return Posts.monthToStr(num);}

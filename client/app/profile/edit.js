@@ -9,8 +9,8 @@ editProfile.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('EditCtrl', ['$scope', '$location', 'AuthService', 'User',
- function($scope, $location, AuthService, User) {
+.controller('EditCtrl', ['$scope', '$location', 'User',
+ function($scope, $location, User) {
 	$scope.userAttributes = User.currentUser();
 	$scope.message = "";
 	$scope.update = function (userAttributes){
@@ -18,7 +18,7 @@ editProfile.config(['$routeProvider', function ($routeProvider) {
 			$scope.message = "Please provide an email.";
 			return;
 		}
-		AuthService.send('/updateProfile', $scope.userAttributes, function(err, res) {
+		User.send('/updateProfile', $scope.userAttributes, function(err, res) {
 			if(res.message) {
 				$scope.message = res.message;
 				return;

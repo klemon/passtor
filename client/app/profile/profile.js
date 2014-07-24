@@ -9,10 +9,10 @@ profile.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('ProfileCtrl', ['$scope', 'User', 'AuthService', function($scope, User, AuthService) {
+.controller('ProfileCtrl', ['$scope', 'User', function($scope, User) {
 	$scope.canEdit = (User.otherUsername() == User.currentUser().username);
 	if(!$scope.canEdit) {
-		AuthService.send('/user', {otherUsername: User.otherUsername()}, function(err, res) {
+		User.send('/user', {otherUsername: User.otherUsername()}, function(err, res) {
 			if(err) {
 				//
 			} else {

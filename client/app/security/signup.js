@@ -9,8 +9,8 @@ signup.config(['$routeProvider', function ($routeProvider) {
 
 
 
-signup.controller('SignupCtrl', ['$scope', '$location','AuthService', function($scope, $location, AuthService) {
-	$scope.message;
+signup.controller('SignupCtrl', ['$scope', '$location','User', function($scope, $location, User) {
+	$scope.message = "";
 	$scope.formData = {};
 	$scope.signup = function(){
 		if(!$scope.formData.username) {
@@ -23,9 +23,9 @@ signup.controller('SignupCtrl', ['$scope', '$location','AuthService', function($
 			$scope.message = "Please provide an email.";
 			return;
 		}
-		AuthService.send('/signup', $scope.formData, function(err, res) {
+		User.send('/signup', $scope.formData, function(err, res) {
 			$scope.message = res.message;
-			if(!scope.message)
+			if(!$scope.message)
 				$location.path('/login');
 		});
 	}

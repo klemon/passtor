@@ -9,8 +9,8 @@ editPost.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('EditPostCtrl', ['$scope', '$location', 'AuthService', 'Posts',
-	function($scope, $location, AuthService, Posts) {
+.controller('EditPostCtrl', ['$scope', '$location', 'User', 'Posts',
+	function($scope, $location, User, Posts) {
 	$scope.formData = Posts.getPost();
 	$scope.message = "";
 	$scope.edit = function() {
@@ -18,7 +18,7 @@ editPost.config(['$routeProvider', function ($routeProvider) {
 			$scope.message = "There are no changes to submit.";
 			return;
 		}
-		AuthService.send('/editPost', $scope.formData, function(err, res) {
+		User.send('/editPost', $scope.formData, function(err, res) {
 			if(err) {
 				$scope.message = err;
 				return;
