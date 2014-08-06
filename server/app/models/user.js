@@ -2,6 +2,7 @@
 // load the things we need
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
+var moment = require('moment');
 
 // define the schema for our user model
 // commented out local, facebook, etc. for easier programming for now
@@ -12,8 +13,9 @@ var User = mongoose.Schema({
     email               : String,
     firstName           : String,
     lastName            : String,
-    likes               : Number,
-    coins               : Number,
+    likes               : {type: Number, default: 15},
+    coins               : {type: Number, default: 0},
+    lastLikeRefresh     : {type: Date, default: moment().add('h', 12).startOf('day').toDate()},
     StoreOwner          : mongoose.Schema.ObjectId
   },
   facebook              : {

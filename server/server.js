@@ -14,6 +14,8 @@ var configDB = require('./config/database.js');
 var jwt = require('jwt-simple');
 app.set('jwtTokenSecret', 'klemon_devauld');
 var User = require('./app/models/user');
+var StoreOwner = require('./app/models/storeowner');
+var moment = require('moment');
 
 // configuration ===============================================================
 mongoose.connect(configDB.url); // connect to our database
@@ -27,10 +29,10 @@ app.configure(function() {
 	app.use(express.logger('dev')); // log every request to the console
 	//app.use(express.cookieParser()); // read cookies (needed for auth)
 	//app.use(express.bodyParser()); // get information from html forms
-  app.use(express.json());
-  app.use(express.urlencoded());
+	app.use(express.json());
+	app.use(express.urlencoded());
 	app.use(express.methodOverride()); // simulate DELETE and PUT
-  app.use(express.favicon());
+	app.use(express.favicon());
 
 	//app.set('view engine', 'ejs'); // set up ejs for templating
 	app.set('views', distFolder);
@@ -39,11 +41,11 @@ app.configure(function() {
 	//app.use(express.session({ secret: 'ilovescotchscotchyscotchscotch' })); // session secret
 	app.use(passport.initialize());
 	//app.use(passport.session()); // persistent login  sessions
-  	//app.use(flash()); // use connect-flash for flash messages stored in session
+	//app.use(flash()); // use connect-flash for flash messages stored in session
 });
 
 jwtauth = function(req, res, next) {
-  console.log("jwtauth");
+	console.log("jwtauth");
 	var token = req.body.token;
 	if(token) {
     console.log("found possible token, decoding...");
@@ -54,7 +56,10 @@ jwtauth = function(req, res, next) {
 				res.json({err: "Access token has expired", exp: true});
 			} else {
         		console.log("decoded token is still good");
-				User.findOne({_id : decoded.iss}, function(err, user) {
+        		var query = User.findById(decoded.iss);
+        		if(decoded.isSO)
+        			query = StoreOwner.findById(decoded.iss);
+				query.exec(function(err, user) {
 					if(err) {
 						console.log("Error in finding user in jwtauth");
 						res.json({err: "Error in token auth"});
@@ -63,28 +68,45 @@ jwtauth = function(req, res, next) {
 						res.json({err: "Error in token auth"});
 					} else {
 						console.log("found user in jwtauth");
-						req.user = user.local;
-						req.id = user._id;
-						next();
+						if(!decoded.isSO) {
+							var lastRefresh = moment(user.local.lastLikeRefresh);
+							var currRefresh = moment();
+							var days = currRefresh.diff(lastRefresh, 'days');
+							if(days) {
+								console.log("Refreshing likes");
+								currRefresh = currRefresh.add('day', days);
+								user.local.lastLikeRefresh = currRefresh.toDate();
+								console.log("new refresh date: " + user.local.lastLikeRefresh);
+								user.likes = 15;
+							}
+						}
+						user.save(function(err, user2){
+							if(decoded.isSO)
+								req.user = user2;
+							else
+								req.user = user2.local;
+							req.id = user2._id;
+							next();
+						});
 					}
 				});
 			}
 		} catch (err) {
-      console.log(err);
-      console.log("Error in try in jwtauth");
-      res.json({err: "Error in token authentication"});
+	      console.log(err);
+	      console.log("Error in try in jwtauth");
+	      res.json({err: "Error in token authentication"});
 		}
 	} else {
-    console.log("no token");
-    res.json({err: "No token"});
+	    console.log("no token");
+	    res.json({err: "No token"});
 	}
-  return;
+  	return;
 };
 
 // routes ======================================================================
 
 //app.use(express.static(path.join(__dirname, 'views')));
-require('./app/routes/security.js')(app, passport); // load our routes and pass in our app and fully configure passport
+require('./app/routes/security.js')(app, passport, jwtauth); // load our routes and pass in our app and fully configure passport
 require('./app/routes/routes.js')(app, jwtauth);
 require('./app/routes/appFile.js')(app, distFolder);
 

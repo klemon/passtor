@@ -58,8 +58,10 @@
 							</div>
 							
 							<div class="post-block post-comments clearfix">
-								<h3>Comments ({{comments.length}})</h3>
+								<h3>Comments ({{post.numComments}})</h3>
 								<ul class="comments">
+
+								<div infinite-scroll="nextPage()" infinite-scroll-disable="busy" infinite-scroll-distance="1">
 									<li ng-repeat="comment in comments">
 										<div class="comment">
 											<div class="img-thumbnail">
@@ -78,6 +80,8 @@
 											</div>
 										</div>
 									</li>
+								</div>
+
 								</ul>
 							</div>
 

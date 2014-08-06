@@ -12,7 +12,8 @@ var app = angular.module('app', [
 	'editItem',
 	'post',
 	'posts',
-	'editPost'
+	'editPost',
+	'infinite-scroll'
 	]);
 
 app.config(['$routeProvider', '$locationProvider',
@@ -26,11 +27,11 @@ app.config(['$routeProvider', '$locationProvider',
 	function($rootScope, $location, User, $timeout) {
 	User.restoreData();
 	if(User.isLoggedIn()) {
-		//$timeout(function(){
-	      //  $rootScope.$broadcast('loggedIn');
-	    //}, 100);
 		$rootScope.$broadcast('loggedIn');
-		$location.path('/dashboard');
+		if(User.currentUser().storeName)
+			$location.path('/inventory');
+		else 
+			$location.path('/dashboard');
 	}
 	else
 		$location.path('/login');
@@ -99,14 +100,16 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', '$window',
 }]);
 
 app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
-	var user = {username: "", storeName: ""};
+	var user = {};
 	var otherUsername = "";
 	return {
 		send : function(url, data, done) {
 			AuthService.send(url, data, function(err, res) {
-				if(res.coins) {
+				if(!user.storeName) {
 					user.coins = res.coins;
 					user.likes = res.likes;
+					$window.localStorage.setItem('coins', user.coins);
+					$window.localStorage.setItem('likes', user.likes);
 				}
 				done(err, res);
 			});
@@ -138,50 +141,46 @@ app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 			return user.storeName;
 		},
 		restoreData: function() {
-			if(!$window.localStorage.getItem('username')) {
-				return;
-			} else {
-				user.username = $window.localStorage.getItem('username');
-				user.password = $window.localStorage.getItem('password');
-				user.email = $window.localStorage.getItem('email');
-				user.firstName = $window.localStorage.getItem('firstName');
-				user.lastName = $window.localStorage.getItem('lastName');
+			if($window.localStorage.getItem('storeName')) {
+				user.storeName = $window.localStorage.getItem('storeName');
+				AuthService.setToken($window.localStorage.getItem('token'));
+			} else if($window.localStorage.getItem('username')) {
 				user.coins = $window.localStorage.getItem('coins');
 				user.likes = $window.localStorage.getItem('likes');
 				AuthService.setToken($window.localStorage.getItem('token'));
-				AuthService.setExpires($window.localStorage.getItem('expires'));
 				AuthService.send('/update', {}, function(err, res) {
 					$window.localStorage.setItem('coins', res.coins);
 					$window.localStorage.setItem('likes', res.likes);
 					user.coins = res.coins;
 					user.likes = res.likes;
 				});
+			} else {
+				return;
 			}
+			user.username = $window.localStorage.getItem('username');
+			user.password = $window.localStorage.getItem('password');
+			user.email = $window.localStorage.getItem('email');
+			user.firstName = $window.localStorage.getItem('firstName');
+			user.lastName = $window.localStorage.getItem('lastName');
+			AuthService.setExpires($window.localStorage.getItem('expires'));
 		},
-		setUser: function(usr) {
-			user = usr;
+		setUser: function(res) {
+			if(res.user) {
+				user = res.user;
+				$window.localStorage.setItem('coins', user.coins);
+				$window.localStorage.setItem('likes', user.likes);
+			} else {
+				user = res.storeOwner;
+				$window.localStorage.setItem('storeName', user.storeName);
+			}
 			$window.localStorage.setItem('username', user.username);
 			$window.localStorage.setItem('password', user.password);
 			$window.localStorage.setItem('email', user.email);
 			$window.localStorage.setItem('firstName', user.firstName);
 			$window.localStorage.setItem('lastName', user.lastName);
-			$window.localStorage.setItem('coins', user.coins);
-			$window.localStorage.setItem('likes', user.likes);
 		}
 	};
 }]);
-/*
-isLoggedIn: function() {
-			if($window.localStorage.getItem('username')) {
-				$rootScope.username = $window.localStorage.getItem('username');
-				$rootScope.password = $window.localStorage.getItem('password');
-				$rootScope.token = $window.localStorage.getItem('token');
-				return true;
-			}
-			return false;
-		},*/
-
-
 
 app.factory('Store', ['$http', '$location', 'AuthService', function($http, $location, AuthService) {
 	var items;
@@ -271,30 +270,30 @@ app.factory('Posts', ['$http', '$location', 'AuthService', function($http, $loca
 			$location.path('/post');
 		},
 		monthToStr: function(num) {
-			if(num == 1)
+			if(num == 0)
 				return "January";
-			else if(num == 2)
+			else if(num == 1)
 				return "February";
-			else if(num == 3)
+			else if(num == 2)
 				return "March";
-			else if(num == 4)
+			else if(num == 3)
 				return "April";
-			else if(num == 5)
+			else if(num == 4)
 				return "May";
-			else if(num == 6)
+			else if(num == 5)
 				return "June";
-			else if(num == 7)
+			else if(num == 6)
 				return "July";
-			else if(num == 8)
+			else if(num == 7)
 				return "August";
-			else if(num == 9)
+			else if(num == 8)
 				return "September";
-			else if(num == 10)
+			else if(num == 9)
 				return "October";
-			else if(num == 11)
+			else if(num == 10)
 				return "November";
 			else
 				return "December";
-		}	
-	};
+		}
+	}
 }]);

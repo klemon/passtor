@@ -1,5 +1,6 @@
 <div  role="main" class="main">
 	<div class="container">
+	<!--
 		<div class="portfolio-title">
 			<div class="row">
 				<div class="portfolio-nav col-md-1">
@@ -13,7 +14,7 @@
 					<a href="portfolio-single.html" class="portfolio-nav-next" rel="tooltip" data-original-title="Next"><i class="icon icon-angle-right"></i></a>
 				</div>
 			</div>
-		</div>
+		</div> -->
 
 		<hr class="tall">
 
@@ -71,10 +72,10 @@
 					<div class="row">
 						<div class="col-md-12">
 							<ul>
-								<li>
+								<li ng-hide="isStoreOwner">
 									<a href="#" rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>{{user.likes}}</a>
 								</li>
-								<li>
+								<li ng-hide="isStoreOwner">
 									<i class="icon  icon-dot-circle-o"></i>{{user.coins}}
 								</li>
 								<li ng-show=canEdit>
@@ -85,7 +86,7 @@
 					</div>
 				</div>
 
-				<a href="/posts"><span  class="label label-default">See Posts</span></a>
+				<a ng-hide="isStoreOwner" href="/posts"><span  class="label label-default">See Posts</span></a>
 
 				<p class="portfolio-description taller lead">{{user.description}}</p>
 
@@ -94,9 +95,10 @@
 			</div>
 		</div>
 
+
 		<hr class="tall" />
 
-		<div class="row">
+		<!--<div class="row">
 
 			<div class="col-md-12">
 				<h2>Recent <strong>Activity</strong></h2>
@@ -173,6 +175,6 @@
 				</li>
 			</ul>
 
-		</div>
+		</div> -->
 	</div>
 </div>

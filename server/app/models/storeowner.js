@@ -5,11 +5,12 @@ var bcrypt = require('bcrypt-nodejs');
 
 // define the schema for our store owner model
 var StoreOwner = mongoose.Schema({
-    storeName           : {type: String, required: true, unique: true},
-    password            : {type: String, required: true},
-    email               : {type: String, required: true, unique: true},
+    storeName           : String,
     Items               : [{type: mongoose.Schema.ObjectId}],
-    User                : {type: mongoose.Schema.ObjectId, required: true, unique: true}
+    User                : mongoose.Schema.ObjectId,
+    email               : String,
+    firstName           : String,
+    lastName            : String
 });
 
 // methods =====================

@@ -33,13 +33,14 @@ login.controller('LoginCtrl', ['$scope', '$rootScope', '$location','AuthService'
 				$scope.message = res.message;
 				$location.path('/login');
 			} else {
-				User.setUser(res.user);
+				User.setUser(res);
 				$rootScope.$broadcast('loggedIn');
 				AuthService.setToken(res.token, res.expires);
-				if(res.user.storeName)
+				if(res.storeOwner) {
 					$location.path('/inventory');
-				else
+				} else {
 					$location.path('/dashboard');
+				}
 			}
 		});
 	}

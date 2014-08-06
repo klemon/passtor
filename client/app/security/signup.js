@@ -2,7 +2,7 @@ var signup = angular.module('signup', []);
 
 signup.config(['$routeProvider', function ($routeProvider) {
   $routeProvider.when('/signup', {
-    templateUrl:'app/security/signup.tpl.ejs',
+    templateUrl:'app/security/signup.tpl.html',
     resolve: signup.resolve
   });
 }]);
@@ -15,6 +15,9 @@ signup.controller('SignupCtrl', ['$scope', '$location','User', function($scope, 
 	$scope.signup = function(){
 		if(!$scope.formData.username) {
 			$scope.message = "Please provide an username.";
+			return;
+		} else if($scope.formData.password != $scope.formData.password2) {
+			$scope.message = "Passwords must match.";
 			return;
 		} else if(!$scope.formData.password) {
 			$scope.message = "Please provide a password.";

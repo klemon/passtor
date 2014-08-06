@@ -2,6 +2,7 @@
 
 // load all the things we need
 var LocalStrategy = require('passport-local').Strategy;
+var moment = require('moment');
 
 // load up the user model
 var User          = require('../app/models/user');
@@ -45,28 +46,35 @@ module.exports = function(passport) {
     // we are checking to see if the user trying to login already exists
     User.findOne({ 'local.username' : username }, function(err, user) {
       // if there are any errors, return the error before anything else
-      if (err)
-      {
+      if (err) {
         console.log("Error in logging in");
         return done(err);
       }
-
       // if no user is found, return the message
-      if(!user)
-      {
+      if(!user) {
         console.log("No user is found");
         return done(null, false, "User does not exist."); // req.flash is the way to set flashdata using connect-flash
       }
-
       // if the user is found but the password is wrong
-      if(!user.validPassword(password))
-      {
+      if(!user.validPassword(password)) {
         console.log("User found but wrong password");
         return done(null, false, "Invalid password."); // create the loginMessage and save it to session as flashdata
       }
       console.log("Successful user");
-      // all is well, return successful user
-      return done(null, user);
+      var lastRefresh = moment(user.local.lastLikeRefresh);
+      var currRefresh = moment();
+      var days = currRefresh.diff(lastRefresh, 'days');
+      if(days) {
+        console.log("Refreshing likes");
+        currRefresh = currRefresh.add('day', days);
+        user.local.lastLikeRefresh = currRefresh.toDate();
+        console.log("new refresh date: " + user.local.lastLikeRefresh);
+        user.likes = 15;
+      }
+      user.save(function(err, user2){
+        // all is well, return successful user
+        return done(null, user2);
+      });
     });
   }));
 
@@ -119,8 +127,6 @@ module.exports = function(passport) {
             console.log("Email is already in use. :)");
             return done(null, false, "That email is already being used.");
           } else {
-            // if there is no user with that username
-            // create the user
             var newUser                 = new User();
             // set the user's local credentials
             newUser.local.username      = username;
@@ -128,8 +134,6 @@ module.exports = function(passport) {
             newUser.local.firstName     = req.body.firstName;
             newUser.local.lastName      = req.body.lastName;
             newUser.local.password      = newUser.generateHash(password);
-            newUser.local.likes        = 15;
-            newUser.local.coins         = 0;
             // save the user
             newUser.save(function(err) {
               if(err)
@@ -141,10 +145,6 @@ module.exports = function(passport) {
         });
       }
     });
-
-    
-
-    
 
     });
 

@@ -11,6 +11,7 @@ profile.config(['$routeProvider', function ($routeProvider) {
 
 .controller('ProfileCtrl', ['$scope', 'User', function($scope, User) {
 	$scope.canEdit = (User.otherUsername() == User.currentUser().username);
+	$scope.isStoreOwner = false;
 	if(!$scope.canEdit) {
 		User.send('/user', {otherUsername: User.otherUsername()}, function(err, res) {
 			if(err) {
@@ -20,6 +21,7 @@ profile.config(['$routeProvider', function ($routeProvider) {
 			}
 		})
 	} else {
+		$scope.isStoreOwner = User.currentUser().storeName;
 		$scope.user = User.currentUser();
 	}
 	$scope.edit = function() {Posts.edit($scope.post);}

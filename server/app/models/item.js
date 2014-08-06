@@ -4,17 +4,19 @@ var mongoose = require('mongoose');
 
 // define the schema for our store owner model
 var Item = mongoose.Schema({
-	StoreOwner			: {type: mongoose.Schema.ObjectId, required: true}
-    storename           : {type: String, required: true},
-    name				: {type: String, required: true},
+	StoreOwner			: mongoose.Schema.ObjectId,
+    storeName           : String,
+    name				: String,
     description			: String,
+    cost				: Number,
+    created				: {type: Date, default: Date.now},
     /* qrcode, later, look at node-qrcode
 	barcode
 	website
 	expiration date
 	*/
-	sold				: Number,
-	redeemed			: Number
+	sold				: {type: Number, default: 0},
+	redeemed			: {type: Number, default: 0}
 });
 
 // create the model for users and expose it to our app

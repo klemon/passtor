@@ -10,7 +10,7 @@ createItem.config(['$routeProvider', function ($routeProvider) {
 
 
 
-createItem.controller('CreateItemCtrl', ['$scope', '$location', 'Store', function($scope, $location, Store) {
+createItem.controller('CreateItemCtrl', ['$scope', '$location', 'User', function($scope, $location, User) {
 	$scope.formData = {cost : 1} // name, description, coins, expires
 	$scope.message;
 	$scope.increment = function() {
@@ -33,9 +33,9 @@ createItem.controller('CreateItemCtrl', ['$scope', '$location', 'Store', functio
 			$scope.message = "The item must have a description.";
 			return;
 		}
-		Store.createItem($scope.formData, function(message) {
-			$scope.message =  message;
-			if(!message)
+		User.send('/createItem', $scope.formData, function(err, res) {
+			$scope.message = res.message;
+			if(!$scope.message)
 				$location.path('/inventory');
 		});
 	}

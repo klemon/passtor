@@ -1,67 +1,77 @@
-<div  role="main" class="main">
+<div role="main" class="main">
+
 	<div class="container">
 
-		<hr class="tall">
-
 		<div class="row">
-			<div class="col-md-5">
+			<div class="col-md-9">
+				<div class="blog-posts">
 
-				<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fadeUp", "autoHeight": true}'>
-					<div>
-						<img alt="" class="img-responsive img-rounded" src="img/projects/project-detail-1.jpg">
+					<article class="post post-medium">
+						<div class="row">
+							<div class="col-md-5">
+								<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fade", "autoHeight": true}'>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-1.jpg" alt="">
+										</div>
+									</div>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-2.jpg" alt="">
+										</div>
+									</div>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-3.jpg" alt="">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</article>
+
+					<div class="row">
+						<div class="col-md-6">
+							<h2 class="shorter"><strong>{{creator}}'s Posts</strong></h2>
+							<p>{{numPosts}} posts</p>
+						</div>
+						<div class="col-md-6">
+							<select class="orderby pull-right push-bottom" name="orderby" ng-model="selectedSort" ng-options="s.text for s in sorts" ng-click="changeSort()"></select>
+						</div>
 					</div>
-					<div>
-						<img alt="" class="img-responsive img-rounded" src="img/projects/project-detail-2.jpg">
+
+					<div ng-repeat="post in posts">
+						<article class="post post-medium">
+							<div class="row">
+								<div class="col-md-7">
+									<div class="post-content">
+										<h2><a href="">{{post.title}}</a></h2>
+										<p>{{post.description}}</p>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="post-meta">
+										<span><i class="icon icon-user"></i> By <a ng-click="profile(post)">{{post.creator}}</a> </span>
+										<span><i class="icon icon-calendar"></i>{{post.created.month}} {{post.created.day}}, {{post.created.year}}</span>
+										<a ng-click="view(post)" class="btn btn-xs btn-primary pull-right">Read more...</a>
+									</div>
+								</div>
+							</div>
+						</article>
 					</div>
-				</div>
-
-			</div>
-
-		</div>
-
-		<div ng-repeat="post in posts">
-			<article class="post post-medium">
-				<div class="row">
-					<div class="col-md-7">
-						<div class="post-content">
-							<h2><a href="">{{post.title}}</a></h2>
-							<p>{{post.description}}</p>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="post-meta">
+								<a ng-click="showMore()" class="btn btn-xs btn-primary pull-right">Show More</a>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div class="row">
-					<div class="col-md-12">
-						<div class="post-meta">
-							<span><i class="icon icon-user"></i> By <a ng-click="profile(post)">{{post.creator}}</a> </span>
-							<span><i class="icon icon-calendar"></i>{{monthToStr(post.created.month)}} {{post.created.day}}, {{post.created.year}}</span>
-							<a ng-click="view(post)" class="btn btn-xs btn-primary pull-right">Read more...</a>
-						</div>
-					</div>
-				</div>
-			</article>
-		</div>
-
-		<hr class="tall" />
-
-		<div class="row">
-
-			<div class="col-md-12">
-				<h2><strong>My Posts</strong></h2>
 			</div>
-
-			<ul class="portfolio-list">
-				<li class="col-md-12">
-					<div class="portfolio-item">
-						<a href="portfolio-single.html" class="thumb-info">
-							<span class="thumb-info-content">
-								<h4>Toolbars Custom Design</h4>
-								<span class="date">January 10, 2013</span>
-							</span>
-						</a>
-					</div>
-				</li>
-			</ul>
-
 		</div>
+
 	</div>
+
 </div>

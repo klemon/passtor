@@ -10,8 +10,9 @@ editItem.config(['$routeProvider', function ($routeProvider) {
 
 
 
-editItem.controller('EditItemCtrl', ['$scope', '$location', 'Store', function($scope, $location, Store) {
-	$scope.formData = Store.getEditItem(); // name, description, coins, expires
+editItem.controller('EditItemCtrl', ['$scope', '$location', 'User', '$rootScope',
+ function($scope, $location, User, $rootScope) {
+	$scope.formData = $rootScope.item;
 	$scope.message;
 	$scope.increment = function() {
 		$scope.formData.cost += 1;
@@ -33,10 +34,10 @@ editItem.controller('EditItemCtrl', ['$scope', '$location', 'Store', function($s
 			$scope.message = "The item must have a description.";
 			return;
 		}
-		console.log("EditItem: ", $scope.formData);
-		Store.editItem($scope.formData, function(message) {
-			$scope.message =  message;
-			if(!message)
+		User.send('/editItem', $scope.formData, function(err, res) {
+			if(res.message)
+				$scope.message = res.message;
+			else 
 				$location.path('/inventory');
 		});
 	}

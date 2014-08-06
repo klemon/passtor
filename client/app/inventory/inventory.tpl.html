@@ -1,72 +1,224 @@
+<!--
+<div role="main" class="main shop">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6">
+				<h2 class="shorter"><strong>Items</strong></h2>
+				<p>Showing 1–12 of 25 results.</p>
+			</div>
+			<div class="col-md-6">
+				<select class="orderby pull-right push-bottom" name="orderby">
+					<option value="">Default sorting</option>
+					<option value="popularity">Sort by popularity</option>
+					<option value="rating">Sort by average rating</option>
+					<option value="date">Sort by newness</option>
+					<option value="price">Sort by price: low to high</option>
+					<option value="price-desc">Sort by price: high to low</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+		<style>
+		h4.mine {text-align:center; margin-top:5%;}
+		p.mine {text-align:left; margin-left:5%; margin-right:5%;}
+		span.mine {text-align:left; margin-left:5%; margin-right:5%}
+		i.mine {text-align:left; margin-left:5%; margin-right:5%}
+		a.mine {text-align:left; margin-left:5%; margin-right:5%}
+		</style>
+		
+			<div ng-repeat="item in items">
+				<span class="thumb-info">
+					<div class="shop">
+						<div class="row">
+							<div class="col-md-12">
+									<h4 class="mine">{{item.name}}</h4>
+									<p class="mine">{{item.description}}</p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-4 col-md-offset-2">
+								<a href="" class="btn btn-xs btn-primary pull-right" ng-click=edit(item)>Edit</a>
+							</div>
+							<div class="col-md-4">
+								<a href="" class="btn btn-xs btn-primary pull-right" ng-click=delete(item)>Delete</a>
+							</div>
+						</div>
+					</div>
+				</span>
+			</div>	
+		</div>
+	</div>
+</div>
+<a href="/createItem" class="btn btn-xs btn-primary pull-right">Create New Item</a> -->
 
-	<div role="main" class="main shop">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-6">
-					<h2 class="shorter"><strong>Shop</strong></h2>
-					<p>Showing 1–12 of 25 results.</p>
-				</div>
-				<div class="col-md-6">
-					<select class="orderby pull-right push-bottom" name="orderby">
-						<option value="">Default sorting</option>
-						<option value="popularity">Sort by popularity</option>
-						<option value="rating">Sort by average rating</option>
-						<option value="date">Sort by newness</option>
-						<option value="price">Sort by price: low to high</option>
-						<option value="price-desc">Sort by price: high to low</option>
-					</select>
+
+<!--
+<div role="main" class="main">
+
+	<div class="container">
+
+		<div class="row">
+			<div class="col-md-9">
+				<div class="blog-posts">
+
+					<article class="post post-medium">
+						<div class="row">
+							<div class="col-md-5">
+								<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fade", "autoHeight": true}'>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-1.jpg" alt="">
+										</div>
+									</div>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-2.jpg" alt="">
+										</div>
+									</div>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-3.jpg" alt="">
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="post-meta">
+									<a href="/createPost" class="btn btn-xs btn-primary pull-right">Create New Item</a>
+								</div>
+							</div>
+						</div>
+					</article>
+
+					<div class="row">
+						<div class="col-md-6">
+							<h2 class="shorter"><strong>Items</strong></h2>
+							<p>{{numItems}} items</p>
+						</div>
+						<div class="col-md-6">
+							<select class="orderby pull-right push-bottom" name="orderby" ng-model="selectedSort" ng-options="s.text for s in sorts" ng-click="changeSort()"></select>
+						</div>
+					</div>
+
+					<div ng-repeat="item in items">
+						<article class="post post-medium">
+						<div class="row">
+							<div class="col-md-12">
+									<h4 class="mine">{{item.name}}</h4>
+									<p class="mine">{{item.description}}</p>
+							</div>
+						</div>
+						<div class="row">
+						<div class="col-md-12">
+							<div class="post-meta">
+								<a ng-click="view(post)" class="btn btn-xs btn-primary pull-right">Edit</a>
+								<a ng-click="view(post)" class="btn btn-xs btn-primary pull-right">Delete</a>
+							</div>
+						</div>
+						
+						</article>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="post-meta">
+									<a ng-click="showMore()" class="btn btn-xs btn-primary pull-right">Show More</a>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
+		</div>
 
+	</div>
 
-<div class="row">
-<style>
-h4.mine {text-align:center; margin-top:5%;}
-p.mine {text-align:left; margin-left:5%; margin-right:5%;}
-span.mine {text-align:left; margin-left:5%; margin-right:5%}
-i.mine {text-align:left; margin-left:5%; margin-right:5%}
-a.mine {text-align:left; margin-left:5%; margin-right:5%}
-</style>
-			<ul class="products thumb-info-list">
-				<li class="col-md-3 product" ng-repeat="item in items">
-				<span class="thumb-info">
-						<div class="shop">
-							<div class="row">
-								<div class="col-md-12">
-										<h4 class="mine">{{item.name}}</h4>
-										<p class="mine">{{item.description}}</p>
+</div> -->
+
+<div role="main" class="main">
+
+	<div class="container">
+
+		<div class="row">
+			<div class="col-md-9">
+				<div class="blog-posts">
+
+					<article class="post post-medium">
+						<div class="row">
+							<div class="col-md-5">
+								<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fade", "autoHeight": true}'>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-1.jpg" alt="">
+										</div>
+									</div>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-2.jpg" alt="">
+										</div>
+									</div>
+									<div>
+										<div class="post-image">
+											<img class="img-responsive img-rounded" src="img/blog/blog-image-3.jpg" alt="">
+										</div>
+									</div>
 								</div>
 							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="post-meta">
+									<a href="/createItem" class="btn btn-xs btn-primary pull-right">Create New Item</a>
+								</div>
+							</div>
+						</div>
+					</article>
 
+					<div class="row">
+						<div class="col-md-6">
+							<h2 class="shorter"><strong>All Items</strong></h2>
+							<p>{{numItems}} items</p>
+						</div>
+						<div class="col-md-6">
+							<select class="orderby pull-right push-bottom" name="orderby" ng-model="selectedSort" ng-options="s.text for s in sorts" ng-click="changeSort()"></select>
+						</div>
+					</div>
+
+					<div ng-repeat="item in items">
+						<article class="post post-medium">
 							<div class="row">
-								<div class="col-md-12">
-									<div class="post-meta">
-										<span class="mine"><i class="icon icon-calendar"></i> January 10, 2013 </span><br>
+								<div class="col-md-7">
+									<div class="post-content">
+										<h2><a href="">{{item.name}}</a></h2>
+										<p>{{item.description}}</p>
 									</div>
 								</div>
 							</div>
 							<div class="row">
 								<div class="col-md-12">
 									<div class="post-meta">
-										<span class="mine"><i class="icon icon-user"></i> By John Doe</span>
-										<span class="mine"><i class="icon icon-tag"></i> Duis, News</span>
+										<span><i class="icon icon-user"></i> By <a>{{item.storeName}}</a> </span>
+										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Cost: {{item.cost}}</span>
+										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Sold: {{item.sold}}</span>
+										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Redeemed: {{item.redeemed}}</span>
+										<a ng-click="edit(item)" class="btn btn-xs btn-primary pull-right">Edit</a>
+										<a ng-click="delete($index)" class="btn btn-xs btn-primary pull-right">Delete</a>
 									</div>
 								</div>
 							</div>
-							<div class="row">
-								<div class="col-md-4 col-md-offset-2">
-									<a href="" class="btn btn-xs btn-primary pull-right" ng-click=edit(item)>Edit</a>
-								</div>
-								<div class="col-md-4">
-									<a href="" class="btn btn-xs btn-primary pull-right" ng-click=delete(item)>Delete</a>
-								</div>
+						</article>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="post-meta">
+								<a ng-click="showMore()" class="btn btn-xs btn-primary pull-right">Show More</a>
 							</div>
-							</div>
-							</span>
-				</li>
-			</ul>
-			
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		</div>
-		</div>
-<a href="/createItem" class="btn btn-xs btn-primary pull-right">Create New Item</a>
+
+	</div>
+
+</div>

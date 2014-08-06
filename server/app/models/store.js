@@ -1,4 +1,4 @@
-// app/models/store.js
+// app/models/store.js			DONT NEED THIS I THINK
 // load the things we need
 var mongoose = require('mongoose');
 
