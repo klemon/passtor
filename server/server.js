@@ -46,6 +46,10 @@ app.configure(function() {
 
 jwtauth = function(req, res, next) {
 	console.log("jwtauth");
+	if(req.url == "/items" && !req.body.token) {
+		next();
+		return;
+	}
 	var token = req.body.token;
 	if(token) {
     console.log("found possible token, decoding...");
@@ -81,6 +85,10 @@ jwtauth = function(req, res, next) {
 							}
 						}
 						user.save(function(err, user2){
+							if(err) {
+								console.log("error in saving user in jwtauth");
+								console.log(err);
+							}
 							if(decoded.isSO)
 								req.user = user2;
 							else

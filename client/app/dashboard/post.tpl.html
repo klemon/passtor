@@ -29,7 +29,7 @@
 								<div class="col-md-12">
 									<div class="post-meta">
 										<span><i class="icon icon-user"></i> By <a ng-click="profile(post)">{{post.creator}}</a> </span>
-										<span><i class="icon icon-calendar"></i>{{monthToStr(post.created.month)}} {{post.created.day}}, {{post.created.year}}</span>
+										<span><i class="icon icon-calendar"></i>{{post.created.month}} {{post.created.day}}, {{post.created.year}}</span>
 										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>{{post.likes}}</span>
 									</div>
 								</div>
@@ -76,7 +76,7 @@
 													</span> -->
 												</span>
 												<p>{{comment.text}}</p>
-												<span class="date pull-right">{{monthToStr(comment.created.month)}} {{comment.created.day}}, {{comment.created.year}}</span>
+												<span class="date pull-right">{{comment.created.month}} {{comment.created.day}}, {{comment.created.year}}</span>
 											</div>
 										</div>
 									</li>

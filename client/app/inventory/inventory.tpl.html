@@ -177,14 +177,14 @@
 					<div class="row">
 						<div class="col-md-6">
 							<h2 class="shorter"><strong>All Items</strong></h2>
-							<p>{{numItems}} items</p>
+							<p>{{iF.numItems}} items</p>
 						</div>
 						<div class="col-md-6">
-							<select class="orderby pull-right push-bottom" name="orderby" ng-model="selectedSort" ng-options="s.text for s in sorts" ng-click="changeSort()"></select>
+							<select class="orderby pull-right push-bottom" name="orderby" ng-model="iF.selectedSort" ng-options="s.text for s in iF.sorts" ng-click="iF.changeSort()"></select>
 						</div>
 					</div>
 
-					<div ng-repeat="item in items">
+					<div ng-repeat="item in iF.items">
 						<article class="post post-medium">
 							<div class="row">
 								<div class="col-md-7">
@@ -197,12 +197,13 @@
 							<div class="row">
 								<div class="col-md-12">
 									<div class="post-meta">
-										<span><i class="icon icon-user"></i> By <a>{{item.storeName}}</a> </span>
+										<span><i class="icon icon-user"></i> From <a>{{item.storeName}}</a> </span>
 										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Cost: {{item.cost}}</span>
 										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Sold: {{item.sold}}</span>
 										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Redeemed: {{item.redeemed}}</span>
 										<a ng-click="edit(item)" class="btn btn-xs btn-primary pull-right">Edit</a>
-										<a ng-click="delete($index)" class="btn btn-xs btn-primary pull-right">Delete</a>
+										<a ng-click="iF.delete($index)" class="btn btn-xs btn-primary pull-right">Delete</a>
+										<a ng-click="view(item)" class="btn btn-xs btn-primary pull-right">Read more...</a>
 									</div>
 								</div>
 							</div>
@@ -211,7 +212,7 @@
 					<div class="row">
 						<div class="col-md-12">
 							<div class="post-meta">
-								<a ng-click="showMore()" class="btn btn-xs btn-primary pull-right">Show More</a>
+								<a ng-hide="iF.numItems == iF.items.length" ng-click="iF.showMore()" class="btn btn-xs btn-primary pull-right">Show More</a>
 							</div>
 						</div>
 					</div>

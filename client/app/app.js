@@ -10,6 +10,8 @@ var app = angular.module('app', [
 	'inventory',
 	'createItem',
 	'editItem',
+	'items',
+	'item',
 	'post',
 	'posts',
 	'editPost',
@@ -18,7 +20,6 @@ var app = angular.module('app', [
 
 app.config(['$routeProvider', '$locationProvider',
  function ($routeProvider, $locationProvider) {
-  
   $routeProvider.otherwise({redirectTo:'/'});
   $locationProvider.html5Mode(true);
   
@@ -100,7 +101,7 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', '$window',
 }]);
 
 app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
-	var user = {};
+	var user = {Items: []};
 	var otherUsername = "";
 	return {
 		send : function(url, data, done) {
@@ -119,6 +120,9 @@ app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 		},
 		otherUsername: function() {
 			return otherUsername;
+		},
+		addItem: function(itemId) {
+			user.Items.push(itemId);
 		},
 		currentUser: function() {
 			return  user;
@@ -182,118 +186,96 @@ app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 	};
 }]);
 
-app.factory('Store', ['$http', '$location', 'AuthService', function($http, $location, AuthService) {
-	var items;
-	var storeName;
-	var editItem;
-	return {
-		update: function(data) {
-			currentUser = data;
-		},
-		createItem: function(data, done) {
-			$http.post('/createItem', 
-				{username: AuthService.currentUser(), password: AuthService.password(), item: data})
-				.success(function(res) {
-					console.log(res);
-					items = res.items;
-					done(res.message);
-				})
-				.error(function(data) {
-					console.log('Error: ' + data);
-				});
-		},
-		items: function(done) {
-			if(!items)
-			{
-				$http.post('/getItems',
-					{username: AuthService.currentUser(), password: AuthService.password()})
-				.success(function(res) {
-					console.log(res);
-					items = res.items;
-					done(items);
-				})
-				.error(function(data) {
-					console.log("Error: " + data);
-					done(items);
-				});
-			}
-			done(items);
-		},
-		deleteItem: function(item, done) {
-			$http.post('/deleteItem',
-					{username: AuthService.currentUser(), password: AuthService.password(), item: item})
-				.success(function(res) {
-					console.log(res);
-					items = res.items;
-					done(items);
-				})
-				.error(function(data) {
-					console.log("Error: " + data);
-					done(items);
-				});
-		},
-		editItem: function(item, done) {
-			$http.post('/editItem',
-					{username: AuthService.currentUser(), password: AuthService.password(), item: item})
-				.success(function(res) {
-					console.log(res);
-					items = res.items;
-					done(res.message);
-				})
-				.error(function(data) {
-					console.log("Error: " + data);
-					done(res.message);
-				});
-		},
-		prepareToEditItem: function(item) {
-			editItem = item;
-			$location.path('/editItem');
-		},
-		getEditItem: function() {
-			return editItem;
-		}
+app.factory('Posts', ['$http', '$location', 'AuthService', 'User', 
+	function($http, $location, AuthService, User) {
+	var data = function(username) {
+		this.username = username; // null means get all posts
+		this.sorts = [{text: "Date added (newest - oldest)", id: 0},
+		 {text: "Date added (oldest - newest)", id: 1}, {text: "Most popular", id: 2}];
+		this.selectedSort = this.sorts[0];
+		this.prevSort = this.selectedSort;
+		this.numPosts = 0;
+		this.posts = [];
+		this.lastDate = null;
+		this.page = 0; // For Most Popular
+		this.monthToStr = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+		"October", "November", "December"];
 	};
+	data.prototype.showMore = function() {
+		User.send('/posts', {username: this.username, 
+			sort: this.selectedSort.id, lastDate: this.lastDate, page: this.page}, function(err, res) {
+			if(this.selectedSort.id == 2) {
+				++this.page;
+			} else if(res.posts.length) {
+				this.lastDate = res.posts[res.posts.length-1].created;
+			}
+			for(var i = 0; i < res.posts.length; ++i) {
+				var date = new Date(res.posts[i].created);
+				res.posts[i].created = {month: this.monthToStr[date.getMonth()], day: date.getDate(),
+				 year: date.getFullYear()};
+				this.posts.push(res.posts[i]);
+			}
+			this.numPosts = res.numPosts;
+		}.bind(this));
+	}
+	data.prototype.changeSort = function() {
+		if(this.prevSort.id == this.selectedSort.id)
+			return;
+		this.prevSort = this.selectedSort;
+		this.posts = [];
+		this.lastDate =  null;
+		this.page = 0;
+		this.showMore();
+	}
+	return data;
 }]);
 
-app.factory('Posts', ['$http', '$location', 'AuthService', function($http, $location, AuthService) {
-	var post;
-	return {
-		edit: function(p) {
-			post = p;
-			$location.path('/editPost');
-		},
-		getPost: function() {
-			return post;
-		},
-		view: function(p) {
-			post = p;
-			$location.path('/post');
-		},
-		monthToStr: function(num) {
-			if(num == 0)
-				return "January";
-			else if(num == 1)
-				return "February";
-			else if(num == 2)
-				return "March";
-			else if(num == 3)
-				return "April";
-			else if(num == 4)
-				return "May";
-			else if(num == 5)
-				return "June";
-			else if(num == 6)
-				return "July";
-			else if(num == 7)
-				return "August";
-			else if(num == 8)
-				return "September";
-			else if(num == 9)
-				return "October";
-			else if(num == 10)
-				return "November";
-			else
-				return "December";
-		}
+app.factory('Items', ['$http', '$location', 'AuthService', 'User', 
+	function($http, $location, AuthService, User) {
+	var data = function(all, isSO) { // id = null for all items, isSO for is StoreOwner
+		this.all = all;
+		this.isSO = isSO;
+		this.sorts = [{text: "Date added (newest - oldest)", id: 0}, {text: "Date added (oldest - newest)", id: 1},
+			{text: "Most sold", id: 2}, {text: "Most redeemed", id:3}];
+		this.selectedSort = this.sorts[0];
+		this.prevSort = this.selectedSort;
+		this.numItems = 0;
+		this.items = [];
+		this.lastDate = null;
+		this.page = 0; // For Most sold/redeemed
+		this.monthToStr = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+		"October", "November", "December"];
+	};
+	data.prototype.showMore = function() {
+		User.send('/items', {all: this.all, isSO: this.isSO, sort: this.selectedSort.id, 
+			lastDate: this.lastDate, page: this.page}, function(err, res) {
+			if(this.selectedSort.id > 1) {
+		 		++this.page;
+		 	} else if(res.items.length) {
+		 		this.lastDate = res.items[res.items.length-1].created;
+		 	}
+			for(var i = 0; i < res.items.length; ++i) {
+				var date = new Date(res.items[i].created);
+				res.items[i].created = {month: this.monthToStr[date.getMonth()], day: date.getDate(), year: date.getFullYear()};
+				this.items.push(res.items[i]);
+			}
+			this.numItems = res.numItems;
+		}.bind(this));
 	}
+	data.prototype.changeSort = function() {
+		if(this.prevSort.id == this.selectedSort.id)
+			return;
+		this.prevSort = this.selectedSort;
+		this.items = [];
+		this.lastDate =  null;
+		this.page = 0;
+		this.showMore();
+	}
+	data.prototype.delete = function(index) {
+		User.send('/deleteItem', {id: this.items[index].id}, function(err, res) {
+			this.items.splice(index, 1);
+			this.numItems = this.numItems-1;
+		}.bind(this));
+	}
+	return data;
 }]);

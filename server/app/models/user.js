@@ -16,7 +16,8 @@ var User = mongoose.Schema({
     likes               : {type: Number, default: 15},
     coins               : {type: Number, default: 0},
     lastLikeRefresh     : {type: Date, default: moment().add('h', 12).startOf('day').toDate()},
-    StoreOwner          : mongoose.Schema.ObjectId
+    StoreOwner          : {type: mongoose.Schema.ObjectId, default: null},
+    Items               : [{num: {type: Number, default: 1}, id: mongoose.Schema.ObjectId, _id: false}]
   },
   facebook              : {
     id                  : String,

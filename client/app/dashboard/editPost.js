@@ -9,9 +9,9 @@ editPost.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('EditPostCtrl', ['$scope', '$location', 'User', 'Posts',
-	function($scope, $location, User, Posts) {
-	$scope.formData = Posts.getPost();
+.controller('EditPostCtrl', ['$scope', '$location', 'User', 'Posts', '$rootScope',
+	function($scope, $location, User, Posts, $rootScope) {
+	$scope.formData = $rootScope.post;
 	$scope.message = "";
 	$scope.edit = function() {
 		if(!$scope.formData.edit) {

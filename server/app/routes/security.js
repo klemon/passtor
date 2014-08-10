@@ -8,6 +8,9 @@ module.exports = function(app, passport) {
 
 app.post('/login', function(req, res, next) {
   passport.authenticate('local-login', function(err, user, message) {
+    if(!user) {
+      return res.json({message: message});
+    }
     //user has authenticated correctly thus we create a JWT token
     var expires = moment().add('days', 7).valueOf();
     var id;

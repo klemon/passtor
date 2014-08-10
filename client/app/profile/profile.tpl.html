@@ -85,17 +85,11 @@
 						</div>
 					</div>
 				</div>
-
 				<a ng-hide="isStoreOwner" href="/posts"><span  class="label label-default">See Posts</span></a>
-
+				<a ng-show="showItems" href="/items"><span  class="label label-default">See Items</span></a>
 				<p class="portfolio-description taller lead">{{user.description}}</p>
-
-				<!--<a ng-click="logout()" class="btn btn-primary btn-icon btn-lg"><i class="icon icon-external-link"></i>Live Preview</a>-->
-
 			</div>
 		</div>
-
-
 		<hr class="tall" />
 
 		<!--<div class="row">

@@ -24,5 +24,6 @@ profile.config(['$routeProvider', function ($routeProvider) {
 		$scope.isStoreOwner = User.currentUser().storeName;
 		$scope.user = User.currentUser();
 	}
+	$scope.showItems = ($scope.canEdit && !$scope.isStoreOwner);
 	$scope.edit = function() {Posts.edit($scope.post);}
 }]);

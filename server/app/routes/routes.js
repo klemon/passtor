@@ -43,8 +43,8 @@ module.exports = function(app, jwtauth) {
 		var sort;
 		var query;
 		var userFilter = {};
-		if(!req.body.all) {
-				userFilter = {'creator': req.body.username};
+		if(req.body.username) {
+			userFilter = {'creator': req.body.username};
 		}
 		Post.count(userFilter, function(err, c) {
 			if(err) {
@@ -320,40 +320,81 @@ app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req
 	var itemList = [];
 	var sort;
 	var query;
-	var userFilter = {StoreOwner: req.id};
-	Item.count(userFilter, function(err, c) {
-		if(err) {
-			console.log("error in determing item count");
-			console.log(err);
-			res.json({err: err});
+	var lastDateFilter = {};
+	if(req.body.sort == 0) { // Dated added (newest - oldest)
+		sort = {"created" : "descending"};
+	} else if(req.body.sort == 1) {// Date added (oldest - newest)
+		sort = {"created" : "ascending"};
+	} else if(req.body.sort == 2) { // Most sold
+		sort = {"sold" : "descending"};
+	} else { // Most redeemed
+		sort = {"redeemed" : "descending"};
+	}
+	if(req.body.lastDate) {
+		if(req.body.sort == 0) {
+			lastDateFilter = {'created': {$lt: req.body.lastDate}};
+		} else {
+			lastDateFilter = {'created': {$gt: req.body.lastDate}};
 		}
-		var lastDateFilter = {};
-		if(req.body.sort == 0) { // Dated added (newest - oldest)
-			sort = {"created" : "descending"};
-		} else if(req.body.sort == 1) {// Date added (oldest - newest)
-			sort = {"created" : "ascending"};
-		} else if(req.body.sort == 2) { // Most sold
-			sort = {"sold" : "descending"};
-		} else { // Most redeemed
-			sort = {"redeemed" : "descending"};
+	}		
+	if(!req.body.all && !req.body.isSO) {
+		// Return items belonging to a user
+		var itemIds = [];
+		console.log("len: " + req.user.Items.length);
+		for(var j = 0; j < req.user.Items.length; ++j) {
+			itemIds.push(req.user.Items[j].id);
 		}
 		if(req.body.lastDate) {
-			if(req.body.sort == 0) {
-				lastDateFilter = {'created': {$lt: req.body.lastDate}};
-			} else {
-				lastDateFilter = {'created': {$gt: req.body.lastDate}};
-			}
-			query = Item.find({$and: [userFilter, lastDateFilter]}).limit(3).sort(sort);
+			query = Item.find({$and: [{"_id": {$in: itemIds}}, lastDateFilter]}).limit(3).sort(sort);
 		} else {
-			query = Item.find(userFilter).skip(req.body.page*3).limit(3).sort(sort);
+			query = Item.find({"_id": {$in: itemIds}}).skip(req.body.page*3).limit(3).sort(sort);
 		}
-		query.exec(function (err, items){
-			for (var i = 0; i < items.length; i++) {
-				itemList.push(itemInfo(items[i]));
+		query.exec(function(err, items) {
+			for(var i = 0; i < items.length; ++i) {
+				var itemObj = itemInfo(items[i]);
+				for(var j = 0; j < req.user.Items.length; ++j) {
+					if(req.user.Items[j].id.equals(items[i]._id)) {
+						itemObj.num = req.user.Items[j].num;
+						break;
+					}
+				}
+				itemList.push(itemObj);
 			}
-			res.json({items: itemList, numItems: c});
+			console.log("returning items of a user");
+			res.json({items: itemList, coins: req.user.coins, likes: req.user.likes, numItems: itemIds.length});
 		});
-	});
+	} else {
+		userFilter = {};
+		if(!req.body.all && req.body.isSO) {
+			// Return item belonging to an SO
+			userFilter = {StoreOwner: req.id};
+		}
+		Item.count(userFilter, function(err, c) {
+			if(err) {
+				console.log("error in determing item count");
+				console.log(err);
+				res.json({err: err});
+			}
+			if(req.body.lastDate) {
+				query = Item.find({$and: [userFilter, lastDateFilter]}).limit(3).sort(sort);
+			} else {
+				query = Item.find(userFilter).skip(req.body.page*3).limit(3).sort(sort);
+			}
+			query.exec(function (err, items){
+				for (var i = 0; i < items.length; i++) {
+					itemList.push(itemInfo(items[i]));
+				}
+				console.log("returning items");
+				var returnObject = {items: itemList, numItems: c};
+				if(req.body.all || !req.body.isSO)  {
+					console.log("hi");
+					returnObject.likes = req.user.likes;
+					returnObject.coins = req.user.coins;
+				}
+				res.json(returnObject);
+			});
+		});
+	}
 });
 
 app.post('/deleteItem', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
@@ -382,23 +423,75 @@ app.post('/editItem', [express.json(), express.urlencoded(), jwtauth], function(
 	Item.findById(req.body.id, function(err, item) {
 		if(item.StoreOwner == req.id) {
 			Item.findByIdAndUpdate(req.body.id, {$set: {name: req.body.name, 
-					description: req.body.description}}, {safe: true, upsert: true}, function(err, item2) {
-					if(err) {
-						console.log("error in editing item");
-						console.log(err);
-						res.json({err: err});
-					} else if(!item2) {
-						console.log("didn't find item");
-						res.json({err: "didn't find item"});
-					} else {
-						console.log("edited item");
-						res.json({item: itemInfo(item2)});
-					}
+				description: req.body.description}}, {safe: true, upsert: true}, function(err, item2) {
+				if(err) {
+					console.log("error in editing item");
+					console.log(err);
+					res.json({err: err});
+				} else if(!item2) {
+					console.log("didn't find item");
+					res.json({err: "didn't find item"});
+				} else {
+					console.log("edited item");
+					res.json({item: itemInfo(item2)});
+				}
 			});
 		}
 	})
 });
 
+app.post('/buyItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+	Item.findById(req.body.id, function(err, item) {
+		if(err) {
+			console.log("error in buying item");
+			console.log(err);
+			res.json({err: err});
+		} else if(!item) {
+			console.log("couldn't find item for buying");
+			res.json({err: "couldn't find item for buyting"});
+		} else if(req.user.coins < item.cost) {
+			console.log("user coins: " + req.user.coins);
+			console.log("item cost: " + item.cost);
+			console.log("user doesn't have enough to buy item");
+			res.json({err: "not enough coins to buy"});
+		} else {
+			User.findById(req.id, function(err, user) {
+				if(err) {
+			 		console.log("error in finding user for /buyItem");
+			 		console.log(err);
+			 		res.json({err: err});
+			 	} else if(!user) {
+			 		console.log("didn't find user for /buyItem");
+			 		res.json({err: "no user found"});
+			 	} else {
+					var hasItem = false;
+					for(var i = 0; i < user.local.Items.length; ++i) {
+						if(user.local.Items[i].id.equals(item._id)) {
+							console.log("true");
+							hasItem = true;
+							++user.local.Items[i].num;
+							break;
+						}
+					}
+					user.local.coins -= item.cost;
+					if(!hasItem) {
+						user.local.Items.push({num: 1, id: item._id});
+					}
+					user.save(function(err, user2) {
+						if(err) {
+							console.log("error in saving for /buyItem");
+							console.log(err);
+							res.json({err: err});
+						} else {
+							console.log("User bought item");
+							res.json({coins: user2.coins, likes: user2.likes});
+						}
+					})
+				}
+			});
+		}
+	});
+});
 }
 
 
