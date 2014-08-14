@@ -216,6 +216,7 @@ daveUser.save(function(err, user) {
 		daveSO.firstName     = "David";
 		daveSO.lastName      = "Davidson";
 		daveSO.storeName		= "McDankey";
+		daveSO.username		= daveUser.local.username;
 		daveSO.Items 		= [];
 		createDavesItems(daveSO, function(daveUser2, item1, item2, item3, item4) {
 			user.local.StoreOwner = daveUser2._id;

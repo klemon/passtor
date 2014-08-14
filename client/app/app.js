@@ -1,21 +1,31 @@
 var app = angular.module('app', [
 	'ngRoute',
-	'dashboard',
-	'store',
+	'otherPost',
+	'otherPosts',
+	'otherProfile',
+	'posts',
 	'login',
 	'signup',
-	'profile',
-	'editProfile',
-	'createPost',
-	'inventory',
+	'storeItem',
+	'storeItems',
+	'storeProfile',
 	'createItem',
 	'editItem',
-	'items',
-	'item',
-	'post',
-	'posts',
+	'editSOProfile',
+	'sOItem',
+	'sOItems',
+	'sOProfile',
+	'createPost',
 	'editPost',
-	'infinite-scroll'
+	'editProfile',
+	'userItem',
+	'userItems',
+	'userPost',
+	'userPosts',
+	'userProfile',
+	'wishItem',
+	'wishlist',
+	'infinite-scroll',
 	]);
 
 app.config(['$routeProvider', '$locationProvider',
@@ -30,9 +40,9 @@ app.config(['$routeProvider', '$locationProvider',
 	if(User.isLoggedIn()) {
 		$rootScope.$broadcast('loggedIn');
 		if(User.currentUser().storeName)
-			$location.path('/inventory');
+			$location.path('/sOItems');
 		else 
-			$location.path('/dashboard');
+			$location.path('/posts');
 	}
 	else
 		$location.path('/login');
@@ -56,14 +66,6 @@ app.config(['$routeProvider', '$locationProvider',
 		$scope.storeName = "";
 		$scope.isLoggedIn = false;
 		$location.path('/login');
-	}
-	$scope.profile = function() {
-		User.setOtherUsername(User.currentUser().username);
-		if($location.path() == "/profile")
-			$route.reload();
-		else {
-			$location.path('/profile');
-		}
 	}
 }]);
 
@@ -232,7 +234,8 @@ app.factory('Posts', ['$http', '$location', 'AuthService', 'User',
 
 app.factory('Items', ['$http', '$location', 'AuthService', 'User', 
 	function($http, $location, AuthService, User) {
-	var data = function(all, isSO) { // id = null for all items, isSO for is StoreOwner
+	var data = function(all, isSO, url) { // id = null for all items, isSO for is StoreOwner
+		this.url = url || '/items'; // default parameter for url
 		this.all = all;
 		this.isSO = isSO;
 		this.sorts = [{text: "Date added (newest - oldest)", id: 0}, {text: "Date added (oldest - newest)", id: 1},
@@ -246,8 +249,8 @@ app.factory('Items', ['$http', '$location', 'AuthService', 'User',
 		this.monthToStr = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
 		"October", "November", "December"];
 	};
-	data.prototype.showMore = function() {
-		User.send('/items', {all: this.all, isSO: this.isSO, sort: this.selectedSort.id, 
+	data.prototype.showMore = function(done) {
+		User.send(this.url, {all: this.all, isSO: this.isSO, sort: this.selectedSort.id, 
 			lastDate: this.lastDate, page: this.page}, function(err, res) {
 			if(this.selectedSort.id > 1) {
 		 		++this.page;
@@ -257,9 +260,19 @@ app.factory('Items', ['$http', '$location', 'AuthService', 'User',
 			for(var i = 0; i < res.items.length; ++i) {
 				var date = new Date(res.items[i].created);
 				res.items[i].created = {month: this.monthToStr[date.getMonth()], day: date.getDate(), year: date.getFullYear()};
+				if(!this.isSO) {
+					for(var j = 0; j < res.itemNums.length; ++j) {
+						if(res.itemNums[j].id == res.items[i].id) {
+							res.items[i].num = res.itemNums[j].num;
+							break;
+						}
+					}
+				}
 				this.items.push(res.items[i]);
 			}
 			this.numItems = res.numItems;
+			if(done)
+				done();
 		}.bind(this));
 	}
 	data.prototype.changeSort = function() {

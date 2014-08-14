@@ -37,9 +37,9 @@ login.controller('LoginCtrl', ['$scope', '$rootScope', '$location','AuthService'
 				$rootScope.$broadcast('loggedIn');
 				AuthService.setToken(res.token, res.expires);
 				if(res.storeOwner) {
-					$location.path('/inventory');
+					$location.path('/sOItems');
 				} else {
-					$location.path('/dashboard');
+					$location.path('/posts');
 				}
 			}
 		});

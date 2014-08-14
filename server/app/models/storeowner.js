@@ -8,6 +8,7 @@ var StoreOwner = mongoose.Schema({
     storeName           : String,
     Items               : [{type: mongoose.Schema.ObjectId}],
     User                : mongoose.Schema.ObjectId,
+    username			: String,
     email               : String,
     firstName           : String,
     lastName            : String

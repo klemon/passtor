@@ -1,0 +1,35 @@
+<section>
+	<div role="main" class="main">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-9">
+					<div class="blog-posts">
+						<article class="post post-medium">
+							<div class="row">
+								<div class="col-md-7">
+									<div class="post-content">
+										<h2><a href="">{{item.name}}</a></h2>
+										<p>{{item.description}}</p>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="post-meta">
+										<span><i class="icon icon-user"></i> By <a>{{item.storeName}}</a> </span>
+										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Cost: {{item.cost}}</span>
+										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Sold: {{item.sold}}</span>
+										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Redeemed: {{item.redeemed}}</span>
+									</div>
+								</div>
+							</div>
+							<div>
+								<a ng-click="edit()"><span class="label label-default">Edit Item</span></a>
+							</div>
+						</article>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

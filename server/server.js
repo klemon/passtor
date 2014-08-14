@@ -89,6 +89,7 @@ jwtauth = function(req, res, next) {
 								console.log("error in saving user in jwtauth");
 								console.log(err);
 							}
+							req.isSO = decoded.isSO;
 							if(decoded.isSO)
 								req.user = user2;
 							else

@@ -23,6 +23,11 @@ itemInfo = function(item) {
 		sold: item.sold, redeemed: item.redeemed, id: item._id, cost: item.cost, created: item.created};
 }
 
+storeOwnerInfo = function(storeOwner) {
+	return {storeName: storeOwner.storeName, username: storeOwner.username, email: storeOwner.email, 
+		firstName: storeOwner.firstName, lastName: storeOwner.lastName};
+
+}
 module.exports = function(app, jwtauth) {
 
 	// api --------------------------------------------------------------------
@@ -94,27 +99,25 @@ module.exports = function(app, jwtauth) {
 	    });
 	});
 
-	// not currently being used, A post is chosen from a list of posts currently so there
-	// is no need to load a single post
-	app.post('/loadpost', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-		Post.findOne({ '_id' : req.id }, function(err, post) {
-	      // if there are any errors, return the error before anything else
-	      if (err)
-	      {
-	        console.log("Error in logging in");
-	        return res.send(err);
-	      }
-
-	      // if no user is found, return the message
-	      if(!post)
-	      {
-	        console.log("No post is found");
-	        return res.send("Post does not exist.");
-	      }
-			return res.json({post: {title: post.title, description: post.description, created: post.created,
-				creator: post.creator, likes: post.likes, id: post._id, numComments: post.numComments}});
-	    });
-	});
+	app.post('/storeOwner', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		StoreOwner.findOne({'storeName' : req.body.storeName}, function(err, storeOwner) {
+			if (err) {
+				console.log("Error in finding storeowner");
+				return res.json({err: "Error in finding storeowner"});
+			} else if(!storeOwner) {
+				console.log("No storeowner is found.");
+				return res.json({err: "Couldn't find storeowner."});
+			} else {
+				console.log("returning storeOwner info");
+				if(req.isSO)
+					return res.json({storeOwner: storeOwnerInfo(storeOwner)});
+				else {
+					return res.json({storeOwner: storeOwnerInfo(storeOwner),
+					coins: req.user.coins, likes: req.user.likes});
+				}
+			}
+		});
+	});	
 
 	app.post('/editPost', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
 		Post.findById(req.body.id, function(err, post) {
@@ -135,7 +138,6 @@ module.exports = function(app, jwtauth) {
 		});
 	});
 
-	// create a todo, information comes from AJAX request from Angular
 	app.post('/createPost', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
 		Post.create({
 			title: req.body.title,
@@ -238,14 +240,14 @@ module.exports = function(app, jwtauth) {
 															comment.creator}, post: {title: post2.title, description: post2.description,
 																created: post2.created, creator: post2.creator, likes: post2.likes,
 																id: post2._id, numComments: post2.numComments},
-																 coins: user2.coins, likes: user2.likes});
+																 coins: user2.local.coins, likes: user2.local.likes});
 													}
 												});
 											} else {
 												res.json({comment : null, post: {title: post2.title, description: post2.description,
 																created: post2.created, creator: post2.creator, likes: post2.likes,
 																id: post2._id, numComments: post2.numComments},
-																 coins: user2.coins, likes: user2.likes});
+																 coins: user2.local.coins, likes: user2.local.likes});
 											}
 										}
 									})
@@ -310,7 +312,7 @@ app.post('/createItem', [express.json(), express.urlencoded(), jwtauth], functio
 				console.log(err);
 				res.json({err: err});
 			} else {
-				res.json({item : itemInfo(item)});
+				res.json({item : itemInfo(item), coins: req.user.coins, likes: req.user.likes});
 			}
 		});
 	}
@@ -340,7 +342,6 @@ app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req
 	if(!req.body.all && !req.body.isSO) {
 		// Return items belonging to a user
 		var itemIds = [];
-		console.log("len: " + req.user.Items.length);
 		for(var j = 0; j < req.user.Items.length; ++j) {
 			itemIds.push(req.user.Items[j].id);
 		}
@@ -351,17 +352,11 @@ app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req
 		}
 		query.exec(function(err, items) {
 			for(var i = 0; i < items.length; ++i) {
-				var itemObj = itemInfo(items[i]);
-				for(var j = 0; j < req.user.Items.length; ++j) {
-					if(req.user.Items[j].id.equals(items[i]._id)) {
-						itemObj.num = req.user.Items[j].num;
-						break;
-					}
-				}
-				itemList.push(itemObj);
+				itemList.push(itemInfo(items[i]));
 			}
 			console.log("returning items of a user");
-			res.json({items: itemList, coins: req.user.coins, likes: req.user.likes, numItems: itemIds.length});
+			res.json({items: itemList, itemNums: req.user.Items,
+				coins: req.user.coins, likes: req.user.likes, numItems: itemIds.length});
 		});
 	} else {
 		userFilter = {};
@@ -387,7 +382,7 @@ app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req
 				console.log("returning items");
 				var returnObject = {items: itemList, numItems: c};
 				if(req.body.all || !req.body.isSO)  {
-					console.log("hi");
+					returnObject.itemNums = req.user.Items;
 					returnObject.likes = req.user.likes;
 					returnObject.coins = req.user.coins;
 				}
@@ -395,6 +390,88 @@ app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req
 			});
 		});
 	}
+});
+
+app.post('/wishlistIds', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+	res.json({wishlistIds: req.user.wishlist, coins: req.user.coins, likes: req.user.likes});
+});
+
+app.post('/wishlist', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+	var itemList = [];
+	var sort;
+	var query;
+	var lastDateFilter = {};
+	if(req.body.sort == 0) { // Dated added (newest - oldest)
+		sort = {"created" : "descending"};
+	} else if(req.body.sort == 1) {// Date added (oldest - newest)
+		sort = {"created" : "ascending"};
+	} else if(req.body.sort == 2) { // Most sold
+		sort = {"sold" : "descending"};
+	} else { // Most redeemed
+		sort = {"redeemed" : "descending"};
+	}
+	if(req.body.lastDate) {
+		if(req.body.sort == 0) {
+			lastDateFilter = {'created': {$lt: req.body.lastDate}};
+		} else {
+			lastDateFilter = {'created': {$gt: req.body.lastDate}};
+		}
+	}		
+	if(req.body.lastDate) {
+		query = Item.find({$and: [{"_id": {$in: req.user.wishlist}}, lastDateFilter]}).limit(3).sort(sort);
+	} else {
+		query = Item.find({"_id": {$in: req.user.wishlist}}).skip(req.body.page*3).limit(3).sort(sort);
+	}
+	query.exec(function(err, items) {
+		for(var i = 0; i < items.length; ++i) {
+			itemList.push(itemInfo(items[i]));
+		}
+		console.log("returning wishlist of a user");
+		res.json({items: itemList, numItems: items.length, itemNums: req.user.Items,
+		 coins: req.user.coins, likes: req.user.likes});
+	});
+});
+
+app.post('/addToWishlist', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+	Item.findById(mongoose.Types.ObjectId(req.body.id), function(err, item) {
+		if(err) {
+			console.log("error in /addToWishlist");
+			res.json({err:err});
+		} else if(!item) {
+			console.log("item not found in /addToWishlist");
+			res.json({err: "item not found"});
+		} else {
+			User.findByIdAndUpdate(req.id, {$push: {"local.wishlist": item._id}}, {safe: true, upsert: true}, function(err, user) {
+				if(err) {
+					console.log("error in /addToWishlist");
+					console.log(err);
+					res.json({err: err});
+				} else {
+					res.json({coins: req.user.coins, likes: req.user.likes});
+				}
+			});
+		}
+	});
+});
+
+app.post('/removeFromWishlist', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
+	User.findById(req.id, function(err, user) {
+		for(var i = 0; i < user.local.wishlist.length; ++i) {
+			if(user.local.wishlist[i].equals(mongoose.Types.ObjectId(req.body.id))) {
+				user.local.wishlist.splice(i, 1);
+				console.log("removed item from wishlist");
+				break;
+			}
+		}
+		user.save(function(err, user2) {
+			if(err) {
+				console.log(err);
+				res.json({err: err});
+			} else {
+				res.json({coins: user2.local.coins, likes: user2.local.likes});
+			}
+		});
+	});
 });
 
 app.post('/deleteItem', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
@@ -412,7 +489,7 @@ app.post('/deleteItem', [express.json(), express.urlencoded(), jwtauth], functio
 					res.json({err: "failed to delete item"});
 				} else {
 					console.log("deleted item");
-					res.json({});
+					res.json({coins: req.user.coins, likes: req.user.likes});
 				}
 			});
 		}
@@ -433,7 +510,7 @@ app.post('/editItem', [express.json(), express.urlencoded(), jwtauth], function(
 					res.json({err: "didn't find item"});
 				} else {
 					console.log("edited item");
-					res.json({item: itemInfo(item2)});
+					res.json({item: itemInfo(item2), coins: req.user.coins, likes: req.user.likes});
 				}
 			});
 		}
@@ -467,7 +544,6 @@ app.post('/buyItem', [express.json(), express.urlencoded(), jwtauth], function(r
 					var hasItem = false;
 					for(var i = 0; i < user.local.Items.length; ++i) {
 						if(user.local.Items[i].id.equals(item._id)) {
-							console.log("true");
 							hasItem = true;
 							++user.local.Items[i].num;
 							break;
@@ -484,7 +560,7 @@ app.post('/buyItem', [express.json(), express.urlencoded(), jwtauth], function(r
 							res.json({err: err});
 						} else {
 							console.log("User bought item");
-							res.json({coins: user2.coins, likes: user2.likes});
+							res.json({coins: user2.local.coins, likes: user2.local.likes});
 						}
 					})
 				}
