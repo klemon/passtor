@@ -23,8 +23,8 @@ editProfile.config(['$routeProvider', function ($routeProvider) {
 				$scope.message = res.message;
 				return;
 			} else {
-				User.setUser(res.user);
-				$location.path('/profile');
+				User.setUser(res);
+				$location.path('/userProfile');
 			}
 		});
 	};

@@ -28,6 +28,11 @@ storeOwnerInfo = function(storeOwner) {
 		firstName: storeOwner.firstName, lastName: storeOwner.lastName};
 
 }
+
+commentInfo = function(comment) {
+	return {text: comment.text, created: comment.created, creator: comment.creator};
+}
+
 module.exports = function(app, jwtauth) {
 
 	// api --------------------------------------------------------------------
@@ -44,20 +49,14 @@ module.exports = function(app, jwtauth) {
 	});
 	
 	app.post('/posts', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-		var postList = [];
-		var sort;
-		var query;
+		var count;
 		var userFilter = {};
 		if(req.body.username) {
 			userFilter = {'creator': req.body.username};
 		}
-		Post.count(userFilter, function(err, c) {
-			if(err) {
-				console.log("error in determing posts count");
-				console.log(err);
-				res.json({err: err});
-			}
-			var lastDateFilter = {};
+		Post.count(userFilter).exec().then(function(c) {
+			count = c;
+			var sort;
 			if(req.body.sort == 0) { // Dated added (newest - oldest)
 				sort = {"created" : "descending"};
 			} else if(req.body.sort == 1) {// Date added (oldest - newest)
@@ -65,76 +64,75 @@ module.exports = function(app, jwtauth) {
 			} else {
 				sort = {"likes" : "descending"};
 			}
+			var lastDateFilter = {};
 			if(req.body.lastDate) {
 				if(req.body.sort == 0) {
 					lastDateFilter = {'created': {$lt: req.body.lastDate}};
 				} else {
 					lastDateFilter = {'created': {$gt: req.body.lastDate}};
 				}
-				query = Post.find({$and: [userFilter, lastDateFilter]}).limit(3).sort(sort);
+				return Post.find({$and: [userFilter, lastDateFilter]}).limit(3).sort(sort).exec();
 			} else {
-				query = Post.find(userFilter).skip(req.body.page*3).limit(3).sort(sort);
+				return Post.find(userFilter).skip(req.body.page*3).limit(3).sort(sort).exec();
 			}
-			query.exec(function (err, posts){
+		}).then(function(posts) {
+				var postList = [];
 				for (var i = 0; i < posts.length; i++) {
 					postList.push(postInfo(posts[i]));
 				}
-				res.json({posts: postList, coins: req.user.coins, likes: req.user.likes, numPosts: c});
-			});
+				res.json({posts: postList, coins: req.user.coins, likes: req.user.likes, numPosts: count});
+		}).then(null, function(err) {
+			console.log(err);
+			res.json({err:err});
 		});
 	});
 
 	app.post('/user', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-		User.findOne({'local.username' : req.body.otherUsername}, function(err, user) {
-			if (err) {
-				console.log("Error in finding user");
-				return res.json({err: "Error in finding user"});
-			} else if(!user) {
-				console.log("No user is found.");
-				return res.json({err: "Couldn't find user."});
+		User.findOne({'local.username' : req.body.otherUsername}).exec().then(function(user) {
+			if(!user) {
+				throw new Error("Did not find user");
 			} else {
-				return res.json({user: userInfo(user.local),
+				res.json({user: userInfo(user.local),
 					coins: req.user.coins, likes: req.user.likes});
 			}
-	    });
+		}).then(null, function(err) {
+			console.log(err);
+			res.json({err:err});
+		});
 	});
 
 	app.post('/storeOwner', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-		StoreOwner.findOne({'storeName' : req.body.storeName}, function(err, storeOwner) {
-			if (err) {
-				console.log("Error in finding storeowner");
-				return res.json({err: "Error in finding storeowner"});
-			} else if(!storeOwner) {
-				console.log("No storeowner is found.");
-				return res.json({err: "Couldn't find storeowner."});
+		StoreOwner.findOne({'storeName' : req.body.storeName}).exec().then(function(storeOwner) {
+			if(!storeOwner) {
+				throw new Error("Did not find store owner");
 			} else {
-				console.log("returning storeOwner info");
 				if(req.isSO)
-					return res.json({storeOwner: storeOwnerInfo(storeOwner)});
+					res.json({storeOwner: storeOwnerInfo(storeOwner)});
 				else {
-					return res.json({storeOwner: storeOwnerInfo(storeOwner),
+					res.json({storeOwner: storeOwnerInfo(storeOwner),
 					coins: req.user.coins, likes: req.user.likes});
 				}
 			}
+		}).then(null, function(err) {
+			console.log(err);
+			res.json({err: err});
 		});
 	});	
 
 	app.post('/editPost', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-		Post.findById(req.body.id, function(err, post) {
-			var text = "\nEdit: ";
-			text = text + req.body.edit;
-			console.log(text);
-			post.description = post.description + text;
-			post.save(function(err, editedPost, numberAffected) {
-				if(err) {
-					console.log("Error in editing post.");
-					console.log(err);
-					res.json({err: err});
-				} else {
-					res.json({post: postInfo(editedPost),
-						 coins: req.user.coins, likes: req.user.likes});
-				}
-			});
+		Post.findById(req.body.id).exec().then(function(post) {
+			if(!post) {
+				throw new Error("Did not find post.");
+			} else {
+				var text = "\nEdit: ";
+				text = text + req.body.edit;
+				return Post.findByIdAndUpdate(req.body.id, {$set: {description: post.description+text}}).exec();
+			}
+		}).then(function(editedPost) {
+			res.json({post: postInfo(editedPost), coins: req.user.coins, likes: req.user.likes});
+		}).then(null, function(err) {
+			console.log(err);
+			res.json({err:err});
 		});
 	});
 
@@ -143,14 +141,11 @@ module.exports = function(app, jwtauth) {
 			title: req.body.title,
 			description: req.body.description,
 			creator: req.user.username
-		}, function(err, post) {
-			if (err) {
-				console.log(err);
-				res.json({err:"Error when creating post."});
-			} else {
-				console.log("created post");
-				res.json({post: postInfo(post)});
-			}
+		}).then(function(post) {
+			res.json({post: postInfo(post)});
+		}).then(null, function(err) {
+			console.log(err);
+			res.json({err:err});
 		});
 	});
 
@@ -160,17 +155,16 @@ module.exports = function(app, jwtauth) {
 		}
 		User.findByIdAndUpdate(req.id, {$set: {'local.firstName': req.body.firstName, 
 		'local.lastName': req.body.lastName, 'local.email': req.body.email}}, 
-			{safe: true, upsert: true}, function(err, user) {
-			if(err) {
-				console.log(err);
-				res.json({err: "Error in updating user info"});
-			} else if(!user) {
-				console.log("Couldn't find user when updating info");
-				res.json({err: "Couldn't find user when updating info"});
+			{safe: true, upsert: true}).exec().then(function(user) {
+			if(!user) {
+				throw new Error("Did not find user.");
 			} else {
-				console.log("updated user info");
+				console.log("user: " + userInfo(user.local));
 				res.json({user: userInfo(user.local), coins: req.user.coins, likes: req.user.likes});
 			}
+		}).then(null, function(err) {
+			console.log(err);
+			res.json({err:err});
 		});
 	 });
 
@@ -182,80 +176,56 @@ module.exports = function(app, jwtauth) {
 		if(!req.user.likes) {
 			res.json({err: "No likes left"});
 		} else {
-			Post.findById(req.body.postId, function(err, post) {
-				if(err) {
-					console.log(err);
-					console.log("Error in finding post for commment");
-					res.json({err : err});
-				} else if(!post) {
-					console.log("Post not found for comment");
-					res.json({err : "Post does not exist"});
+			var postId;
+			var addForUserComment = 0;
+			var userObj;
+			var postObj;
+			if(req.body.text)
+				addForUserComment = 1;
+			Post.findById(req.body.postId).exec().then(function(post) {
+				if(!post) {
+					throw new Error("Did not find post.");
 				} else if(post.creator == req.user.username) {
-					console.log("User cannot like their own post");
-					res.json({err : "User cannot like thier own post"});
+					throw new Error("User cannot like their own post.");
 				} else {
-					User.findOneAndUpdate({'local.username' : post.creator}, {$inc: {'local.coins': 1}},
-					 {safe: true, upsert: true}, function(err, user) {
-						if(err) {
-							console.log("Error in incrementing coins for a like");
-							console.log(err);
-							res.json({err: err});
-						} else if(!user) {
-							console.log("user not found for a like");
-							res.json({err: "user not found"});
-						} else {
-							console.log("updated post creator");
-							User.findByIdAndUpdate(req.id, {$inc: {'local.coins': 1, 'local.likes': -1}},
-								{safe: true, upsert: true}, function(err, user2) {
-								if(err) {
-									console.log("Error in updating user for a like");
-									console.log(err);
-									res.json({err: err});
-								} else if(!user2) {
-									console.log("User not found for a like");
-									res.json({err: "user not found"});
-								} else {
-									console.log("updated liker");
-									post.likes = post.likes+1;
-									post.numComments = post.numComments+1;
-									post.save(function(err, post2) {
-										if(err) {
-											console.log("Error in incrementing likes for post");
-											console.log(err);
-											res.json({err:err});
-										} else {
-											if(req.body.text) {
-												Comment.create({
-													text: req.body.text,
-													Post : req.body.postId,
-													creator: req.user.username
-												}, function(err, comment) {
-													if(err) {
-														console.log(err);
-														console.log("Error in creating comment");
-														res.json({err: err});
-													} else {
-														console.log("Succesfully created comment");
-														res.json({comment: {text: comment.text, created: comment.created, creator:
-															comment.creator}, post: {title: post2.title, description: post2.description,
-																created: post2.created, creator: post2.creator, likes: post2.likes,
-																id: post2._id, numComments: post2.numComments},
-																 coins: user2.local.coins, likes: user2.local.likes});
-													}
-												});
-											} else {
-												res.json({comment : null, post: {title: post2.title, description: post2.description,
-																created: post2.created, creator: post2.creator, likes: post2.likes,
-																id: post2._id, numComments: post2.numComments},
-																 coins: user2.local.coins, likes: user2.local.likes});
-											}
-										}
-									})
-								}
-							});
-						}
+					postId = post._id;
+					return User.findOneAndUpdate({'local.username' : post.creator}, {$inc: {'local.coins': 1}},
+					 {safe: true, upsert: true}).exec();
+				}
+			}).then(function(user) {
+				if(!user) {
+					throw new Error("Did not find user.");
+				} else {
+					return User.findByIdAndUpdate(req.id, {$inc: {'local.coins': 1, 'local.likes': -1}},
+						{safe: true, upsert: true}).exec();
+				}
+			}).then(function(user) {
+				if(!user) {
+					throw new Error("Did not find user.");
+				} else {
+					userObj = user;
+					return Post.findByIdAndUpdate(postId, {$inc: {'likes': 1, 'numComments': addForUserComment}}).exec();
+				}
+			}).then(function(post) {
+				postObj = post;
+				if(req.body.text) {
+					return Comment.create({
+						text: req.body.text,
+						Post : req.body.postId,
+						creator: req.user.username
 					});
 				}
+			}).then(function(comment) {
+				if(req.body.text) {
+					res.json({comment: commentInfo(comment), post: postInfo(postObj),
+					coins: userObj.local.coins, likes: userObj.local.likes});
+				} else {
+					res.json({comment : null, post: postInfo(postObj),
+						coins: userObj.local.coins, likes: userObj.local.likes});
+				}
+			}).then(null, function(err) {
+				console.log(err);
+				res.json({err:err});
 			});
 		}
 	});

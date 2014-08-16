@@ -17,15 +17,21 @@ otherPost.config(['$routeProvider', function ($routeProvider) {
 	$scope.busy = false;
 	$scope.lastDate = null;
 	$scope.posts = new Posts();
+	$scope.numLikesLeft = User.currentUser().likes;
 	$scope.like = function() {
 		User.send('/like', {text: $scope.text, postId: $scope.post.id}, function(err, res) {
+			var postDate = new Date(res.post.created);
+			res.post.created = {month:$scope.posts.monthToStr[postDate.getMonth()],
+			 day:postDate.getDate(), year:postDate.getFullYear()};
 			$scope.post = res.post;
-			if(!$scope.comments.length)
-				$scope.lastDate = res.comment.created
-			var date = new Date(res.comment.created);
-			res.comment.created = {month:$scope.posts.monthToStr[date.getMonth()],
-			 day:date.getDate(), year:date.getFullYear()};
-			$scope.comments.unshift(res.comment);
+			if(res.comment) {
+				if(!$scope.comments.length)
+					$scope.lastDate = res.comment.created
+				var date = new Date(res.comment.created);
+				res.comment.created = {month:$scope.posts.monthToStr[date.getMonth()],
+				 day:date.getDate(), year:date.getFullYear()};
+				$scope.comments.unshift(res.comment);
+			}
 			$scope.text = "";
 		});
 	}
