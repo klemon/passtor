@@ -468,7 +468,7 @@ app.post('/deleteItem', [express.json(), express.urlencoded(), jwtauth], functio
 
 app.post('/editItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
 	Item.findById(req.body.id, function(err, item) {
-		if(item.StoreOwner == req.id) {
+		if(req.id.equals(item.StoreOwner)) {
 			Item.findByIdAndUpdate(req.body.id, {$set: {name: req.body.name, 
 				description: req.body.description}}, {safe: true, upsert: true}, function(err, item2) {
 				if(err) {
