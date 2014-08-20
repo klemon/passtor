@@ -80,7 +80,10 @@ module.exports = function(app, jwtauth) {
 				for (var i = 0; i < posts.length; i++) {
 					postList.push(postInfo(posts[i]));
 				}
-				res.json({posts: postList, coins: req.user.coins, likes: req.user.likes, numPosts: count});
+				if(req.isUser)
+					res.json({posts: postList, coins: req.user.coins, likes: req.user.likes, numPosts: count});
+				else
+					res.json({posts: postList, numPosts: count});
 		}).then(null, function(err) {
 			console.log(err);
 			res.json({err:err});
@@ -260,8 +263,11 @@ module.exports = function(app, jwtauth) {
 							commentList.push({text: comments[i].text, created: comments[i].created,
 												creator: comments[i].creator});
 						}
-						res.json({comments: commentList, coins: req.user.coins, likes: req.user.likes,
+						if(req.isUser)
+							res.json({comments: commentList, coins: req.user.coins, likes: req.user.likes,
 							numComments: post.numComments});
+						else
+							res.json({comments: commentList, numComments: post.numComments});
 					}
 				});
 			}
@@ -309,7 +315,7 @@ app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req
 			lastDateFilter = {'created': {$gt: req.body.lastDate}};
 		}
 	}		
-	if(!req.body.all && !req.body.isSO) {
+	if(!req.body.all && req.body.isUser) {
 		// Return items belonging to a user
 		var itemIds = [];
 		for(var j = 0; j < req.user.Items.length; ++j) {
@@ -351,7 +357,7 @@ app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req
 				}
 				console.log("returning items");
 				var returnObject = {items: itemList, numItems: c};
-				if(req.body.all || !req.body.isSO)  {
+				if(req.body.isUser) {
 					returnObject.itemNums = req.user.Items;
 					returnObject.likes = req.user.likes;
 					returnObject.coins = req.user.coins;

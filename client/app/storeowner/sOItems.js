@@ -12,7 +12,7 @@ sOItems.config(['$routeProvider', function ($routeProvider) {
 
 sOItems.controller('SOItemsCtrl', ['$scope', '$location', '$rootScope', 'Items',
  function($scope, $location, $rootScope, Items) {
-	$scope.iF = new Items(false, true); // iF = Items Factory
+	$scope.iF = new Items(false); // iF = Items Factory
 	$scope.iF.showMore();
 	$scope.edit = function(item) {
 		$rootScope.item = item;

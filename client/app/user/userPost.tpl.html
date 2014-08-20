@@ -1,27 +1,15 @@
 <section>
 	<div role="main" class="main">
-
 		<div class="container">
-
-			<div class="row">
-				<div class="col-md-9">
-					<div class="blog-posts">
-
+			<div class="masonry-item">
+				<div class="featured-box">
+					<div class="box-content">
 						<article class="post post-medium">
 							<div class="row">
-								
-								<!--<div class="col-md-5">
-									<div class="post-image single">
-										<img class="img-thumbnail" src="public/img/blog-medium-image-2.jpg" alt="">
-									</div>
-								</div>-->
-								<div class="col-md-7">
-
+								<div class="col-md-12">
 									<div class="post-content">
-
 										<h2><a href="">{{post.title}}</a></h2>
-										<p style="white-space: pre;">{{post.description}}</p>
-
+										<p style="white-space: pre;" nodotdotdot ng-bind="post.description"></p>
 									</div>
 								</div>
 							</div>
@@ -34,46 +22,38 @@
 									</div>
 								</div>
 							</div>
-
 							<div> 
 								<a ng-click="edit()"><span class="label label-default">Edit Post</span></a>
 							</div>
-							
-							<div class="post-block post-comments clearfix">
-								<h3>Comments ({{post.numComments}})</h3>
-								<ul class="comments">
-
-								<div infinite-scroll="nextPage()" infinite-scroll-disable="busy" infinite-scroll-distance="1">
-									<li ng-repeat="comment in comments">
-										<div class="comment">
-											<div class="img-thumbnail">
-												<img class="avatar" alt="" src="img/avatar-2.jpg">
-											</div>
-											<div class="comment-block">
-												<div class="comment-arrow"></div>
-												<span class="comment-by">
-													<a ng-click="profile(comment.creator)"><strong>{{comment.creator}}</strong></a>
-													<!--<span class="pull-right">
-														<span> <a href="#"><i class="icon icon-reply"></i> Reply</a></span>
-													</span> -->
-												</span>
-												<p>{{comment.text}}</p>
-												<span class="date pull-right">{{comment.created.month}} {{comment.created.day}}, {{comment.created.year}}</span>
-											</div>
-										</div>
-									</li>
-								</div>
-
-								</ul>
-							</div>
-
 						</article>
-
 					</div>
 				</div>
+				<div class="post-block post-comments clearfix">
+					<h3>Comments ({{post.numComments}})</h3>
+					<ul class="comments">
+					<div infinite-scroll="nextPage()" infinite-scroll-disable="busy" infinite-scroll-distance="1">
+						<li ng-repeat="comment in comments">
+							<div class="comment">
+								<div class="img-thumbnail">
+									<img class="avatar" alt="" src="img/avatar-2.jpg">
+								</div>
+								<div class="comment-block">
+									<div class="comment-arrow"></div>
+									<span class="comment-by">
+										<a ng-click="profile(comment.creator)"><strong>{{comment.creator}}</strong></a>
+										<!--<span class="pull-right">
+											<span> <a href="#"><i class="icon icon-reply"></i> Reply</a></span>
+										</span> -->
+									</span>
+									<p>{{comment.text}}</p>
+									<span class="date pull-right">{{comment.created.month}} {{comment.created.day}}, {{comment.created.year}}</span>
+								</div>
+							</div>
+						</li>
+					</div>
+					</ul>
+				</div>
 			</div>
-
 		</div>
-
 	</div>
 </section>

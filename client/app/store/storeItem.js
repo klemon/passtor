@@ -12,6 +12,7 @@ storeItem.controller('StoreItemCtrl', ['$scope', '$location', 'User', '$rootScop
 	function($scope, $location, User, $rootScope) {
 	$scope.item = $rootScope.item;
 	$scope.message;
+	$scope.canBuy = User.isUser();
 	$scope.buy = function() {
 		if(User.currentUser().coins < $scope.item.cost) {
 			$scope.message = "You don't have enough coins to buy this item.";

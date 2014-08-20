@@ -104,11 +104,25 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', '$window',
 
 app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 	var user = {Items: []};
-	var otherUsername = "";
 	return {
+		isSO: function() {
+			if($window.localStorage.getItem('storeName'))
+				return true;
+			return false;
+		},
+		isUser: function() {
+			if(!$window.localStorage.getItem('storeName') && $window.localStorage.getItem('username'))
+				return true;
+			return false;
+		},
+		isNonUser: function() {
+			if(!$window.localStorage.getItem('username'))
+				return true;
+			return false;
+		},
 		send : function(url, data, done) {
 			AuthService.send(url, data, function(err, res) {
-				if(!user.storeName) {
+				if(!$window.localStorage.getItem('storeName') && $window.localStorage.getItem('username')) {
 					user.coins = res.coins;
 					user.likes = res.likes;
 					$window.localStorage.setItem('coins', user.coins);
@@ -116,12 +130,6 @@ app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 				}
 				done(err, res);
 			});
-		},
-		setOtherUsername: function(usrname) {
-			otherUsername = usrname;
-		},
-		otherUsername: function() {
-			return otherUsername;
 		},
 		addItem: function(itemId) {
 			user.Items.push(itemId);
@@ -234,10 +242,9 @@ app.factory('Posts', ['$http', '$location', 'AuthService', 'User',
 
 app.factory('Items', ['$http', '$location', 'AuthService', 'User', 
 	function($http, $location, AuthService, User) {
-	var data = function(all, isSO, url) { // id = null for all items, isSO for is StoreOwner
+	var data = function(all, url) {
 		this.url = url || '/items'; // default parameter for url
 		this.all = all;
-		this.isSO = isSO;
 		this.sorts = [{text: "Date added (newest - oldest)", id: 0}, {text: "Date added (oldest - newest)", id: 1},
 			{text: "Most sold", id: 2}, {text: "Most redeemed", id:3}];
 		this.selectedSort = this.sorts[0];
@@ -250,8 +257,8 @@ app.factory('Items', ['$http', '$location', 'AuthService', 'User',
 		"October", "November", "December"];
 	};
 	data.prototype.showMore = function(done) {
-		User.send(this.url, {all: this.all, isSO: this.isSO, sort: this.selectedSort.id, 
-			lastDate: this.lastDate, page: this.page}, function(err, res) {
+		User.send(this.url, {all: this.all, isSO: User.isSO(), isUser: User.isUser(), isNonUser: User.isNonUser(),
+		 sort: this.selectedSort.id, lastDate: this.lastDate, page: this.page}, function(err, res) {
 			if(this.selectedSort.id > 1) {
 		 		++this.page;
 		 	} else if(res.items.length) {
@@ -260,7 +267,7 @@ app.factory('Items', ['$http', '$location', 'AuthService', 'User',
 			for(var i = 0; i < res.items.length; ++i) {
 				var date = new Date(res.items[i].created);
 				res.items[i].created = {month: this.monthToStr[date.getMonth()], day: date.getDate(), year: date.getFullYear()};
-				if(!this.isSO) {
+				if(User.isUser() && !this.all) {
 					for(var j = 0; j < res.itemNums.length; ++j) {
 						if(res.itemNums[j].id == res.items[i].id) {
 							res.items[i].num = res.itemNums[j].num;
@@ -292,3 +299,62 @@ app.factory('Items', ['$http', '$location', 'AuthService', 'User',
 	}
 	return data;
 }]);
+
+app.directive('dotdotdot', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.dotdotdot({
+				/*	The HTML to add as ellipsis. */
+				ellipsis	: '... ',
+		 
+				/*	How to cut off the text/html: 'word'/'letter'/'children' */
+				wrap		: 'word',
+		 
+				/*	Wrap-option fallback to 'letter' for long words */
+				fallbackToLetter: true,
+		 
+				/*	jQuery-selector for the element to keep and put after the ellipsis. */
+				after		: null,
+		 
+				/*	Whether to update the ellipsis: true/'window' */
+				watch		: true,
+			
+				/*	Optionally set a max-height, if null, the height will be measured. */
+				height		: 100,
+		 
+				/*	Deviation for the height-option. */
+				tolerance	: 0,
+		 
+				/*	Callback function that is fired after the ellipsis is added,
+					receives two parameters: isTruncated(boolean), orgContent(string). */
+				callback	: function( isTruncated, orgContent ) {},
+		 
+				lastCharacter	: {
+		 
+					/*	Remove these characters from the end of the truncated text. */
+					remove		: [ ' ', ',', ';', '.', '!', '?' ],
+		 
+					/*	Don't add an ellipsis if this array contains 
+						the last character of the truncated text. */
+					noEllipsis	: []
+				}
+			});
+		}
+	}
+});
+
+app.directive('nodotdotdot', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.dotdotdot({
+				/*	Whether to update the ellipsis: true/'window' */
+				watch		: true,
+			
+				/*	Optionally set a max-height, if null, the height will be measured. */
+				height		: 10000000,
+			});
+		}
+	}
+});

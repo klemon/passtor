@@ -1,80 +1,73 @@
 <div role="main" class="main">
-
 	<div class="container">
-
-		<div class="row">
-			<div class="col-md-9">
-				<div class="blog-posts">
-
-					<article class="post post-medium">
-						<div class="row">
-							<div class="col-md-5">
-								<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fade", "autoHeight": true}'>
-									<div>
-										<div class="post-image">
-											<img class="img-responsive img-rounded" src="img/blog/blog-image-1.jpg" alt="">
-										</div>
-									</div>
-									<div>
-										<div class="post-image">
-											<img class="img-responsive img-rounded" src="img/blog/blog-image-2.jpg" alt="">
-										</div>
-									</div>
-									<div>
-										<div class="post-image">
-											<img class="img-responsive img-rounded" src="img/blog/blog-image-3.jpg" alt="">
-										</div>
-									</div>
+		<div class="masonry-item">
+			<article class="post post-medium">
+				<div class="row">
+					<div class="col-md-5">
+						<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fade", "autoHeight": true}'>
+							<div>
+								<div class="post-image">
+									<img class="img-responsive img-rounded" src="img/blog/blog-image-1.jpg" alt="">
 								</div>
 							</div>
-						</div>
-					</article>
-
-					<div class="row">
-						<div class="col-md-6">
-							<h2 class="shorter"><strong>All Items</strong></h2>
-							<p>{{iF.numItems}} items</p>
-						</div>
-						<div class="col-md-6">
-							<select class="orderby pull-right push-bottom" name="orderby" ng-model="iF.selectedSort" ng-options="s.text for s in iF.sorts" ng-click="iF.changeSort()"></select>
-						</div>
-					</div>
-
-					<div ng-repeat="item in iF.items">
-						<article class="post post-medium">
-							<div class="row">
-								<div class="col-md-7">
-									<div class="post-content">
-										<h2><a href="">{{item.name}}</a></h2>
-										<p style="white-space: pre;">{{item.description}}</p>
-									</div>
+							<div>
+								<div class="post-image">
+									<img class="img-responsive img-rounded" src="img/blog/blog-image-2.jpg" alt="">
 								</div>
 							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<div class="post-meta">
-										<span><i class="icon icon-user"></i> From <a ng-click="profile(item.storeName)">{{item.storeName}}</a> </span>
-										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Cost: {{item.cost}}</span>
-										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Sold: {{item.sold}}</span>
-										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Redeemed: {{item.redeemed}}</span>
-										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Own: {{item.num}}</span>
-										<a ng-click="view(item)" class="btn btn-xs btn-primary pull-right">Read more...</a>
-									</div>
+							<div>
+								<div class="post-image">
+									<img class="img-responsive img-rounded" src="img/blog/blog-image-3.jpg" alt="">
 								</div>
-							</div>
-						</article>
-					</div>
-					<div class="row">
-						<div class="col-md-12">
-							<div class="post-meta">
-								<a ng-hide="(iF.items.length == iF.numItems)" ng-click="iF.showMore()" class="btn btn-xs btn-primary pull-right">Show More</a>
 							</div>
 						</div>
 					</div>
 				</div>
+			</article>
+			<div class="row">
+				<div class="col-md-6">
+					<h2 class="shorter"><strong>All Items</strong></h2>
+					<p>{{iF.numItems}} items</p>
+				</div>
+				<div class="col-md-6">
+					<select class="orderby pull-right push-bottom" name="orderby" ng-model="iF.selectedSort" ng-options="s.text for s in iF.sorts" ng-click="iF.changeSort()"></select>
+				</div>
+			</div>
+			<div ng-repeat="item in iF.items">
+				<div class="featured-box">
+						<div class="box-content">
+							<article class="post post-medium">
+								<div class="row">
+									<div class="col-md-12">
+										<div class="post-content">
+											<h2><a href="">{{item.name}}</a></h2>
+											<p style="white-space: pre;" dotdotdot ng-bind="item.description"></p>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="post-meta">
+											<span><i class="icon icon-user"></i> From <a ng-click="profile(item.storeName)">{{item.storeName}}</a> </span>
+											<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Cost: {{item.cost}}</span>
+											<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Sold: {{item.sold}}</span>
+											<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Redeemed: {{item.redeemed}}</span>
+											<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Own: {{item.num}}</span>
+											<a ng-click="view(item)" class="btn btn-xs btn-primary pull-right">Read more...</a>
+										</div>
+									</div>
+								</div>
+							</article>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="post-meta">
+						<a ng-hide="(iF.items.length == iF.numItems)" ng-click="iF.showMore()" class="btn btn-xs btn-primary pull-right">Show More</a>
+					</div>
+				</div>
 			</div>
 		</div>
-
 	</div>
-
 </div>

@@ -10,23 +10,30 @@ storeItems.config(['$routeProvider', function ($routeProvider) {
 
 storeItems.controller('StoreItemsCtrl', ['$scope', '$location', 'Items', '$rootScope', 'User',
  function($scope, $location, Items, $rootScope, User) {
-	$scope.iF = new Items(true, false); // iF = Items Factory
-	User.send('/wishlistIds', {}, function(err, res) {
-		$scope.wishlistIds = res.wishlistIds;
-		$scope.showMore();
-	});
+	$scope.iF = new Items(true); // iF = Items Factory
+	$scope.canWish = User.isUser();
 	$scope.showMore = function() {
 		$scope.iF.showMore(function() {
 			for(var i = 0; i < $scope.iF.items.length; ++i) {
 				$scope.iF.items[i].onWishlist = false;
-				for(var j = 0; j < $scope.wishlistIds.length; ++j) {
-					if($scope.wishlistIds[j] == $scope.iF.items[i].id) {
-						$scope.iF.items[i].onWishlist = true;		
-						break;
+				if(User.isUser()) {
+					for(var j = 0; j < $scope.wishlistIds.length; ++j) {
+						if($scope.wishlistIds[j] == $scope.iF.items[i].id) {
+							$scope.iF.items[i].onWishlist = true;		
+							break;
+						}
 					}
 				}
 			}
 		});
+	}
+	if(User.isUser()) {
+		User.send('/wishlistIds', {}, function(err, res) {
+			$scope.wishlistIds = res.wishlistIds;
+			$scope.showMore();
+		});
+	} else {
+		$scope.showMore();
 	}
 	$scope.view = function(item) {
 		$rootScope.item = item;

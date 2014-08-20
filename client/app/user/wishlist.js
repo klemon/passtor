@@ -10,7 +10,7 @@ wishlist.config(['$routeProvider', function ($routeProvider) {
 
 wishlist.controller('WishlistCtrl', ['$scope', '$location', '$rootScope', 'Items', 'User',
  function($scope, $location, $rootScope, Items, User) {
-	$scope.iF = new Items(false, false, '/wishlist'); // iF = Items Factory
+	$scope.iF = new Items(false, '/wishlist'); // iF = Items Factory
 	$scope.iF.showMore();
 	$scope.view = function(item) {
 		$rootScope.item = item;

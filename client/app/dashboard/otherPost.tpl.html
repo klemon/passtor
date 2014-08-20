@@ -1,27 +1,15 @@
 <section>
 	<div role="main" class="main">
-
 		<div class="container">
-
-			<div class="row">
-				<div class="col-md-9">
-					<div class="blog-posts">
-
+			<div class="masonry-item">
+				<div class="featured-box">
+					<div class="box-content">
 						<article class="post post-medium">
 							<div class="row">
-								
-								<!--<div class="col-md-5">
-									<div class="post-image single">
-										<img class="img-thumbnail" src="public/img/blog-medium-image-2.jpg" alt="">
-									</div>
-								</div>-->
-								<div class="col-md-7">
-
+								<div class="col-md-12">
 									<div class="post-content">
-
 										<h2><a href="">{{post.title}}</a></h2>
-										<p style="white-space: pre;">{{post.description}}</p>
-
+										<p style="white-space: pre;" nodotdotdot ng-bind="post.description"></p>
 									</div>
 								</div>
 							</div>
@@ -34,60 +22,52 @@
 									</div>
 								</div>
 							</div>
-
-							<div ng-show="numLikesLeft" class="post-block post-leave-comment">
-								<h3>Like and Comment</h3>
-									<div class="row">
-										<div class="form-group">
-											<div class="col-md-12">
-												<label>Comment (optional)*</label>
-												<textarea maxlength="5000" ng-model="text" rows="2" class="form-control" name="comment" id="comment"></textarea>
-											</div>
-										</div>
-									</div>
-									<div class="row">
-										<div class="col-md-12">
-											<input type="submit" ng-click="like()" value="Like" class="btn btn-primary btn-lg" data-loading-text="Loading...">
-										</div>
-									</div>
-								</form>
-							</div>
-							
-							<div class="post-block post-comments clearfix">
-								<h3>Comments ({{post.numComments}})</h3>
-								<ul class="comments">
-
-								<div infinite-scroll="nextPage()" infinite-scroll-disable="busy" infinite-scroll-distance="1">
-									<li ng-repeat="comment in comments">
-										<div class="comment">
-											<div class="img-thumbnail">
-												<img class="avatar" alt="" src="img/avatar-2.jpg">
-											</div>
-											<div class="comment-block">
-												<div class="comment-arrow"></div>
-												<span class="comment-by">
-													<a ng-click="profile(comment.creator)"><strong>{{comment.creator}}</strong></a>
-													<!--<span class="pull-right">
-														<span> <a href="#"><i class="icon icon-reply"></i> Reply</a></span>
-													</span> -->
-												</span>
-												<p>{{comment.text}}</p>
-												<span class="date pull-right">{{comment.created.month}} {{comment.created.day}}, {{comment.created.year}}</span>
-											</div>
-										</div>
-									</li>
-								</div>
-
-								</ul>
-							</div>
-
 						</article>
-
 					</div>
 				</div>
+				<div ng-show="numLikesLeft" class="post-block post-leave-comment">
+					<h3>Like and Comment</h3>
+						<div class="row">
+							<div class="form-group">
+								<div class="col-md-12">
+									<label>Comment (optional)*</label>
+									<textarea maxlength="5000" ng-model="text" rows="2" class="form-control" name="comment" id="comment"></textarea>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<input type="submit" ng-click="like()" value="Like" class="btn btn-primary btn-lg" data-loading-text="Loading...">
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="post-block post-comments clearfix">
+					<h3>Comments ({{post.numComments}})</h3>
+					<ul class="comments">
+					<div infinite-scroll="nextPage()" infinite-scroll-disable="busy" infinite-scroll-distance="1">
+						<li ng-repeat="comment in comments">
+							<div class="comment">
+								<div class="img-thumbnail">
+									<img class="avatar" alt="" src="img/avatar-2.jpg">
+								</div>
+								<div class="comment-block">
+									<div class="comment-arrow"></div>
+									<span class="comment-by">
+										<a ng-click="profile(comment.creator)"><strong>{{comment.creator}}</strong></a>
+										<!--<span class="pull-right">
+											<span> <a href="#"><i class="icon icon-reply"></i> Reply</a></span>
+										</span> -->
+									</span>
+									<p>{{comment.text}}</p>
+									<span class="date pull-right">{{comment.created.month}} {{comment.created.day}}, {{comment.created.year}}</span>
+								</div>
+							</div>
+						</li>
+					</div>
+					</ul>
+				</div>
 			</div>
-
 		</div>
-
 	</div>
 </section>

@@ -46,7 +46,11 @@ app.configure(function() {
 
 jwtauth = function(req, res, next) {
 	console.log("jwtauth");
-	if(req.url == "/items" && !req.body.token) {
+	req.nonUser = false;
+	req.isSO = false;
+	req.isUser = false;
+	if((req.url == "/items" || req.url == "/posts" || req.url == "/comments") && !req.body.token) {
+		req.nonUser = true;
 		next();
 		return;
 	}
@@ -90,6 +94,7 @@ jwtauth = function(req, res, next) {
 								console.log(err);
 							}
 							req.isSO = decoded.isSO;
+							req.isUser = !decoded.isSO;
 							if(decoded.isSO)
 								req.user = user2;
 							else
