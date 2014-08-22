@@ -3,28 +3,6 @@
 		<div class="masonry-item">
 			<article class="post post-medium">
 				<div class="row">
-					<div class="col-md-5">
-						<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fade", "autoHeight": true}'>
-							<div>
-								<div class="post-image">
-									<img class="img-responsive img-rounded" src="img/blog/blog-image-1.jpg" alt="">
-								</div>
-							</div>
-							<div>
-								<div class="post-image">
-									<img class="img-responsive img-rounded" src="img/blog/blog-image-2.jpg" alt="">
-								</div>
-							</div>
-							<div>
-								<div class="post-image">
-									<img class="img-responsive img-rounded" src="img/blog/blog-image-3.jpg" alt="">
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="row">
 					<div class="col-md-12">
 						<div class="post-meta">
 							<a href="/createPost" class="btn btn-xs btn-primary pull-right">Create New Post</a>
@@ -52,7 +30,7 @@
 								<div class="col-md-12">
 									<div class="post-content">
 										<h2><a href="">{{post.title}}</a></h2>
-										<p style="white-space: pre;" dotdotdot ng-bind="post.description"></p>
+										<p style="white-space: pre; word-wrap: break-word;" dotdotdot ng-bind="post.description"></p>
 									</div>
 								</div>
 							</div>

@@ -11,6 +11,7 @@ var StoreOwner = require('./app/models/storeowner');
 var Item = require('./app/models/item');
 var Post = require('./app/models/post');
 var Comment = require('./app/models/comment');
+var QRCode = require('./app/models/qrcode');
 
 createJoeUser = function(SO, done) {
 	var joeUser = new User();
@@ -133,72 +134,51 @@ createBobsComments = function(bobUser, post, done) {
 }
 
 createDavesItems = function(daveSO, done) {
+	var items = [];
 	Item.create({
+		StoreOwner: daveSO._id,
+		storeName: daveSO.storeName,
+		name: "Fries Discount",
+		description: "Small fries are 50% off",
+		cost: 2,
+		sold: 2
+	}).then(function(item){
+		daveSO.Items.push(item);
+		return Item.create({
 			StoreOwner: daveSO._id,
-			storeName: daveSO.storeName,
-			name: "Fries Discount",
-			description: "Small fries are 50% off",
-			cost: 2,
-			sold: 2
-		}, function(err, item1){
-			if(err) {
-				console.log(err);
-			} else {
-				console.log("created fries discount item");
-				daveSO.Items.push(item1._id);
-				Item.create({
-					StoreOwner: daveSO._id,
 					storeName: daveSO.storeName,
 					name: "Burger Discount",
 					description: "Cheeseburger is 50% off",
 					cost: 4,
 					sold: 1
-				}, function(err, item2){
-					if(err) {
-						console.log(err);
-					} else {
-						console.log("created burger discount item");
-						daveSO.Items.push(item2._id);
-						Item.create({
-							StoreOwner: daveSO._id,
-							storeName: daveSO.storeName,
-							name: "Milkshake Discount",
-							description: "Medium shake is 50% off",
-							cost: 3
-						}, function(err, item3){
-							if(err) {
-								console.log(err);
-							} else {
-								console.log("created Milkshake discount item");
-								daveSO.Items.push(item3);
-								Item.create({
-									StoreOwner: daveSO._id,
-									storeName: daveSO.storeName,
-									name: "Happier Happy Meal",
-									description: "Happy meal comes with 2 extra nuggets or extra cheese in cheeseburger.",
-									cost: 1
-								}, function(err, item4){
-									if(err) {
-										console.log(err);
-									} else {
-										console.log("created happier Happy meal item");
-										daveSO.Items.push(item4);
-										daveSO.save(function(err, SO) {
-											if(err) {
-												console.log("error in creating daveSO");
-												console.log(err);
-											} else {
-												done(SO, item1, item2, item3, item4);
-											}
-										});
-									}
-								});
-							}
-						});
-					}
-				});
-			}
 		});
+	}).then(function(item){
+		daveSO.Items.push(item);
+		return Item.create({
+			StoreOwner: daveSO._id,
+			storeName: daveSO.storeName,
+			name: "Milkshake Discount",
+			description: "Medium shake is 50% off",
+			cost: 3
+		});
+	}).then(function(item){
+		daveSO.Items.push(item);
+		return Item.create({
+			StoreOwner: daveSO._id,
+			storeName: daveSO.storeName,
+			name: "Happier Happy Meal",
+			description: "Happy meal comes with 2 extra nuggets or extra cheese in cheeseburger.",
+			cost: 1
+		});
+	}).then(function(item) {
+		daveSO.Items.push(item);
+		return StoreOwner.findByIdAndUpdate(daveSO._id, {$set: {'Items': daveSO.Items}},
+				 {safe: true, upsert: true}).exec();
+	}).then(function(user) {
+		done(user);
+	}).then(null, function(err) {
+		console.log(err);
+	});
 }
 
 var daveUser = new User();
@@ -211,14 +191,14 @@ daveUser.save(function(err, user) {
     } else {
 		console.log("created daveUser");
 		var daveSO = new StoreOwner();
-		daveSO.User 			= user._id;
-		daveSO.email         = "Dave@yahoo.com";
-		daveSO.firstName     = "David";
-		daveSO.lastName      = "Davidson";
-		daveSO.storeName		= "McDankey";
+		daveSO.User 		= user._id;
+		daveSO.email        = "Dave@yahoo.com";
+		daveSO.firstName    = "David";
+		daveSO.lastName     = "Davidson";
+		daveSO.storeName	= "McDankey";
 		daveSO.username		= daveUser.local.username;
 		daveSO.Items 		= [];
-		createDavesItems(daveSO, function(daveUser2, item1, item2, item3, item4) {
+		createDavesItems(daveSO, function(daveUser2) {
 			user.local.StoreOwner = daveUser2._id;
 			user.save(function(err, user2) {
 				if(err) {
@@ -227,20 +207,38 @@ daveUser.save(function(err, user) {
 				} else {
 					console.log("created daveSO");
 					createJoeUser(daveUser2, function(joeUser) {
-						joeUser.local.Items.push({num: 2, id: item1._id});
-						joeUser.local.Items.push({num: 1, id: item2._id});
-						joeUser.save(function(err, joeUser2) {
-							createJoesPosts(joeUser, function(jp1) {
-								createBobUser(daveUser2, function(bobUser) {
-									createBobsPosts(bobUser, function(bp1, bp2, bp3, bp4) {
-										createBobsComments(bobUser, jp1, function() {
-											createJoesComments(joeUser, bp4, function() {
-												console.log("all done");
+						QRCode.create({
+							User: joeUser._id,
+							Item: daveUser2.Items[0],
+							StoreOwner: daveUser2._id,
+							numOwned: 2
+						}).then(function(qrcode) {
+							joeUser.local.Items.push({num: 2, id: daveUser2.Items[0],
+								QRCode: qrcode._id});
+							return QRCode.create({
+								User: joeUser._id,
+								Item: daveUser2.Items[1],
+								StoreOwner: daveUser2._id,
+								numOwned: 1
+							});
+						}).then(function(qrcode) {
+							joeUser.local.Items.push({num: 1, id: daveUser2.Items[1],
+								QRCode: qrcode._id});
+							joeUser.save(function(err, joeUser2) {
+								createJoesPosts(joeUser, function(jp1) {
+									createBobUser(daveUser2, function(bobUser) {
+										createBobsPosts(bobUser, function(bp1, bp2, bp3, bp4) {
+											createBobsComments(bobUser, jp1, function() {
+												createJoesComments(joeUser, bp4, function() {
+													console.log("all done");
+												});
 											});
 										});
-									});
-								});	
+									});	
+								});
 							});
+						}).then(null, function(err) {
+							console.log(err);
 						});
 					});
 				}

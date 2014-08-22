@@ -1,29 +1,6 @@
 <div role="main" class="main">
 	<div class="container">
 		<div class="masonry-item">
-			<article class="post post-medium">
-				<div class="row">
-					<div class="col-md-5">
-						<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fade", "autoHeight": true}'>
-							<div>
-								<div class="post-image">
-									<img class="img-responsive img-rounded" src="img/blog/blog-image-1.jpg" alt="">
-								</div>
-							</div>
-							<div>
-								<div class="post-image">
-									<img class="img-responsive img-rounded" src="img/blog/blog-image-2.jpg" alt="">
-								</div>
-							</div>
-							<div>
-								<div class="post-image">
-									<img class="img-responsive img-rounded" src="img/blog/blog-image-3.jpg" alt="">
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</article>
 			<div class="row">
 				<div class="col-md-6">
 					<h2 class="shorter"><strong>Wishlist</strong></h2>
@@ -41,7 +18,7 @@
 									<div class="col-md-12">
 										<div class="post-content">
 											<h2><a href="">{{item.name}}</a></h2>
-											<p style="white-space: pre;" dotdotdot ng-bind="item.description"></p>
+											<p style="white-space: pre; word-wrap: break-word;" dotdotdot ng-bind="item.description"></p>
 										</div>
 									</div>
 								</div>

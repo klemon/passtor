@@ -85,7 +85,7 @@ jwtauth = function(req, res, next) {
 								currRefresh = currRefresh.add('day', days);
 								user.local.lastLikeRefresh = currRefresh.toDate();
 								console.log("new refresh date: " + user.local.lastLikeRefresh);
-								user.likes = 15;
+								user.local.likes = 15;
 							}
 						}
 						user.save(function(err, user2){

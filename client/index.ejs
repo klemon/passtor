@@ -73,7 +73,12 @@ div.mx
 		<script src="public/vendor/jquery.stellar.js"></script>
 		<script src="public/vendor/jquery.validate.js"></script>
 		<script src="public/vendor/isotope/jquery.isotope.js"></script>
-		<script src="public/vendor/jquery.dotdotdot.js"></script>
+		<script src="bower_components/angular/angular.js"></script>
+		<script src="bower_components/qrcode/lib/qrcode.min.js"></script>
+		<script src="bower_components/angular-qr/angular-qr.min.js"></script>
+		<!--<script srt="bower_components/clamp/clamp.js"></script> -->
+		<script src="clamp.js"></script>
+		
 		<!-- Theme Initializer -->
 		<script src="public/js/theme.js"></script>
 		<!-- Custom JS -->
@@ -103,6 +108,29 @@ div.mx
 			<header>
 				<div ng-include src="'app/header.tpl.html'"></div>
 			</header>
+			<article class="post post-medium">
+				<div class="row">
+						<div class="col-md-5">
+							<div class="owl-carousel" data-plugin-options='{"items": 1, "transitionStyle": "fade", "autoHeight": true}'>
+								<div>
+									<div class="post-image">
+										<img class="img-responsive img-rounded" src="../client/tucson_template/img/blog/blog-image-1.jpg" alt="">
+									</div>
+								</div>
+								<div>
+									<div class="post-image">
+										<img class="img-responsive img-rounded" src="../client/tucson_template/img/blog/blog-image-2.jpg" alt="">
+									</div>
+								</div>
+								<div>
+									<div class="post-image">
+										<img class="img-responsive img-rounded" src="../client/tucson_template/img/blog/blog-image-3.jpg" alt="">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</article>
 	  	
 	  		<div ng-view></div>
 		
@@ -111,7 +139,6 @@ div.mx
 			</footer>
 		</div>
 
-		<script src="public/angular/angular.js"></script>
 		<script src="public/angular/angular-route.js"></script>
 		<script src="public/angular/ng-infinite-scroll.js"></script>
 		<script src="app/dashboard/otherPost.js"></script>
@@ -141,25 +168,6 @@ div.mx
 		<script src="app/user/wishlist.js"></script>
 
 		<script src="app/app.js"></script>
-
-		<!--
-		 <script src="app/app.js"></script>
-		 <script src="app/dashboard/dashboard.js"></script>
-		 <script src="app/dashboard/createPost.js"></script>
-		 <script src="app/dashboard/editPost.js"></script>
-		 <script src="app/store/store.js"></script>
-		 <script src="app/security/login.js"></script>
-		 <script src="app/security/signup.js"></script>
-		 <script src="app/profile/profile.js"></script>
-		 <script src="app/profile/edit.js"></script>
-		 <script src="app/profile/posts.js"></script>
-		 <script src="app/profile/items.js"></script>
-		 <script src="app/profile/wishlist.js"></script>
-		 <script src="app/inventory/inventory.js"></script>
-		 <script src="app/inventory/createItem.js"></script>
-		 <script src="app/inventory/editItem.js"></script>
-		 <script src="app/inventory/item.js"></script>
-		 <script src="app/dashboard/post.js"></script> -->
 	</body>
 
 </html>

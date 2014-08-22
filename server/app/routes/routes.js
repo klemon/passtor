@@ -7,6 +7,7 @@ var Store = require('../models/store');
 var mongoose = require('mongoose');
 var express = require('express');
 var moment = require('moment');
+var QRCode = require('../models/qrcode');
 
 postInfo = function(post) {
 	return {title: post.title, description: post.description, creator: post.creator,
@@ -331,7 +332,7 @@ app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req
 				itemList.push(itemInfo(items[i]));
 			}
 			console.log("returning items of a user");
-			res.json({items: itemList, itemNums: req.user.Items,
+			res.json({items: itemList, extraItemInfo: req.user.Items,
 				coins: req.user.coins, likes: req.user.likes, numItems: itemIds.length});
 		});
 	} else {
@@ -527,7 +528,13 @@ app.post('/buyItem', [express.json(), express.urlencoded(), jwtauth], function(r
 					}
 					user.local.coins -= item.cost;
 					if(!hasItem) {
-						user.local.Items.push({num: 1, id: item._id});
+						QRCode.create({
+							User			: req.id,
+							Item			: item._id,
+							StoreOwner		: item.StoreOwner
+						}, function(err, qrcode) {
+							user.local.Items.push({num: 1, id: item._id, QRCode: qrcode._id});
+						});
 					}
 					user.save(function(err, user2) {
 						if(err) {

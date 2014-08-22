@@ -1,0 +1,21 @@
+{
+  "name": "passtor",
+  "version": "1",
+  "homepage": "https://github.com/klemon/passtor",
+  "authors": [
+    "Joseph DeWilde <jzdewilde@alaska.edu>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-qr": "latest",
+    "clamp": "https://github.com/josephschmitt/Clamp.js.git"
+  }
+}

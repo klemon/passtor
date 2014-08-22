@@ -26,6 +26,7 @@ var app = angular.module('app', [
 	'wishItem',
 	'wishlist',
 	'infinite-scroll',
+	'ja.qr'
 	]);
 
 app.config(['$routeProvider', '$locationProvider',
@@ -268,9 +269,10 @@ app.factory('Items', ['$http', '$location', 'AuthService', 'User',
 				var date = new Date(res.items[i].created);
 				res.items[i].created = {month: this.monthToStr[date.getMonth()], day: date.getDate(), year: date.getFullYear()};
 				if(User.isUser() && !this.all) {
-					for(var j = 0; j < res.itemNums.length; ++j) {
-						if(res.itemNums[j].id == res.items[i].id) {
-							res.items[i].num = res.itemNums[j].num;
+					for(var j = 0; j < res.extraItemInfo.length; ++j) {
+						if(res.extraItemInfo[j].id == res.items[i].id) {
+							res.items[i].num = res.extraItemInfo[j].num;
+							res.items[i].QRCode = res.extraItemInfo[j].QRCode;
 							break;
 						}
 					}
@@ -304,42 +306,8 @@ app.directive('dotdotdot', function() {
 	return {
 		restrict: 'A',
 		link: function(scope, element, attrs) {
-			element.dotdotdot({
-				/*	The HTML to add as ellipsis. */
-				ellipsis	: '... ',
-		 
-				/*	How to cut off the text/html: 'word'/'letter'/'children' */
-				wrap		: 'word',
-		 
-				/*	Wrap-option fallback to 'letter' for long words */
-				fallbackToLetter: true,
-		 
-				/*	jQuery-selector for the element to keep and put after the ellipsis. */
-				after		: null,
-		 
-				/*	Whether to update the ellipsis: true/'window' */
-				watch		: true,
-			
-				/*	Optionally set a max-height, if null, the height will be measured. */
-				height		: 100,
-		 
-				/*	Deviation for the height-option. */
-				tolerance	: 0,
-		 
-				/*	Callback function that is fired after the ellipsis is added,
-					receives two parameters: isTruncated(boolean), orgContent(string). */
-				callback	: function( isTruncated, orgContent ) {},
-		 
-				lastCharacter	: {
-		 
-					/*	Remove these characters from the end of the truncated text. */
-					remove		: [ ' ', ',', ';', '.', '!', '?' ],
-		 
-					/*	Don't add an ellipsis if this array contains 
-						the last character of the truncated text. */
-					noEllipsis	: []
-				}
-			});
+			clamp(element[0], {
+				clamp: 3});
 		}
 	}
 });
@@ -348,12 +316,8 @@ app.directive('nodotdotdot', function() {
 	return {
 		restrict: 'A',
 		link: function(scope, element, attrs) {
-			element.dotdotdot({
-				/*	Whether to update the ellipsis: true/'window' */
-				watch		: true,
-			
-				/*	Optionally set a max-height, if null, the height will be measured. */
-				height		: 10000000,
+			clamp(element[0], {
+				clamp: 50
 			});
 		}
 	}

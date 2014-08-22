@@ -17,7 +17,8 @@ var User = mongoose.Schema({
     coins               : {type: Number, default: 0},
     lastLikeRefresh     : {type: Date, default: moment().add('h', 12).startOf('day').toDate()},
     StoreOwner          : {type: mongoose.Schema.ObjectId, default: null},
-    Items               : [{num: {type: Number, default: 1}, id: mongoose.Schema.ObjectId, _id: false}],
+    Items               : [{num: {type: Number, default: 1}, id: mongoose.Schema.ObjectId,
+                             QRCode: mongoose.Schema.ObjectId, _id: false}],
     wishlist            : [mongoose.Schema.ObjectId]
   },
   facebook              : {

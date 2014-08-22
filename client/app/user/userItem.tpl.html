@@ -9,7 +9,7 @@
 								<div class="col-md-12">
 									<div class="post-content">
 										<h2><a href="">{{item.name}}</a></h2>
-										<p style="white-space: pre;" nodotdotdot ng-bind="item.description"></p>
+										<p style="white-space: pre; word-wrap: break-word;" nodotdotdot ng-bind="item.description"></p>
 									</div>
 								</div>
 							</div>
@@ -29,6 +29,8 @@
 					</div>
 				</div>
 			</div>
+			<qr type-number="2" correction-level="'M'" size="200" input-mode="'ALPHA_NUM'" text="qrcode" image="true"></qr>
+			<p><strong>QR Code: {{item.QRCode}}</strong></p>
 		</div>
 	</div>
 </section>
