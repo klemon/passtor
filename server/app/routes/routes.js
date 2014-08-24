@@ -158,8 +158,7 @@ module.exports = function(app, jwtauth) {
 			return res.json({err: "Please provide an email"});
 		}
 		User.findByIdAndUpdate(req.id, {$set: {'local.firstName': req.body.firstName, 
-		'local.lastName': req.body.lastName, 'local.email': req.body.email}}, 
-			{safe: true, upsert: true}).exec().then(function(user) {
+		'local.lastName': req.body.lastName, 'local.email': req.body.email}}).exec().then(function(user) {
 			if(!user) {
 				throw new Error("Did not find user.");
 			} else {
@@ -193,15 +192,13 @@ module.exports = function(app, jwtauth) {
 					throw new Error("User cannot like their own post.");
 				} else {
 					postId = post._id;
-					return User.findOneAndUpdate({'local.username' : post.creator}, {$inc: {'local.coins': 1}},
-					 {safe: true, upsert: true}).exec();
+					return User.findOneAndUpdate({'local.username' : post.creator}, {$inc: {'local.coins': 1}}).exec();
 				}
 			}).then(function(user) {
 				if(!user) {
 					throw new Error("Did not find user.");
 				} else {
-					return User.findByIdAndUpdate(req.id, {$inc: {'local.coins': 1, 'local.likes': -1}},
-						{safe: true, upsert: true}).exec();
+					return User.findByIdAndUpdate(req.id, {$inc: {'local.coins': 1, 'local.likes': -1}}).exec();
 				}
 			}).then(function(user) {
 				if(!user) {
@@ -359,7 +356,7 @@ app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req
 				console.log("returning items");
 				var returnObject = {items: itemList, numItems: c};
 				if(req.body.isUser) {
-					returnObject.itemNums = req.user.Items;
+					returnObject.extraItemInfo = req.user.Items;
 					returnObject.likes = req.user.likes;
 					returnObject.coins = req.user.coins;
 				}
@@ -418,7 +415,7 @@ app.post('/addToWishlist', [express.json(), express.urlencoded(), jwtauth], func
 			console.log("item not found in /addToWishlist");
 			res.json({err: "item not found"});
 		} else {
-			User.findByIdAndUpdate(req.id, {$push: {"local.wishlist": item._id}}, {safe: true, upsert: true}, function(err, user) {
+			User.findByIdAndUpdate(req.id, {$push: {"local.wishlist": item._id}}, function(err, user) {
 				if(err) {
 					console.log("error in /addToWishlist");
 					console.log(err);
@@ -477,7 +474,7 @@ app.post('/editItem', [express.json(), express.urlencoded(), jwtauth], function(
 	Item.findById(req.body.id, function(err, item) {
 		if(req.id.equals(item.StoreOwner)) {
 			Item.findByIdAndUpdate(req.body.id, {$set: {name: req.body.name, 
-				description: req.body.description}}, {safe: true, upsert: true}, function(err, item2) {
+				description: req.body.description}}, function(err, item2) {
 				if(err) {
 					console.log("error in editing item");
 					console.log(err);
@@ -495,64 +492,58 @@ app.post('/editItem', [express.json(), express.urlencoded(), jwtauth], function(
 });
 
 app.post('/buyItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-	Item.findById(req.body.id, function(err, item) {
-		if(err) {
-			console.log("error in buying item");
-			console.log(err);
-			res.json({err: err});
-		} else if(!item) {
-			console.log("couldn't find item for buying");
-			res.json({err: "couldn't find item for buyting"});
+	Item.findById(req.body.id).exec().then(function(item) {
+		if(!item) {
+			throw new Error("Could not find item.");
 		} else if(req.user.coins < item.cost) {
-			console.log("user coins: " + req.user.coins);
-			console.log("item cost: " + item.cost);
-			console.log("user doesn't have enough to buy item");
-			res.json({err: "not enough coins to buy"});
+			throw new Error("User doesn't have enough to buy the item.");
 		} else {
-			User.findById(req.id, function(err, user) {
-				if(err) {
-			 		console.log("error in finding user for /buyItem");
-			 		console.log(err);
-			 		res.json({err: err});
-			 	} else if(!user) {
-			 		console.log("didn't find user for /buyItem");
-			 		res.json({err: "no user found"});
-			 	} else {
-					var hasItem = false;
-					for(var i = 0; i < user.local.Items.length; ++i) {
-						if(user.local.Items[i].id.equals(item._id)) {
-							hasItem = true;
-							++user.local.Items[i].num;
-							break;
-						}
+			User.findById(req.id).exec().then(function(user) {
+				var hasItem = false;
+				var index;
+				for(var i = 0; i < user.local.Items.length; ++i) {
+					if(user.local.Items[i].id.equals(item._id)) {
+						hasItem = true;
+						index = i;
+						break;
 					}
-					user.local.coins -= item.cost;
-					if(!hasItem) {
-						QRCode.create({
-							User			: req.id,
-							Item			: item._id,
-							StoreOwner		: item.StoreOwner
-						}, function(err, qrcode) {
-							user.local.Items.push({num: 1, id: item._id, QRCode: qrcode._id});
-						});
-					}
-					user.save(function(err, user2) {
-						if(err) {
-							console.log("error in saving for /buyItem");
-							console.log(err);
-							res.json({err: err});
-						} else {
-							console.log("User bought item");
-							res.json({coins: user2.local.coins, likes: user2.local.likes});
-						}
-					})
 				}
-			});
+				user.local.coins -= item.cost;
+				if(hasItem) {
+					QRCode.findByIdAndUpdate(user.local.Items[index].QRCode, {$inc: {'numOwned': 1}}).exec().then(function(qrcode) {
+						++user.local.Items[index].num;
+						user.save(function(err, user) {
+							if(err)
+								console.log(err)
+							else
+								res.json({coins: user.local.coins, likes: user.local.likes, alreadyHas: true});
+						});
+					}).then(null, function(err) {
+						console.log(err);
+					});
+				} else {
+					QRCode.create({
+						User			: req.id,
+						Item			: item._id,
+						StoreOwner		: item.StoreOwner
+					}).then(function(qrcode) {
+						user.local.Items.push({num: 1, id: item._id, QRCode: qrcode._id, alreadyHas: false});	
+						user.save(function(err, user) {
+							if(err)
+								console.log(err)
+							else
+								res.json({coins: user.local.coins, likes: user.local.likes});
+						});
+					}).then(null, function(err) {
+						console.log(err);
+					});
+				}
+			}).then(null, function(err) {
+				console.log(err);
+			})
 		}
+	}).then(null, function(err) {
+		console.log(err);
 	});
 });
 }
-
-
-
-

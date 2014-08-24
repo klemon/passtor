@@ -40,7 +40,7 @@ app.config(['$routeProvider', '$locationProvider',
 	User.restoreData();
 	if(User.isLoggedIn()) {
 		$rootScope.$broadcast('loggedIn');
-		if(User.currentUser().storeName)
+		if(User.isSO())
 			$location.path('/sOItems');
 		else 
 			$location.path('/posts');
@@ -50,12 +50,13 @@ app.config(['$routeProvider', '$locationProvider',
 }])
 .controller('HeaderCtrl', ['$scope', '$location','AuthService', 'User', '$route',
 	function($scope, $location, AuthService, User, $route){
-
 	$scope.username = User.currentUser().username;
-	$scope.storeName = User.currentUser().storeName;
+	$scope.isSO = User.isSO();
 	$scope.isLoggedIn = User.isLoggedIn();
+	// Listen to 'loggedIn' event
 	$scope.$on('loggedIn', function(event, args) {
 		$scope.isLoggedIn = true;
+		$scope.isSO = User.isSO();
 		if(User.currentUser().username)
 			$scope.username = User.currentUser().username;
 		else
@@ -65,6 +66,7 @@ app.config(['$routeProvider', '$locationProvider',
 		User.clearData();
 		$scope.username = "";
 		$scope.storeName = "";
+		$scope.isSO = false;
 		$scope.isLoggedIn = false;
 		$location.path('/login');
 	}
@@ -268,14 +270,19 @@ app.factory('Items', ['$http', '$location', 'AuthService', 'User',
 			for(var i = 0; i < res.items.length; ++i) {
 				var date = new Date(res.items[i].created);
 				res.items[i].created = {month: this.monthToStr[date.getMonth()], day: date.getDate(), year: date.getFullYear()};
-				if(User.isUser() && !this.all) {
+				if(User.isUser()) {
+					var ownsItem = false;
 					for(var j = 0; j < res.extraItemInfo.length; ++j) {
 						if(res.extraItemInfo[j].id == res.items[i].id) {
+							ownsItem = true;
 							res.items[i].num = res.extraItemInfo[j].num;
-							res.items[i].QRCode = res.extraItemInfo[j].QRCode;
+							if(User.isUser() && !this.all)
+								res.items[i].QRCode = res.extraItemInfo[j].QRCode;
 							break;
 						}
 					}
+					if(!ownsItem)
+						res.items[i].num = 0;
 				}
 				this.items.push(res.items[i]);
 			}

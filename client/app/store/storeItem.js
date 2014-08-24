@@ -17,11 +17,15 @@ storeItem.controller('StoreItemCtrl', ['$scope', '$location', 'User', '$rootScop
 		if(User.currentUser().coins < $scope.item.cost) {
 			$scope.message = "You don't have enough coins to buy this item.";
 			return;
+		} else {
+			User.send('/buyItem', {id: $scope.item.id}, function(err, res) {
+				User.addItem($scope.item.id); // Doesn't do much yet
+				if(res.alreadyHas)
+					++$scope.item.num;
+				else
+					$scope.item.num = 1;
+			});
 		}
-		User.send('/buyItem', {id: $scope.item.id}, function(err, res) {
-			User.addItem($scope.item.id);
-			$location.path('/storeItems');
-		});
 	}
 	$scope.profile = function(storeName) {
 		$rootScope.storeName = storeName;
