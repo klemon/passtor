@@ -21,6 +21,7 @@ userItem.controller('UserItemCtrl', ['$scope', '$location', 'User', '$rootScope'
 		User.send('/buyItem', {id: $scope.item.id}, function(err, res) {
 			User.addItem($scope.item.id);
 			++$scope.item.num;
+			++$scope.item.sold;
 		});
 	}
 	$scope.profile = function(storeName) {

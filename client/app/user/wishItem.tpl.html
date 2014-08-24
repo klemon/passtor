@@ -20,6 +20,7 @@
 										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Cost: {{item.cost}}</span>
 										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Sold: {{item.sold}}</span>
 										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Redeemed: {{item.redeemed}}</span>
+										<span ng-show=item.num rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Own: {{item.num}}</span>
 										<a ng-click="buy()" class="btn btn-xs btn-primary pull-right">Buy<span ng-show=item.num> More</span></a>
 									</div> 
 								</div>

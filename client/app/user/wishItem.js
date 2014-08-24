@@ -19,7 +19,8 @@ wishItem.controller('WishItemCtrl', ['$scope', '$location', 'User', '$rootScope'
 		}
 		User.send('/buyItem', {id: $scope.item.id}, function(err, res) {
 			User.addItem($scope.item.id);
-			
+			++$scope.item.sold;
+			++$scope.item.num;
 		});
 	}
 	$scope.profile = function(storeName) {

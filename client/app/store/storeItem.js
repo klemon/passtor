@@ -24,6 +24,7 @@ storeItem.controller('StoreItemCtrl', ['$scope', '$location', 'User', '$rootScop
 					++$scope.item.num;
 				else
 					$scope.item.num = 1;
+				++$scope.item.sold;
 			});
 		}
 	}

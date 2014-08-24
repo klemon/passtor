@@ -416,7 +416,8 @@ app.post('/wishlist', [express.json(), express.urlencoded(), jwtauth], function(
 			itemList.push(itemInfo(items[i]));
 		}
 		console.log("returning wishlist of a user");
-		res.json({items: itemList, numItems: items.length, itemNums: req.user.Items,
+		console.log(JSON.stringify(itemList));
+		res.json({items: itemList, numItems: items.length, extraItemInfo: req.user.Items,
 		 coins: req.user.coins, likes: req.user.likes});
 	});
 });
@@ -505,50 +506,52 @@ app.post('/buyItem', [express.json(), express.urlencoded(), jwtauth], function(r
 		} else if(req.user.coins < item.cost) {
 			throw new Error("User doesn't have enough to buy the item.");
 		} else {
-			User.findById(req.id).exec().then(function(user) {
-				var hasItem = false;
-				var index;
-				for(var i = 0; i < user.local.Items.length; ++i) {
-					if(user.local.Items[i].id.equals(item._id)) {
-						hasItem = true;
-						index = i;
-						break;
-					}
-				}
-				user.local.coins -= item.cost;
-				if(hasItem) {
-					QRCode.findByIdAndUpdate(user.local.Items[index].QRCode, {$inc: {'numOwned': 1}}).exec().then(function(qrcode) {
-						++user.local.Items[index].num;
-						user.save(function(err, user) {
-							if(err)
-								console.log(err)
-							else
-								res.json({coins: user.local.coins, likes: user.local.likes, alreadyHas: true});
-						});
-					}).then(null, function(err) {
-						console.log(err);
-					});
-				} else {
-					QRCode.create({
-						User			: req.id,
-						Item			: item._id,
-						StoreOwner		: item.StoreOwner
-					}).then(function(qrcode) {
-						user.local.Items.push({num: 1, id: item._id, QRCode: qrcode._id, alreadyHas: false});	
-						user.save(function(err, user) {
-							if(err)
-								console.log(err)
-							else
-								res.json({coins: user.local.coins, likes: user.local.likes});
-						});
-					}).then(null, function(err) {
-						console.log(err);
-					});
-				}
-			}).then(null, function(err) {
-				console.log(err);
-			})
+			return Item.findByIdAndUpdate(item._id, {$inc: {'sold': 1}}).exec();
 		}
+	}).then(function(item) {
+		User.findById(req.id).exec().then(function(user) {
+			var hasItem = false;
+			var index;
+			for(var i = 0; i < user.local.Items.length; ++i) {
+				if(user.local.Items[i].id.equals(item._id)) {
+					hasItem = true;
+					index = i;
+					break;
+				}
+			}
+			user.local.coins -= item.cost;
+			if(hasItem) {
+				QRCode.findByIdAndUpdate(user.local.Items[index].QRCode, {$inc: {'numOwned': 1}}).exec().then(function(qrcode) {
+					++user.local.Items[index].num;
+					user.save(function(err, user) {
+						if(err)
+							console.log(err)
+						else
+							res.json({coins: user.local.coins, likes: user.local.likes, alreadyHas: true});
+					});
+				}).then(null, function(err) {
+					console.log(err);
+				});
+			} else {
+				QRCode.create({
+					User			: req.id,
+					Item			: item._id,
+					StoreOwner		: item.StoreOwner
+				}).then(function(qrcode) {
+					user.local.Items.push({num: 1, id: item._id, QRCode: qrcode._id, alreadyHas: false});	
+					user.save(function(err, user) {
+						if(err)
+							console.log(err)
+						else
+							res.json({coins: user.local.coins, likes: user.local.likes});
+					});
+				}).then(null, function(err) {
+					console.log(err);
+				});
+			}
+		}).then(null, function(err) {
+			console.log(err);
+		})
 	}).then(null, function(err) {
 		console.log(err);
 	});
