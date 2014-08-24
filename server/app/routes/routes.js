@@ -19,6 +19,11 @@ userInfo = function(user) {
 		coins: user.coins, likes: user.likes};
 }
 
+sOInfo = function(SO) {
+	return {username: SO.username, email: SO.email, 
+		firstName: SO.firstName, lastName: SO.lastName, storeName: SO.storeName};
+}
+
 itemInfo = function(item) {
 	return {storeName: item.storeName, name: item.name, description: item.description,
 		sold: item.sold, redeemed: item.redeemed, id: item._id, cost: item.cost, created: item.created};
@@ -157,18 +162,32 @@ module.exports = function(app, jwtauth) {
 		if(!req.body.email) {
 			return res.json({err: "Please provide an email"});
 		}
-		User.findByIdAndUpdate(req.id, {$set: {'local.firstName': req.body.firstName, 
-		'local.lastName': req.body.lastName, 'local.email': req.body.email}}).exec().then(function(user) {
-			if(!user) {
-				throw new Error("Did not find user.");
-			} else {
-				console.log("user: " + userInfo(user.local));
-				res.json({user: userInfo(user.local), coins: req.user.coins, likes: req.user.likes});
-			}
-		}).then(null, function(err) {
-			console.log(err);
-			res.json({err:err});
-		});
+		if(req.isSO) {
+			StoreOwner.findByIdAndUpdate(req.id, {$set: {
+				'email': req.body.email,
+				'firstName': req.body.firstName,
+				'lastName': req.body.lastName
+			}}).exec().then(function(SO) {
+				if(!SO)
+					throw new Error("Did not find SO.");
+				else
+					res.json({storeOwner: sOInfo(SO)});
+			}).then(null, function(err) {
+				console.log(err);
+			});
+		} else {
+			User.findByIdAndUpdate(req.id, {$set: {
+				'local.firstName': req.body.firstName, 
+				'local.lastName': req.body.lastName,
+				'local.email': req.body.email}}).exec().then(function(user) {
+				if(!user) 
+					throw new Error("Did not find user.");
+				else
+					res.json({user: userInfo(user.local), coins: user.coins, likes: user.likes});
+			}).then(null, function(err) {
+				console.log(err);
+			});
+		}
 	 });
 
 	app.post('/update', [express.json(), express.urlencoded(), jwtauth], function(req, res) {

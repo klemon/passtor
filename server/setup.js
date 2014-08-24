@@ -181,68 +181,66 @@ createDavesItems = function(daveSO, done) {
 	});
 }
 
-var daveUser = new User();
-daveUser.local.username      = "Dave";
-daveUser.local.password      = daveUser.generateHash("password");
-daveUser.save(function(err, user) {
-    if(err) {
-    	console.log("error in creating daveUser");
-    	console.log(err);
-    } else {
-		console.log("created daveUser");
-		var daveSO = new StoreOwner();
-		daveSO.User 		= user._id;
-		daveSO.email        = "Dave@yahoo.com";
-		daveSO.firstName    = "David";
-		daveSO.lastName     = "Davidson";
-		daveSO.storeName	= "McDankey";
-		daveSO.username		= daveUser.local.username;
-		daveSO.Items 		= [];
-		createDavesItems(daveSO, function(daveUser2) {
-			user.local.StoreOwner = daveUser2._id;
-			user.save(function(err, user2) {
-				if(err) {
-					console.log("error in saving daveUser");
-					console.log(err);
-				} else {
-					console.log("created daveSO");
-					createJoeUser(daveUser2, function(joeUser) {
-						QRCode.create({
-							User: joeUser._id,
-							Item: daveUser2.Items[0],
-							StoreOwner: daveUser2._id,
-							numOwned: 2
-						}).then(function(qrcode) {
-							joeUser.local.Items.push({num: 2, id: daveUser2.Items[0],
-								QRCode: qrcode._id});
-							return QRCode.create({
-								User: joeUser._id,
-								Item: daveUser2.Items[1],
-								StoreOwner: daveUser2._id,
-								numOwned: 1
-							});
-						}).then(function(qrcode) {
-							joeUser.local.Items.push({num: 1, id: daveUser2.Items[1],
-								QRCode: qrcode._id});
-							joeUser.save(function(err, joeUser2) {
-								createJoesPosts(joeUser, function(jp1) {
-									createBobUser(daveUser2, function(bobUser) {
-										createBobsPosts(bobUser, function(bp1, bp2, bp3, bp4) {
-											createBobsComments(bobUser, jp1, function() {
-												createJoesComments(joeUser, bp4, function() {
-													console.log("all done");
-												});
-											});
-										});
-									});	
+var daveUser;
+var daveSO;
+User.create({
+	local: {username: "Dave"}
+}).then(function(user) {
+	return User.findByIdAndUpdate(user._id, {$set: 
+		{'local.password': user.generateHash('password')}}).exec();
+}).then(function(user) {
+	daveUser = user;
+	console.log("created daveUser");
+	return StoreOwner.create({
+		User: daveUser._id,
+		email: "Dave@yahoo.com",
+		firstName: "David",
+		lastName: "Davidson",
+		storeName: "McDankey",
+		username: daveUser.local.username
+	});
+}).then(function(SO) {
+	console.log("created daveSO");
+	daveSO = SO;
+	return User.findByIdAndUpdate(daveUser._id, {$set: {'local.StoreOwner': SO._id}}).exec();
+}).then(function(user) {
+	createDavesItems(daveSO, function(daveUser2) {
+		createJoeUser(daveUser2, function(joeUser) {
+			QRCode.create({
+				User: joeUser._id,
+				Item: daveUser2.Items[0],
+				StoreOwner: daveUser2._id,
+				numOwned: 2
+			}).then(function(qrcode) {
+				joeUser.local.Items.push({num: 2, id: daveUser2.Items[0],
+					QRCode: qrcode._id});
+				return QRCode.create({
+					User: joeUser._id,
+					Item: daveUser2.Items[1],
+					StoreOwner: daveUser2._id,
+					numOwned: 1
+				});
+			}).then(function(qrcode) {
+				joeUser.local.Items.push({num: 1, id: daveUser2.Items[1],
+					QRCode: qrcode._id});
+				joeUser.save(function(err, joeUser2) {
+					createJoesPosts(joeUser, function(jp1) {
+						createBobUser(daveUser2, function(bobUser) {
+							createBobsPosts(bobUser, function(bp1, bp2, bp3, bp4) {
+								createBobsComments(bobUser, jp1, function() {
+									createJoesComments(joeUser, bp4, function() {
+										console.log("all done");
+									});
 								});
 							});
-						}).then(null, function(err) {
-							console.log(err);
-						});
+						});	
 					});
-				}
+				});
+			}).then(null, function(err) {
+				console.log(err);
 			});
 		});
-	}
+	});
+}).then(null, function(err) {
+	console.log(err);
 });

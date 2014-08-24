@@ -23,8 +23,8 @@ editSOProfile.config(['$routeProvider', function ($routeProvider) {
 				$scope.message = res.message;
 				return;
 			} else {
-				User.setUser(user);
-				$location.path('/profile');
+				User.setUser(res);
+				$location.path('/sOProfile');
 			}
 		});
 	};

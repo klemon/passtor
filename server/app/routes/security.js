@@ -44,6 +44,7 @@ app.post('/login', function(req, res, next) {
           console.log('Could not find StoreOwner');
           res.json({message: "Could not find StoreOwner"});
         } else {
+          console.log(JSON.stringify(SO));
           return res.json({err : err, token : token, expires : expires, storeOwner: {username: user.local.username,
             password: req.body.password, email: SO.email, firstName: SO.firstName, lastName: SO.lastName,
             storeName: SO.storeName}});
