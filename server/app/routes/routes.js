@@ -273,21 +273,17 @@ module.exports = function(app, jwtauth) {
 	});
 
 app.post('/createItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-	if(req.user.storeName) {
+	if(req.isSO) {
 		Item.create({
 			StoreOwner : req.id,
 			storeName : req.user.storeName,
 			name : req.body.name,
 			description : req.body.description,
 			cost : req.body.cost
-		}, function(err, item) {
-			if(err) {
-				console.log("error in creating item");
-				console.log(err);
-				res.json({err: err});
-			} else {
-				res.json({item : itemInfo(item), coins: req.user.coins, likes: req.user.likes});
-			}
+		}).then(function(item) {
+			res.json({item : itemInfo(item)});
+		}).then(null, function(err) {
+			console.log(err);
 		});
 	}
 });
@@ -449,46 +445,38 @@ app.post('/removeFromWishlist', [express.json(), express.urlencoded(), jwtauth],
 });
 
 app.post('/deleteItem', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
-	Item.findById(req.body.id, function(err, item) {
-		if(item.StoreOwner == mongoose.Types.ObjectId(req.body.id))
-			res.json({message:"Can't delete item"});
-		else {
-			Item.remove({'_id': mongoose.Types.ObjectId(req.body.id)}, function(err, result) {
-				if(err) {
-					console.log("error in deleting item");
-					console.log(err);
-					res.json({err: err});
-				} else if(!result) {
-					console.log("failed to delete item");
-					res.json({err: "failed to delete item"});
-				} else {
-					console.log("deleted item");
-					res.json({coins: req.user.coins, likes: req.user.likes});
-				}
-			});
+	Item.findById(req.body.id).exec().then(null, function(item) {
+		if(!item) throw new Error("Did not find item.");
+		else if(!item.StoreOwner.equals(req.id)) {
+			throw new Error("Can't delete item.");
+		} else {
+			return Item.findByIdAndRemove(item._id).exec();
 		}
+	}).then(function(result) {
+		result.remove(function(err, item) {
+			if(!item) throw new Error("Failed to delete item.");
+			res.json({});
+		});
+	}).then(null, function(err) {
+		console.log(err);
 	});
  });
 
 app.post('/editItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-	Item.findById(req.body.id, function(err, item) {
-		if(req.id.equals(item.StoreOwner)) {
-			Item.findByIdAndUpdate(req.body.id, {$set: {name: req.body.name, 
-				description: req.body.description}}, function(err, item2) {
-				if(err) {
-					console.log("error in editing item");
-					console.log(err);
-					res.json({err: err});
-				} else if(!item2) {
-					console.log("didn't find item");
-					res.json({err: "didn't find item"});
-				} else {
-					console.log("edited item");
-					res.json({item: itemInfo(item2), coins: req.user.coins, likes: req.user.likes});
-				}
-			});
+	Item.findById(req.body.id).exec().then(function(item) {
+		if(!item) throw new Error("Did not find item.");
+		else if(req.id.equals(item.StoreOwner)) {
+			return Item.findByIdAndUpdate(item._id, {$set: {name: req.body.name,
+				description: req.body.description, cost: req.body.cost}}).exec();
 		}
-	})
+	}).then(function(item) {
+		if(!item) throw new Error("Did not find item.");
+		else {
+			res.json({item: itemInfo(item)});
+		}
+	}).then(null, function(err) {
+		console.log(err);
+	});
 });
 
 app.post('/buyItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
