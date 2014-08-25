@@ -291,269 +291,341 @@ module.exports = function(app, jwtauth) {
 		});
 	});
 
-app.post('/createItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-	if(req.isSO) {
-		Item.create({
-			StoreOwner : req.id,
-			storeName : req.user.storeName,
-			name : req.body.name,
-			description : req.body.description,
-			cost : req.body.cost
-		}).then(function(item) {
-			res.json({item : itemInfo(item)});
-		}).then(null, function(err) {
-			console.log(err);
-		});
-	}
-});
-
-app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-	var itemList = [];
-	var sort;
-	var query;
-	var lastDateFilter = {};
-	if(req.body.sort == 0) { // Dated added (newest - oldest)
-		sort = {"created" : "descending"};
-	} else if(req.body.sort == 1) {// Date added (oldest - newest)
-		sort = {"created" : "ascending"};
-	} else if(req.body.sort == 2) { // Most sold
-		sort = {"sold" : "descending"};
-	} else { // Most redeemed
-		sort = {"redeemed" : "descending"};
-	}
-	if(req.body.lastDate) {
-		if(req.body.sort == 0) {
-			lastDateFilter = {'created': {$lt: req.body.lastDate}};
-		} else {
-			lastDateFilter = {'created': {$gt: req.body.lastDate}};
+	app.post('/createItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		if(req.isSO) {
+			Item.create({
+				StoreOwner : req.id,
+				storeName : req.user.storeName,
+				name : req.body.name,
+				description : req.body.description,
+				cost : req.body.cost
+			}).then(function(item) {
+				res.json({item : itemInfo(item)});
+			}).then(null, function(err) {
+				console.log(err);
+			});
 		}
-	}		
-	if(!req.body.all && req.body.isUser) {
-		// Return items belonging to a user
-		var itemIds = [];
-		for(var j = 0; j < req.user.Items.length; ++j) {
-			itemIds.push(req.user.Items[j].id);
+	});
+
+	app.post('/items', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		var itemList = [];
+		var sort;
+		var query;
+		var lastDateFilter = {};
+		if(req.body.sort == 0) { // Dated added (newest - oldest)
+			sort = {"created" : "descending"};
+		} else if(req.body.sort == 1) {// Date added (oldest - newest)
+			sort = {"created" : "ascending"};
+		} else if(req.body.sort == 2) { // Most sold
+			sort = {"sold" : "descending"};
+		} else { // Most redeemed
+			sort = {"redeemed" : "descending"};
 		}
 		if(req.body.lastDate) {
-			query = Item.find({$and: [{"_id": {$in: itemIds}}, lastDateFilter]}).limit(3).sort(sort);
+			if(req.body.sort == 0) {
+				lastDateFilter = {'created': {$lt: req.body.lastDate}};
+			} else {
+				lastDateFilter = {'created': {$gt: req.body.lastDate}};
+			}
+		}		
+		if(!req.body.all && req.body.isUser) {
+			// Return items belonging to a user
+			var itemIds = [];
+			for(var j = 0; j < req.user.Items.length; ++j) {
+				itemIds.push(req.user.Items[j].id);
+			}
+			if(req.body.lastDate) {
+				query = Item.find({$and: [{"_id": {$in: itemIds}}, lastDateFilter]}).limit(3).sort(sort);
+			} else {
+				query = Item.find({"_id": {$in: itemIds}}).skip(req.body.page*3).limit(3).sort(sort);
+			}
+			query.exec(function(err, items) {
+				for(var i = 0; i < items.length; ++i) {
+					itemList.push(itemInfo(items[i]));
+				}
+				console.log("returning items of a user");
+				res.json({items: itemList, extraItemInfo: req.user.Items,
+					coins: req.user.coins, likes: req.user.likes, numItems: itemIds.length});
+			});
 		} else {
-			query = Item.find({"_id": {$in: itemIds}}).skip(req.body.page*3).limit(3).sort(sort);
+			userFilter = {};
+			if(!req.body.all && req.body.isSO) {
+				// Return item belonging to an SO
+				userFilter = {StoreOwner: req.id};
+			}
+			Item.count(userFilter, function(err, c) {
+				if(err) {
+					console.log("error in determing item count");
+					console.log(err);
+					res.json({err: err});
+				}
+				if(req.body.lastDate) {
+					query = Item.find({$and: [userFilter, lastDateFilter]}).limit(3).sort(sort);
+				} else {
+					query = Item.find(userFilter).skip(req.body.page*3).limit(3).sort(sort);
+				}
+				query.exec(function (err, items){
+					for (var i = 0; i < items.length; i++) {
+						itemList.push(itemInfo(items[i]));
+					}
+					console.log("returning items");
+					var returnObject = {items: itemList, numItems: c};
+					if(req.body.isUser) {
+						returnObject.extraItemInfo = req.user.Items;
+						returnObject.likes = req.user.likes;
+						returnObject.coins = req.user.coins;
+					}
+					res.json(returnObject);
+				});
+			});
+		}
+	});
+
+	app.post('/wishlistIds', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		res.json({wishlistIds: req.user.wishlist, coins: req.user.coins, likes: req.user.likes});
+	});
+
+	app.post('/wishlist', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		var itemList = [];
+		var sort;
+		var query;
+		var lastDateFilter = {};
+		if(req.body.sort == 0) { // Dated added (newest - oldest)
+			sort = {"created" : "descending"};
+		} else if(req.body.sort == 1) {// Date added (oldest - newest)
+			sort = {"created" : "ascending"};
+		} else if(req.body.sort == 2) { // Most sold
+			sort = {"sold" : "descending"};
+		} else { // Most redeemed
+			sort = {"redeemed" : "descending"};
+		}
+		if(req.body.lastDate) {
+			if(req.body.sort == 0) {
+				lastDateFilter = {'created': {$lt: req.body.lastDate}};
+			} else {
+				lastDateFilter = {'created': {$gt: req.body.lastDate}};
+			}
+		}		
+		if(req.body.lastDate) {
+			query = Item.find({$and: [{"_id": {$in: req.user.wishlist}}, lastDateFilter]}).limit(3).sort(sort);
+		} else {
+			query = Item.find({"_id": {$in: req.user.wishlist}}).skip(req.body.page*3).limit(3).sort(sort);
 		}
 		query.exec(function(err, items) {
 			for(var i = 0; i < items.length; ++i) {
 				itemList.push(itemInfo(items[i]));
 			}
-			console.log("returning items of a user");
-			res.json({items: itemList, extraItemInfo: req.user.Items,
-				coins: req.user.coins, likes: req.user.likes, numItems: itemIds.length});
+			console.log("returning wishlist of a user");
+			console.log(JSON.stringify(itemList));
+			res.json({items: itemList, numItems: items.length, extraItemInfo: req.user.Items,
+			 coins: req.user.coins, likes: req.user.likes});
 		});
-	} else {
-		userFilter = {};
-		if(!req.body.all && req.body.isSO) {
-			// Return item belonging to an SO
-			userFilter = {StoreOwner: req.id};
-		}
-		Item.count(userFilter, function(err, c) {
+	});
+
+	app.post('/addToWishlist', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		Item.findById(mongoose.Types.ObjectId(req.body.id), function(err, item) {
 			if(err) {
-				console.log("error in determing item count");
-				console.log(err);
-				res.json({err: err});
-			}
-			if(req.body.lastDate) {
-				query = Item.find({$and: [userFilter, lastDateFilter]}).limit(3).sort(sort);
+				console.log("error in /addToWishlist");
+				res.json({err:err});
+			} else if(!item) {
+				console.log("item not found in /addToWishlist");
+				res.json({err: "item not found"});
 			} else {
-				query = Item.find(userFilter).skip(req.body.page*3).limit(3).sort(sort);
-			}
-			query.exec(function (err, items){
-				for (var i = 0; i < items.length; i++) {
-					itemList.push(itemInfo(items[i]));
-				}
-				console.log("returning items");
-				var returnObject = {items: itemList, numItems: c};
-				if(req.body.isUser) {
-					returnObject.extraItemInfo = req.user.Items;
-					returnObject.likes = req.user.likes;
-					returnObject.coins = req.user.coins;
-				}
-				res.json(returnObject);
-			});
-		});
-	}
-});
-
-app.post('/wishlistIds', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-	res.json({wishlistIds: req.user.wishlist, coins: req.user.coins, likes: req.user.likes});
-});
-
-app.post('/wishlist', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-	var itemList = [];
-	var sort;
-	var query;
-	var lastDateFilter = {};
-	if(req.body.sort == 0) { // Dated added (newest - oldest)
-		sort = {"created" : "descending"};
-	} else if(req.body.sort == 1) {// Date added (oldest - newest)
-		sort = {"created" : "ascending"};
-	} else if(req.body.sort == 2) { // Most sold
-		sort = {"sold" : "descending"};
-	} else { // Most redeemed
-		sort = {"redeemed" : "descending"};
-	}
-	if(req.body.lastDate) {
-		if(req.body.sort == 0) {
-			lastDateFilter = {'created': {$lt: req.body.lastDate}};
-		} else {
-			lastDateFilter = {'created': {$gt: req.body.lastDate}};
-		}
-	}		
-	if(req.body.lastDate) {
-		query = Item.find({$and: [{"_id": {$in: req.user.wishlist}}, lastDateFilter]}).limit(3).sort(sort);
-	} else {
-		query = Item.find({"_id": {$in: req.user.wishlist}}).skip(req.body.page*3).limit(3).sort(sort);
-	}
-	query.exec(function(err, items) {
-		for(var i = 0; i < items.length; ++i) {
-			itemList.push(itemInfo(items[i]));
-		}
-		console.log("returning wishlist of a user");
-		console.log(JSON.stringify(itemList));
-		res.json({items: itemList, numItems: items.length, extraItemInfo: req.user.Items,
-		 coins: req.user.coins, likes: req.user.likes});
-	});
-});
-
-app.post('/addToWishlist', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-	Item.findById(mongoose.Types.ObjectId(req.body.id), function(err, item) {
-		if(err) {
-			console.log("error in /addToWishlist");
-			res.json({err:err});
-		} else if(!item) {
-			console.log("item not found in /addToWishlist");
-			res.json({err: "item not found"});
-		} else {
-			User.findByIdAndUpdate(req.id, {$push: {"local.wishlist": item._id}}, function(err, user) {
-				if(err) {
-					console.log("error in /addToWishlist");
-					console.log(err);
-					res.json({err: err});
-				} else {
-					res.json({coins: req.user.coins, likes: req.user.likes});
-				}
-			});
-		}
-	});
-});
-
-app.post('/removeFromWishlist', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
-	User.findById(req.id, function(err, user) {
-		for(var i = 0; i < user.local.wishlist.length; ++i) {
-			if(user.local.wishlist[i].equals(mongoose.Types.ObjectId(req.body.id))) {
-				user.local.wishlist.splice(i, 1);
-				console.log("removed item from wishlist");
-				break;
-			}
-		}
-		user.save(function(err, user2) {
-			if(err) {
-				console.log(err);
-				res.json({err: err});
-			} else {
-				res.json({coins: user2.local.coins, likes: user2.local.likes});
+				User.findByIdAndUpdate(req.id, {$push: {"local.wishlist": item._id}}, function(err, user) {
+					if(err) {
+						console.log("error in /addToWishlist");
+						console.log(err);
+						res.json({err: err});
+					} else {
+						res.json({coins: req.user.coins, likes: req.user.likes});
+					}
+				});
 			}
 		});
 	});
-});
 
-app.post('/deleteItem', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
-	Item.findById(req.body.id).exec().then(null, function(item) {
-		if(!item) throw new Error("Did not find item.");
-		else if(!item.StoreOwner.equals(req.id)) {
-			throw new Error("Can't delete item.");
-		} else {
-			return Item.findByIdAndRemove(item._id).exec();
-		}
-	}).then(function(result) {
-		result.remove(function(err, item) {
-			if(!item) throw new Error("Failed to delete item.");
-			res.json({});
-		});
-	}).then(null, function(err) {
-		console.log(err);
-	});
- });
-
-app.post('/editItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-	Item.findById(req.body.id).exec().then(function(item) {
-		if(!item) throw new Error("Did not find item.");
-		else if(req.id.equals(item.StoreOwner)) {
-			return Item.findByIdAndUpdate(item._id, {$set: {name: req.body.name,
-				description: req.body.description, cost: req.body.cost}}).exec();
-		}
-	}).then(function(item) {
-		if(!item) throw new Error("Did not find item.");
-		else {
-			res.json({item: itemInfo(item)});
-		}
-	}).then(null, function(err) {
-		console.log(err);
-	});
-});
-
-app.post('/buyItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-	Item.findById(req.body.id).exec().then(function(item) {
-		if(!item) {
-			throw new Error("Could not find item.");
-		} else if(req.user.coins < item.cost) {
-			throw new Error("User doesn't have enough to buy the item.");
-		} else {
-			return Item.findByIdAndUpdate(item._id, {$inc: {'sold': 1}}).exec();
-		}
-	}).then(function(item) {
-		User.findById(req.id).exec().then(function(user) {
-			var hasItem = false;
-			var index;
-			for(var i = 0; i < user.local.Items.length; ++i) {
-				if(user.local.Items[i].id.equals(item._id)) {
-					hasItem = true;
-					index = i;
+	app.post('/removeFromWishlist', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
+		User.findById(req.id, function(err, user) {
+			for(var i = 0; i < user.local.wishlist.length; ++i) {
+				if(user.local.wishlist[i].equals(mongoose.Types.ObjectId(req.body.id))) {
+					user.local.wishlist.splice(i, 1);
+					console.log("removed item from wishlist");
 					break;
 				}
 			}
-			user.local.coins -= item.cost;
-			if(hasItem) {
-				QRCode.findByIdAndUpdate(user.local.Items[index].QRCode, {$inc: {'numOwned': 1}}).exec().then(function(qrcode) {
-					++user.local.Items[index].num;
-					user.save(function(err, user) {
-						if(err)
-							console.log(err)
-						else
-							res.json({coins: user.local.coins, likes: user.local.likes, alreadyHas: true});
-					});
-				}).then(null, function(err) {
+			user.save(function(err, user2) {
+				if(err) {
 					console.log(err);
-				});
+					res.json({err: err});
+				} else {
+					res.json({coins: user2.local.coins, likes: user2.local.likes});
+				}
+			});
+		});
+	});
+
+	app.post('/deleteItem', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
+		Item.findById(req.body.id).exec().then(null, function(item) {
+			if(!item) throw new Error("Did not find item.");
+			else if(!item.StoreOwner.equals(req.id)) {
+				throw new Error("Can't delete item.");
 			} else {
-				QRCode.create({
-					User			: req.id,
-					Item			: item._id,
-					StoreOwner		: item.StoreOwner
-				}).then(function(qrcode) {
-					user.local.Items.push({num: 1, id: item._id, QRCode: qrcode._id, alreadyHas: false});	
-					user.save(function(err, user) {
-						if(err)
-							console.log(err)
-						else
-							res.json({coins: user.local.coins, likes: user.local.likes});
-					});
-				}).then(null, function(err) {
-					console.log(err);
-				});
+				return Item.findByIdAndRemove(item._id).exec();
+			}
+		}).then(function(result) {
+			result.remove(function(err, item) {
+				if(!item) throw new Error("Failed to delete item.");
+				res.json({});
+			});
+		}).then(null, function(err) {
+			console.log(err);
+		});
+	 });
+
+	app.post('/editItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		Item.findById(req.body.id).exec().then(function(item) {
+			if(!item) throw new Error("Did not find item.");
+			else if(req.id.equals(item.StoreOwner)) {
+				return Item.findByIdAndUpdate(item._id, {$set: {name: req.body.name,
+					description: req.body.description, cost: req.body.cost}}).exec();
+			}
+		}).then(function(item) {
+			if(!item) throw new Error("Did not find item.");
+			else {
+				res.json({item: itemInfo(item)});
 			}
 		}).then(null, function(err) {
 			console.log(err);
-		})
-	}).then(null, function(err) {
-		console.log(err);
+		});
 	});
-});
+
+	app.post('/buyItem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		Item.findById(req.body.id).exec().then(function(item) {
+			if(!item) {
+				throw new Error("Could not find item.");
+			} else if(req.user.coins < item.cost) {
+				throw new Error("User doesn't have enough to buy the item.");
+			} else {
+				return Item.findByIdAndUpdate(item._id, {$inc: {'sold': 1}}).exec();
+			}
+		}).then(function(item) {
+			User.findById(req.id).exec().then(function(user) {
+				var hasItem = false;
+				var index;
+				for(var i = 0; i < user.local.Items.length; ++i) {
+					if(user.local.Items[i].id.equals(item._id)) {
+						hasItem = true;
+						index = i;
+						break;
+					}
+				}
+				user.local.coins -= item.cost;
+				if(hasItem) {
+					QRCode.findByIdAndUpdate(user.local.Items[index].QRCode, {$inc: {'numOwned': 1}}).exec().then(function(qrcode) {
+						++user.local.Items[index].num;
+						user.save(function(err, user) {
+							if(err)
+								console.log(err)
+							else
+								res.json({coins: user.local.coins, likes: user.local.likes, alreadyHas: true});
+						});
+					}).then(null, function(err) {
+						console.log(err);
+					});
+				} else {
+					QRCode.create({
+						User			: req.id,
+						Item			: item._id,
+						StoreOwner		: item.StoreOwner
+					}).then(function(qrcode) {
+						user.local.Items.push({num: 1, id: item._id, QRCode: qrcode._id, alreadyHas: false});	
+						user.save(function(err, user) {
+							if(err)
+								console.log(err)
+							else
+								res.json({coins: user.local.coins, likes: user.local.likes});
+						});
+					}).then(null, function(err) {
+						console.log(err);
+					});
+				}
+			}).then(null, function(err) {
+				console.log(err);
+			})
+		}).then(null, function(err) {
+			console.log(err);
+		});
+	});
+
+	app.post('/submitQRCode', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		QRCode.findById(mongoose.Types.ObjectId(req.body.QRCode)).exec().then(function(qrcode) {
+			if(qrcode && qrcode.StoreOwner.equals(req.id))
+				return Item.findById(qrcode.Item).exec();
+			else
+				res.json({isLegit: false});
+		}).then(function(item) {
+			res.json({isLegit: true, item:itemInfo(item)});
+		}).then(null, function(err) {
+			console.log(err);
+		});
+	});
+
+	app.post('/redeem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
+		QRCode.findById(mongoose.Types.ObjectId(req.body.QRCode)).exec().then(function(qrcode) {
+			if(!qrcode) throw new Error("Could not find QR Code.");
+			else if(!qrcode.StoreOwner.equals(req.id)) throw new Error("Can't redeem QR code that doesn't belong the store owner.");
+			else{
+				if(qrcode.numOwned > 1) {
+					--qrcode.numOwned;
+					qrcode.save(function(err, qrcode) {
+						if(err) console.log(err);
+						else {
+							User.findById(qrcode.User, function(err, user) {
+								if(err) console.log(err);
+								else {
+									for(var i = 0; i < user.local.Items.length; ++i) {
+										if(user.local.Items[i].QRCode.equals(qrcode._id)) {
+											--user.local.Items[i].num;
+											break;
+										}
+									}
+									user.save(function(err, user) {
+										if(err) console.log(err);
+										else
+											res.json({});
+									});
+								}
+							});
+						}
+					})
+				} else {
+					QRCode.findByIdAndRemove(qrcode._id, function(err, qrcode) {
+						qrcode.remove(function(err, qrcode) {
+							if(err) console.log(err);
+							else {
+								User.findById(qrcode.User, function(err, user) {
+									if(err) console.log(err);
+									else {
+										for(var i = 0; i < user.local.Items.length; ++i) {
+											if(user.local.Items[i].QRCode.equals(qrcode._id)) {
+												user.local.Items.splice(i, 1);
+												break;
+											}
+										}
+										user.save(function(err, user) {
+											if(err) console.log(err);
+											else
+												res.json({});
+										});
+									}
+								});
+							}
+						});
+					})
+				}
+			}
+		}).then(null, function(err) {
+			console.log(err);
+		});
+	});
 }

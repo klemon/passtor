@@ -1,0 +1,52 @@
+<section>
+	<div role="main" class="main shop">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-6 col-md-offset-3">
+					<div class="featured-box default">
+						<div class="box-content">
+							<h4>Redeem Mode!</h4>
+							<form action="" id="contactForm" type="post">
+								<div class="row">
+									<div class="form-group">
+										<label>QR Code</label>
+										<input type="text" value="" class="form-control" ng-model="qrcode">
+									</div>
+								</div>
+								<div ng-show=legitItem>
+									<div class="row">
+										<div class="col-md-12">
+											<div class="post-content">
+												<h2><a href="">{{item.name}}</a></h2>
+												<p style="white-space: pre; word-wrap: break-word;" dotdotdot ng-bind="item.description"></p>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<input type="submit" value="Cancel" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading..." ng-click="cancel()">
+										</div>
+										<div class="col-md-4">
+											<input type="submit" value="Redeem" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading..." ng-click="redeem()">
+										</div>
+									</div>
+								</div>
+								<div ng-hide=legitItem>
+									<div class="row">
+										<div class="col-md-4">
+											<input type="submit" value="Submit" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading..." ng-click="submit()">
+										</div>
+										<div class="col-md-4">
+											<input type="submit" value="Clear" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading..." ng-click="clear()">
+										</div>
+									</div>
+								</div>
+							</form>
+							<div class="alert alert-danger" ng-show="message">{{message}}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

@@ -12,6 +12,7 @@ var app = angular.module('app', [
 	'createItem',
 	'editItem',
 	'editSOProfile',
+	'redeem',
 	'sOItem',
 	'sOItems',
 	'sOProfile',
