@@ -13,8 +13,9 @@ var configDB = require('./config/database.js');
 
 var jwt = require('jwt-simple');
 app.set('jwtTokenSecret', 'klemon_devauld');
-var User = require('./app/models/user');
-var StoreOwner = require('./app/models/storeowner');
+var AllUsers = require('./app/models/allusers'),
+	User = AllUsers.User,
+	StoreOwner = AllUsers.StoreOwner;
 var moment = require('moment');
 
 // configuration ===============================================================
@@ -59,15 +60,15 @@ jwtauth = function(req, res, next) {
     console.log("found possible token, decoding...");
 		try {
 			var decoded = jwt.decode(token, app.get('jwtTokenSecret'));
+			req.isSO = decoded.isSO;
+			req.isUser = decoded.isUser;
+			req.isRedeemer = decoded.isRedeemer;
 			if(decoded.exp <= Date.now()) {
         		console.log("decoded token is expired");
 				res.json({err: "Access token has expired", exp: true});
 			} else {
         		console.log("decoded token is still good");
-        		var query = User.findById(decoded.iss);
-        		if(decoded.isSO)
-        			query = StoreOwner.findById(decoded.iss);
-				query.exec(function(err, user) {
+        		User.findById(decoded.iss, function(err, user) {
 					if(err) {
 						console.log("Error in finding user in jwtauth");
 						res.json({err: "Error in token auth"});
@@ -76,7 +77,7 @@ jwtauth = function(req, res, next) {
 						res.json({err: "Error in token auth"});
 					} else {
 						console.log("found user in jwtauth");
-						if(!decoded.isSO) {
+						if(req.isUser) {
 							var lastRefresh = moment(user.local.lastLikeRefresh);
 							var currRefresh = moment();
 							var days = currRefresh.diff(lastRefresh, 'days');
@@ -93,12 +94,7 @@ jwtauth = function(req, res, next) {
 								console.log("error in saving user in jwtauth");
 								console.log(err);
 							}
-							req.isSO = decoded.isSO;
-							req.isUser = !decoded.isSO;
-							if(decoded.isSO)
-								req.user = user2;
-							else
-								req.user = user2.local;
+							req.user = user2;
 							req.id = user2._id;
 							next();
 						});

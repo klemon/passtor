@@ -1,7 +1,8 @@
 var Post = require('../models/post');
 var Comment = require('../models/comment');
-var User = require('../models/user');
-var StoreOwner = require('../models/storeowner');
+var AllUsers = require('../models/allusers'),
+	User = AllUsers.User,
+	StoreOwner = AllUsers.StoreOwner;
 var Item = require('../models/item');
 var Store = require('../models/store');
 var mongoose = require('mongoose');
@@ -15,24 +16,18 @@ postInfo = function(post) {
 }
 
 userInfo = function(user) {
-	return {username: user.username, email: user.email, firstName: user.firstName, lastName: user.lastName,
+	return {username: user.username, email: user.local.email, firstName: user.local.firstName, lastName: user.local.lastName,
 		coins: user.coins, likes: user.likes};
 }
 
 sOInfo = function(SO) {
-	return {username: SO.username, email: SO.email, 
-		firstName: SO.firstName, lastName: SO.lastName, storeName: SO.storeName};
+	return {username: SO.username, email: SO.local.email, 
+		firstName: SO.local.firstName, lastName: SO.local.lastName, storeName: SO.storeName};
 }
 
 itemInfo = function(item) {
 	return {storeName: item.storeName, name: item.name, description: item.description,
 		sold: item.sold, redeemed: item.redeemed, id: item._id, cost: item.cost, created: item.created};
-}
-
-storeOwnerInfo = function(storeOwner) {
-	return {storeName: storeOwner.storeName, username: storeOwner.username, email: storeOwner.email, 
-		firstName: storeOwner.firstName, lastName: storeOwner.lastName};
-
 }
 
 commentInfo = function(comment) {
@@ -97,11 +92,11 @@ module.exports = function(app, jwtauth) {
 	});
 
 	app.post('/user', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-		User.findOne({'local.username' : req.body.otherUsername}).exec().then(function(user) {
+		User.findOne({'username' : req.body.otherUsername}).exec().then(function(user) {
 			if(!user) {
 				throw new Error("Did not find user");
 			} else {
-				res.json({user: userInfo(user.local),
+				res.json({user: userInfo(user),
 					coins: req.user.coins, likes: req.user.likes});
 			}
 		}).then(null, function(err) {
@@ -116,9 +111,9 @@ module.exports = function(app, jwtauth) {
 				throw new Error("Did not find store owner");
 			} else {
 				if(req.isSO)
-					res.json({storeOwner: storeOwnerInfo(storeOwner)});
+					res.json({storeOwner: sOInfo(storeOwner)});
 				else {
-					res.json({storeOwner: storeOwnerInfo(storeOwner),
+					res.json({storeOwner: sOInfo(storeOwner),
 					coins: req.user.coins, likes: req.user.likes});
 				}
 			}
@@ -132,6 +127,8 @@ module.exports = function(app, jwtauth) {
 		Post.findById(req.body.id).exec().then(function(post) {
 			if(!post) {
 				throw new Error("Did not find post.");
+			} else if(post.creator != req.user.username) {
+				throw new Error("Wrong user editing post.");
 			} else {
 				var text = "\nEdit: ";
 				text = text + req.body.edit;
@@ -164,9 +161,9 @@ module.exports = function(app, jwtauth) {
 		}
 		if(req.isSO) {
 			StoreOwner.findByIdAndUpdate(req.id, {$set: {
-				'email': req.body.email,
-				'firstName': req.body.firstName,
-				'lastName': req.body.lastName
+				'local.email': req.body.email,
+				'local.firstName': req.body.firstName,
+				'local.lastName': req.body.lastName
 			}}).exec().then(function(SO) {
 				if(!SO)
 					throw new Error("Did not find SO.");
@@ -183,7 +180,7 @@ module.exports = function(app, jwtauth) {
 				if(!user) 
 					throw new Error("Did not find user.");
 				else
-					res.json({user: userInfo(user.local), coins: user.coins, likes: user.likes});
+					res.json({user: userInfo(user), coins: user.coins, likes: user.likes});
 			}).then(null, function(err) {
 				console.log(err);
 			});
@@ -211,13 +208,13 @@ module.exports = function(app, jwtauth) {
 					throw new Error("User cannot like their own post.");
 				} else {
 					postId = post._id;
-					return User.findOneAndUpdate({'local.username' : post.creator}, {$inc: {'local.coins': 1}}).exec();
+					return User.findOneAndUpdate({'username' : post.creator}, {$inc: {'coins': 1}}).exec();
 				}
 			}).then(function(user) {
 				if(!user) {
 					throw new Error("Did not find user.");
 				} else {
-					return User.findByIdAndUpdate(req.id, {$inc: {'local.coins': 1, 'local.likes': -1}}).exec();
+					return User.findByIdAndUpdate(req.id, {$inc: {'coins': 1, 'likes': -1}}).exec();
 				}
 			}).then(function(user) {
 				if(!user) {
@@ -238,10 +235,10 @@ module.exports = function(app, jwtauth) {
 			}).then(function(comment) {
 				if(req.body.text) {
 					res.json({comment: commentInfo(comment), post: postInfo(postObj),
-					coins: userObj.local.coins, likes: userObj.local.likes});
+					coins: userObj.coins, likes: userObj.likes});
 				} else {
 					res.json({comment : null, post: postInfo(postObj),
-						coins: userObj.local.coins, likes: userObj.local.likes});
+						coins: userObj.coins, likes: userObj.likes});
 				}
 			}).then(null, function(err) {
 				console.log(err);
@@ -431,7 +428,7 @@ module.exports = function(app, jwtauth) {
 				console.log("item not found in /addToWishlist");
 				res.json({err: "item not found"});
 			} else {
-				User.findByIdAndUpdate(req.id, {$push: {"local.wishlist": item._id}}, function(err, user) {
+				User.findByIdAndUpdate(req.id, {$push: {"wishlist": item._id}}, function(err, user) {
 					if(err) {
 						console.log("error in /addToWishlist");
 						console.log(err);
@@ -446,9 +443,9 @@ module.exports = function(app, jwtauth) {
 
 	app.post('/removeFromWishlist', [express.json(), express.urlencoded(), jwtauth], function(req, res, next) {
 		User.findById(req.id, function(err, user) {
-			for(var i = 0; i < user.local.wishlist.length; ++i) {
-				if(user.local.wishlist[i].equals(mongoose.Types.ObjectId(req.body.id))) {
-					user.local.wishlist.splice(i, 1);
+			for(var i = 0; i < user.wishlist.length; ++i) {
+				if(user.wishlist[i].equals(mongoose.Types.ObjectId(req.body.id))) {
+					user.wishlist.splice(i, 1);
 					console.log("removed item from wishlist");
 					break;
 				}
@@ -458,7 +455,7 @@ module.exports = function(app, jwtauth) {
 					console.log(err);
 					res.json({err: err});
 				} else {
-					res.json({coins: user2.local.coins, likes: user2.local.likes});
+					res.json({coins: user2.coins, likes: user2.likes});
 				}
 			});
 		});
@@ -512,22 +509,22 @@ module.exports = function(app, jwtauth) {
 			User.findById(req.id).exec().then(function(user) {
 				var hasItem = false;
 				var index;
-				for(var i = 0; i < user.local.Items.length; ++i) {
-					if(user.local.Items[i].id.equals(item._id)) {
+				for(var i = 0; i < user.Items.length; ++i) {
+					if(user.Items[i].id.equals(item._id)) {
 						hasItem = true;
 						index = i;
 						break;
 					}
 				}
-				user.local.coins -= item.cost;
+				user.coins -= item.cost;
 				if(hasItem) {
-					QRCode.findByIdAndUpdate(user.local.Items[index].QRCode, {$inc: {'numOwned': 1}}).exec().then(function(qrcode) {
-						++user.local.Items[index].num;
+					QRCode.findByIdAndUpdate(user.Items[index].QRCode, {$inc: {'numOwned': 1}}).exec().then(function(qrcode) {
+						++user.Items[index].num;
 						user.save(function(err, user) {
 							if(err)
 								console.log(err)
 							else
-								res.json({coins: user.local.coins, likes: user.local.likes, alreadyHas: true});
+								res.json({coins: user.coins, likes: user.likes, alreadyHas: true});
 						});
 					}).then(null, function(err) {
 						console.log(err);
@@ -538,12 +535,12 @@ module.exports = function(app, jwtauth) {
 						Item			: item._id,
 						StoreOwner		: item.StoreOwner
 					}).then(function(qrcode) {
-						user.local.Items.push({num: 1, id: item._id, QRCode: qrcode._id, alreadyHas: false});	
+						user.Items.push({num: 1, id: item._id, QRCode: qrcode._id, alreadyHas: false});	
 						user.save(function(err, user) {
 							if(err)
 								console.log(err)
 							else
-								res.json({coins: user.local.coins, likes: user.local.likes});
+								res.json({coins: user.coins, likes: user.likes});
 						});
 					}).then(null, function(err) {
 						console.log(err);
@@ -558,57 +555,39 @@ module.exports = function(app, jwtauth) {
 	});
 
 	app.post('/submitQRCode', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-		QRCode.findById(mongoose.Types.ObjectId(req.body.QRCode)).exec().then(function(qrcode) {
-			if(qrcode && qrcode.StoreOwner.equals(req.id))
-				return Item.findById(qrcode.Item).exec();
-			else
-				res.json({isLegit: false});
-		}).then(function(item) {
-			res.json({isLegit: true, item:itemInfo(item)});
-		}).then(null, function(err) {
-			console.log(err);
-		});
+		if(req.isSO) {
+			QRCode.findById(mongoose.Types.ObjectId(req.body.QRCode)).exec().then(function(qrcode) {
+				if(qrcode && qrcode.StoreOwner.equals(req.id))
+					return Item.findById(qrcode.Item).exec();
+				else 
+					res.json({isLegit: false});
+			}).then(function(item) {
+				res.json({isLegit: true, item:itemInfo(item)});
+			}).then(null, function(err) {
+				console.log(err);
+			});
+		} else {
+			res.json({err: "Not SO."});
+		}
 	});
 
 	app.post('/redeem', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-		QRCode.findById(mongoose.Types.ObjectId(req.body.QRCode)).exec().then(function(qrcode) {
-			if(!qrcode) throw new Error("Could not find QR Code.");
-			else if(!qrcode.StoreOwner.equals(req.id)) throw new Error("Can't redeem QR code that doesn't belong the store owner.");
-			else{
-				if(qrcode.numOwned > 1) {
-					--qrcode.numOwned;
-					qrcode.save(function(err, qrcode) {
-						if(err) console.log(err);
-						else {
-							User.findById(qrcode.User, function(err, user) {
-								if(err) console.log(err);
-								else {
-									for(var i = 0; i < user.local.Items.length; ++i) {
-										if(user.local.Items[i].QRCode.equals(qrcode._id)) {
-											--user.local.Items[i].num;
-											break;
-										}
-									}
-									user.save(function(err, user) {
-										if(err) console.log(err);
-										else
-											res.json({});
-									});
-								}
-							});
-						}
-					})
-				} else {
-					QRCode.findByIdAndRemove(qrcode._id, function(err, qrcode) {
-						qrcode.remove(function(err, qrcode) {
+		if(req.isSO) {
+			QRCode.findById(mongoose.Types.ObjectId(req.body.QRCode)).exec().then(function(qrcode) {
+				if(!qrcode) throw new Error("Could not find QR Code.");
+				else if(!qrcode.StoreOwner.equals(req.id)) throw new Error("Can't redeem QR code that doesn't belong the store owner.");
+				else{
+					if(qrcode.numOwned > 1) {
+						--qrcode.numOwned;
+						qrcode.save(function(err, qrcode) {
 							if(err) console.log(err);
 							else {
 								User.findById(qrcode.User, function(err, user) {
 									if(err) console.log(err);
 									else {
-										for(var i = 0; i < user.local.Items.length; ++i) {
-											if(user.local.Items[i].QRCode.equals(qrcode._id)) {
-												user.local.Items.splice(i, 1);
+										for(var i = 0; i < user.Items.length; ++i) {
+											if(user.Items[i].QRCode.equals(qrcode._id)) {
+												--user.Items[i].num;
 												break;
 											}
 										}
@@ -620,12 +599,38 @@ module.exports = function(app, jwtauth) {
 									}
 								});
 							}
-						});
-					})
+						})
+					} else {
+						QRCode.findByIdAndRemove(qrcode._id, function(err, qrcode) {
+							qrcode.remove(function(err, qrcode) {
+								if(err) console.log(err);
+								else {
+									User.findById(qrcode.User, function(err, user) {
+										if(err) console.log(err);
+										else {
+											for(var i = 0; i < user.Items.length; ++i) {
+												if(user.Items[i].QRCode.equals(qrcode._id)) {
+													user.Items.splice(i, 1);
+													break;
+												}
+											}
+											user.save(function(err, user) {
+												if(err) console.log(err);
+												else
+													res.json({});
+											});
+										}
+									});
+								}
+							});
+						})
+					}
 				}
-			}
-		}).then(null, function(err) {
-			console.log(err);
-		});
+			}).then(null, function(err) {
+				console.log(err);
+			});
+		} else {
+			res.json({err: "Not SO."});
+		}
 	});
 }

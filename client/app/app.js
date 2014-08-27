@@ -136,7 +136,7 @@ app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 			});
 		},
 		addItem: function(itemId) {
-			user.Items.push(itemId);
+			//user.Items.push(itemId);
 		},
 		currentUser: function() {
 			return  user;

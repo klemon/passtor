@@ -5,7 +5,8 @@ var LocalStrategy = require('passport-local').Strategy;
 var moment = require('moment');
 
 // load up the user model
-var User          = require('../app/models/user');
+var AllUsers = require('../app/models/allusers'),
+    User = AllUsers.User;
 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -44,9 +45,9 @@ module.exports = function(passport) {
   },
   function(req, username, password, done) {
     // we are checking to see if the user trying to login already exists
-    User.findOne({ 'local.username' : username }, function(err, user) {
+    User.findOne({'username' : username}, function(err, user) {
       // if there are any errors, return the error before anything else
-      if (err) {
+      if(err){
         console.log("Error in logging in");
         return done(err);
       }
@@ -56,7 +57,7 @@ module.exports = function(passport) {
         return done(null, false, "User does not exist."); // req.flash is the way to set flashdata using connect-flash
       }
       // if the user is found but the password is wrong
-      if(!user.validPassword(password)) {
+      if(!AllUsers.validPassword(password, user.password)) {
         console.log("User found but wrong password");
         return done(null, false, "Invalid password."); // create the loginMessage and save it to session as flashdata
       }
@@ -67,7 +68,7 @@ module.exports = function(passport) {
       if(days) {
         console.log("Refreshing likes");
         currRefresh = currRefresh.add('day', days);
-        user.local.lastLikeRefresh = currRefresh.toDate();
+        user.lastLikeRefresh = currRefresh.toDate();
         console.log("new refresh date: " + user.local.lastLikeRefresh);
         user.likes = 15;
       }
@@ -104,7 +105,7 @@ module.exports = function(passport) {
 
    // find a user whose username is the same as the forms username
    // we are checking to see if the user trying to login already exists
-    User.findOne({ 'local.username' : username }, function(err, user) {
+    User.findOne({'username' : username}, function(err, user) {
       // if there are any errors, return the error
       
       if (err) {
@@ -117,7 +118,7 @@ module.exports = function(passport) {
         console.log("User already exists.");
         return done(null, false, "That username is already taken.");
       } else {
-        User.findOne({ 'local.email' : req.body.email }, function(err, user) {
+        User.findOne({'local.email' : req.body.email}, function(err, user) {
           // if there are any errors, return the error before anything else
           if (err) {
             console.log("Error in finding if email exists.");
@@ -129,17 +130,17 @@ module.exports = function(passport) {
           } else {
             var newUser                 = new User();
             // set the user's local credentials
-            newUser.local.username      = username;
+            newUser.username      = username;
+            newUser.password      = newUser.generateHash(password);
             newUser.local.email         = req.body.email;
             newUser.local.firstName     = req.body.firstName;
             newUser.local.lastName      = req.body.lastName;
-            newUser.local.password      = newUser.generateHash(password);
             // save the user
-            newUser.save(function(err) {
+            newUser.save(function(err, newUser2) {
               if(err)
                 throw err;
               console.log("Created a new user.");
-              return done(null, newUser);
+              return done(null, newUser2);
             });
           }
         });
