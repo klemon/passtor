@@ -413,7 +413,6 @@ module.exports = function(app, jwtauth) {
 				itemList.push(itemInfo(items[i]));
 			}
 			console.log("returning wishlist of a user");
-			console.log(JSON.stringify(itemList));
 			res.json({items: itemList, numItems: items.length, extraItemInfo: req.user.Items,
 			 coins: req.user.coins, likes: req.user.likes});
 		});
@@ -446,18 +445,19 @@ module.exports = function(app, jwtauth) {
 			for(var i = 0; i < user.wishlist.length; ++i) {
 				if(user.wishlist[i].equals(mongoose.Types.ObjectId(req.body.id))) {
 					user.wishlist.splice(i, 1);
+					user.save(function(err, user2) {
+						if(err) {
+							console.log(err);
+							res.json({err: err});
+						} else {
+							res.json({coins: user2.coins, likes: user2.likes});
+						}
+					});
 					console.log("removed item from wishlist");
 					break;
 				}
 			}
-			user.save(function(err, user2) {
-				if(err) {
-					console.log(err);
-					res.json({err: err});
-				} else {
-					res.json({coins: user2.coins, likes: user2.likes});
-				}
-			});
+			
 		});
 	});
 
@@ -557,11 +557,14 @@ module.exports = function(app, jwtauth) {
 	app.post('/submitQRCode', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
 		if(req.isSO) {
 			QRCode.findById(mongoose.Types.ObjectId(req.body.QRCode)).exec().then(function(qrcode) {
-				if(qrcode && qrcode.StoreOwner.equals(req.id))
+				if(qrcode && qrcode.StoreOwner.equals(req.id)) {
+					console.log("hi");
 					return Item.findById(qrcode.Item).exec();
+				}
 				else 
 					res.json({isLegit: false});
 			}).then(function(item) {
+				console.log("i: " +item);
 				res.json({isLegit: true, item:itemInfo(item)});
 			}).then(null, function(err) {
 				console.log(err);

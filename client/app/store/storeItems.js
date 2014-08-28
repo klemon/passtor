@@ -12,9 +12,12 @@ storeItems.controller('StoreItemsCtrl', ['$scope', '$location', 'Items', '$rootS
  function($scope, $location, Items, $rootScope, User) {
 	$scope.iF = new Items(true); // iF = Items Factory
 	$scope.canWish = User.isUser();
+	$scope.itemsShown = 0;
 	$scope.showMore = function() {
 		$scope.iF.showMore(function() {
-			for(var i = 0; i < $scope.iF.items.length; ++i) {
+			var prevItemsShown = $scope.itemsShown;
+			$scope.itemsShown = $scope.iF.items.length;
+			for(var i = prevItemsShown; i < $scope.iF.items.length; ++i) {
 				$scope.iF.items[i].onWishlist = false;
 				if(User.isUser()) {
 					for(var j = 0; j < $scope.wishlistIds.length; ++j) {
@@ -34,6 +37,22 @@ storeItems.controller('StoreItemsCtrl', ['$scope', '$location', 'Items', '$rootS
 		});
 	} else {
 		$scope.showMore();
+	}
+	$scope.changeSort = function() {
+		$scope.iF.changeSort(function() {
+			$scope.itemsShown = $scope.iF.items.length;
+			for(var i = 0; i < $scope.iF.items.length; ++i) {
+				$scope.iF.items[i].onWishlist = false;
+				if(User.isUser()) {
+					for(var j = 0; j < $scope.wishlistIds.length; ++j) {
+						if($scope.wishlistIds[j] == $scope.iF.items[i].id) {
+							$scope.iF.items[i].onWishlist = true;		
+							break;
+						}
+					}
+				}
+			}
+		});
 	}
 	$scope.view = function(item) {
 		$rootScope.item = item;

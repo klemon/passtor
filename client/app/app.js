@@ -136,7 +136,7 @@ app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 			});
 		},
 		addItem: function(itemId) {
-			//user.Items.push(itemId);
+			//=user.Items.push(itemId);
 		},
 		currentUser: function() {
 			return  user;
@@ -244,6 +244,17 @@ app.factory('Posts', ['$http', '$location', 'AuthService', 'User',
 	return data;
 }]);
 
+app.factory('MyDate', [function() {
+	return {
+		date: function(dateStr) {
+			var monthToStr = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+			"October", "November", "December"];
+			var date = new Date(dateStr);
+			return {month: monthToStr[date.getMonth()], day: date.getDate(), year: date.getFullYear()};
+		}
+	};
+}]);
+
 app.factory('Items', ['$http', '$location', 'AuthService', 'User', 
 	function($http, $location, AuthService, User) {
 	var data = function(all, url) {
@@ -292,14 +303,17 @@ app.factory('Items', ['$http', '$location', 'AuthService', 'User',
 				done();
 		}.bind(this));
 	}
-	data.prototype.changeSort = function() {
+	data.prototype.changeSort = function(done) {
 		if(this.prevSort.id == this.selectedSort.id)
 			return;
 		this.prevSort = this.selectedSort;
 		this.items = [];
 		this.lastDate =  null;
 		this.page = 0;
-		this.showMore();
+		this.showMore(function() {
+			if(done)
+				done();
+		});
 	}
 	data.prototype.delete = function(index) {
 		User.send('/deleteItem', {id: this.items[index].id}, function(err, res) {

@@ -9,8 +9,8 @@ editPost.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('EditPostCtrl', ['$scope', '$location', 'User', 'Posts', '$rootScope',
-	function($scope, $location, User, Posts, $rootScope) {
+.controller('EditPostCtrl', ['$scope', '$location', 'User', 'Posts', '$rootScope', 'MyDate',
+	function($scope, $location, User, Posts, $rootScope, MyDate) {
 	$scope.formData = $rootScope.post;
 	$scope.message = "";
 	$scope.edit = function() {
@@ -19,6 +19,7 @@ editPost.config(['$routeProvider', function ($routeProvider) {
 			return;
 		}
 		User.send('/editPost', $scope.formData, function(err, res) {
+			res.post.created = MyDate.date(res.post.created);
 			$rootScope.post = res.post;
 			$location.path('/userPost');
 		});

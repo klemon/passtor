@@ -11,7 +11,7 @@ storeItem.config(['$routeProvider', function ($routeProvider) {
 storeItem.controller('StoreItemCtrl', ['$scope', '$location', 'User', '$rootScope', 
 	function($scope, $location, User, $rootScope) {
 	$scope.item = $rootScope.item;
-	$scope.message;
+	$scope.message ="";
 	$scope.canBuy = User.isUser();
 	$scope.buy = function() {
 		if(User.currentUser().coins < $scope.item.cost) {

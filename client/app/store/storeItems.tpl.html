@@ -7,7 +7,7 @@
 					<p>{{iF.numItems}} items</p>
 				</div>
 				<div class="col-md-6">
-					<select class="orderby pull-right push-bottom" name="orderby" ng-model="iF.selectedSort" ng-options="s.text for s in iF.sorts" ng-click="iF.changeSort()"></select>
+					<select class="orderby pull-right push-bottom" name="orderby" ng-model="iF.selectedSort" ng-options="s.text for s in iF.sorts" ng-click="changeSort()"></select>
 				</div>
 			</div>
 			<div ng-repeat="item in iF.items">

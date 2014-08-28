@@ -17,11 +17,13 @@ wishItem.controller('WishItemCtrl', ['$scope', '$location', 'User', '$rootScope'
 			$scope.message = "You don't have enough coins to buy this item.";
 			return;
 		}
-		User.send('/buyItem', {id: $scope.item.id}, function(err, res) {
-			User.addItem($scope.item.id);
-			++$scope.item.sold;
-			++$scope.item.num;
-		});
+		else {
+			User.send('/buyItem', {id: $scope.item.id}, function(err, res) {
+				User.addItem($scope.item.id);
+				++$scope.item.sold;
+				++$scope.item.num;
+			});
+		}
 	}
 	$scope.profile = function(storeName) {
 		$rootScope.storeName = storeName;

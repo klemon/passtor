@@ -63,7 +63,7 @@ createJoeUser = function(SO, done) {
 createJoesPosts = function(joeUser, done) {
 	Post.create({
 		title: "I created my first post!",
-		description: "well... here it is.",
+		description: " 	Coralline breezeway rue remillable quathlamba photonasty insulter guiro. Alister prearrestment chansonniers pembroke rhg paleface shipentine tocantins. Sphericality reembarcation verso restorable femur humphrey incertitude cnidus.\n\n 	Masticate aviaries pettish rsj dalila moil hemikaryotic ajee. Outtease synechiae dyersville hagriding kingwood mantling furtive incur. Reengaged monumentalising sweetbells unoutspoken hydrazone reroute argillite entomogenous.\n\n 	Upbuilt ligatured purely charlyn predatory unfasting istrian guesthouse. Energy kordofan liou galavant bhadgaon sphingomyelin winery poking. Lozengy peyton proapportionment goddamnit minify achieve eccentricity bani.",
 		creator: joeUser.username,
 		likes: 8,
 		numComments: 2
@@ -207,7 +207,7 @@ createDavesItems = function(daveSO, done) {
 		console.log(err);
 	});
 }
-/*
+
 var daveSO = new StoreOwner();
 daveSO.username = "Dave";
 daveSO.password = AllUsers.generateHash("password");
@@ -257,7 +257,7 @@ daveSO.save(function(err, SO) {
 		});
 	});
 });
-*/
+
 /*
 var daveUser;
 var daveSO;
@@ -322,7 +322,7 @@ User.create({
 }).then(null, function(err) {
 	console.log(err);
 });*/
-
+/*
 AbstractUser.findOne({"username":"joe"}, function(err, user) {
 		++user.likes;
 		console.log("u1: " + user);
@@ -335,4 +335,4 @@ AbstractUser.findOne({"username":"joe"}, function(err, user) {
 				})
 			})
 		});
-});
+});*/
