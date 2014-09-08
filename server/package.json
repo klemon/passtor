@@ -15,7 +15,8 @@
     "bcrypt-nodejs": "latest",
     "jwt-simple": "~0.2.0",
     "moment": "~2.7.0",
-    "mongoose-schema-extend": "~0.1.7"
+    "mongoose-schema-extend": "~0.1.7",
+    "mongoosastic": "~0.4.1"
   },
   "engines": {
     "node": "0.10.20"

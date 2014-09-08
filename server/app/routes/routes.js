@@ -4,7 +4,6 @@ var AllUsers = require('../models/allusers'),
 	User = AllUsers.User,
 	StoreOwner = AllUsers.StoreOwner;
 var Item = require('../models/item');
-var Store = require('../models/store');
 var mongoose = require('mongoose');
 var express = require('express');
 var moment = require('moment');
