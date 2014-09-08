@@ -80,10 +80,10 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', '$window',
 	return {
 		send: function(url, data, done){
 			data.token = token;
-			$http.post(url, data)
+			$http.post('http://localhost:8080' + url, data)
 			.success(function(res) {
 				if(res.exp) {
-					$http.post('/login', {username: $rootScope.username, password: $rootScope.password}, 
+					$http.post('http://localhost:8080/login', {username: $rootScope.username, password: $rootScope.password}, 
 						function(res) {
 						// TODO: set login message here somehow
 					});
