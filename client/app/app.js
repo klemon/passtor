@@ -73,8 +73,22 @@ app.config(['$routeProvider', '$locationProvider',
 	}
 }]);
 
-app.factory('AuthService', ['$http', '$location', '$rootScope', '$window',
- function($http, $location, $rootScope, $window) {
+app.factory('MySave', ['$window', function($window) {
+	return {
+		set: function(str, obj) {
+			$window.localStorage.setItem(str, obj);
+		},
+		get: function(str) {
+			return $window.localStorage.getItem(str);
+		},
+		clear: function() {
+			$window.localStorage.clear();
+		}
+	}
+}]);
+
+app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
+ function($http, $location, $rootScope, MySave) {
 	var expires;
 	var token;
 	return {
@@ -97,40 +111,40 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', '$window',
 		},
 		setToken: function(tok){
 			token = tok;
-			$window.localStorage.setItem('token', token);
+			MySave.set('token', token);
 		},
 		setExpires: function(exp) {
 			expires = exp;
-			$window.localStorage.setItem('expires', expires);
+			MySave.set('expires', expires);
 		}
 	};
 }]);
 
-app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
+app.factory('User', ['AuthService', 'MySave', function(AuthService, MySave) {
 	var user = {Items: []};
 	return {
 		isSO: function() {
-			if($window.localStorage.getItem('storeName'))
+			if(MySave.get('storeName'))
 				return true;
 			return false;
 		},
 		isUser: function() {
-			if(!$window.localStorage.getItem('storeName') && $window.localStorage.getItem('username'))
+			if(!MySave.get('storeName') && MySave.get('username'))
 				return true;
 			return false;
 		},
 		isNonUser: function() {
-			if(!$window.localStorage.getItem('username'))
+			if(!MySave.get('username'))
 				return true;
 			return false;
 		},
 		send : function(url, data, done) {
 			AuthService.send(url, data, function(err, res) {
-				if(!$window.localStorage.getItem('storeName') && $window.localStorage.getItem('username')) {
+				if(!MySave.get('storeName') && MySave.get('username')) {
 					user.coins = res.coins;
 					user.likes = res.likes;
-					$window.localStorage.setItem('coins', user.coins);
-					$window.localStorage.setItem('likes', user.likes);
+					MySave.set('coins', user.coins);
+					MySave.set('likes', user.likes);
 				}
 				done(err, res);
 			});
@@ -146,11 +160,11 @@ app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 		},
 		update: function(data) {
 			user.username = data;
-			$window.localStorage.setItem('username', user.username);
+			MySave.set('username', user.username);
 		},
 		clearData: function() {
 			user = {};
-			$window.localStorage.clear();
+			MySave.clear();
 		},
 		isLoggedIn: function() {
 			return user.username;
@@ -159,43 +173,43 @@ app.factory('User', ['AuthService', '$window', function(AuthService, $window) {
 			return user.storeName;
 		},
 		restoreData: function() {
-			if($window.localStorage.getItem('storeName')) {
-				user.storeName = $window.localStorage.getItem('storeName');
-				AuthService.setToken($window.localStorage.getItem('token'));
-			} else if($window.localStorage.getItem('username')) {
-				user.coins = $window.localStorage.getItem('coins');
-				user.likes = $window.localStorage.getItem('likes');
-				AuthService.setToken($window.localStorage.getItem('token'));
+			if(MySave.get('storeName')) {
+				user.storeName = MySave.get('storeName');
+				AuthService.setToken(MySave.get('token'));
+			} else if(MySave.get('username')) {
+				user.coins = MySave.get('coins');
+				user.likes = MySave.get('likes');
+				AuthService.setToken(MySave.get('token'));
 				AuthService.send('/update', {}, function(err, res) {
-					$window.localStorage.setItem('coins', res.coins);
-					$window.localStorage.setItem('likes', res.likes);
+					MySave.set('coins', res.coins);
+					MySave.set('likes', res.likes);
 					user.coins = res.coins;
 					user.likes = res.likes;
 				});
 			} else {
 				return;
 			}
-			user.username = $window.localStorage.getItem('username');
-			user.password = $window.localStorage.getItem('password');
-			user.email = $window.localStorage.getItem('email');
-			user.firstName = $window.localStorage.getItem('firstName');
-			user.lastName = $window.localStorage.getItem('lastName');
-			AuthService.setExpires($window.localStorage.getItem('expires'));
+			user.username = MySave.get('username');
+			user.password = MySave.get('password');
+			user.email = MySave.get('email');
+			user.firstName = MySave.get('firstName');
+			user.lastName = MySave.get('lastName');
+			AuthService.setExpires(MySave.get('expires'));
 		},
 		setUser: function(res) {
 			if(res.user) {
 				user = res.user;
-				$window.localStorage.setItem('coins', user.coins);
-				$window.localStorage.setItem('likes', user.likes);
+				MySave.set('coins', user.coins);
+				MySave.set('likes', user.likes);
 			} else {
 				user = res.storeOwner;
-				$window.localStorage.setItem('storeName', user.storeName);
+				MySave.set('storeName', user.storeName);
 			}
-			$window.localStorage.setItem('username', user.username);
-			$window.localStorage.setItem('password', user.password);
-			$window.localStorage.setItem('email', user.email);
-			$window.localStorage.setItem('firstName', user.firstName);
-			$window.localStorage.setItem('lastName', user.lastName);
+			MySave.set('username', user.username);
+			MySave.set('password', user.password);
+			MySave.set('email', user.email);
+			MySave.set('firstName', user.firstName);
+			MySave.set('lastName', user.lastName);
 		}
 	};
 }]);
