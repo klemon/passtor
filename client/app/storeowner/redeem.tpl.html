@@ -7,12 +7,6 @@
 						<div class="box-content">
 							<h4>Redeem Mode!</h4>
 							<form action="" id="contactForm" type="post">
-								<div class="row">
-									<div class="form-group">
-										<label>QR Code</label>
-										<input type="text" value="" class="form-control" ng-model="qrcode">
-									</div>
-								</div>
 								<div ng-show=legitItem>
 									<div class="row">
 										<div class="col-md-12">
@@ -33,14 +27,9 @@
 								</div>
 								<div ng-hide=legitItem>
 									<div class="row">
-                                        <div class="col-md-4">
-											<input type="submit" value="Scan" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading..." ng-click="scan()">
+                                        <div class="col-md-12">
+											<input type="submit" value="Scan" class="btn btn-primary push-bottom" data-loading-text="Loading..." ng-click="scan()">
 										</div>
-										<div class="col-md-4">
-											<input type="submit" value="Submit" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading..." ng-click="submit()">
-										</div>
-										<div class="col-md-4">
-											<input type="submit" value="Clear" class="btn btn-primary pull-right push-bottom" data-loading-text="Loading..." ng-click="clear()">
 										</div>
 									</div>
 								</div>

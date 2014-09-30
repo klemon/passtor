@@ -31,6 +31,12 @@ module.exports = function(passport) {
     });
   });
 
+  // Takes string and return whether it is a valid username
+  // Username can only contain alphanumeric characters.
+  isValidUsername = function(username) {
+    return /^[0-9a-zA-Z]+$/.test(username);
+  }
+
   // ========================================================================
   // LOCAL LOGIN ============================================================
   // ========================================================================
@@ -56,6 +62,7 @@ module.exports = function(passport) {
         console.log("No user is found");
         return done(null, false, "User does not exist."); // req.flash is the way to set flashdata using connect-flash
       }
+
       // if the user is found but the password is wrong
       if(!AllUsers.validPassword(password, user.password)) {
         console.log("User found but wrong password");
@@ -100,6 +107,9 @@ module.exports = function(passport) {
     if(!req.body.email) {
       console.log("User must provide an email.");
       return done(null, false, "Please provide an email.");
+    } else if(!isValidUsername(username)) {
+      console.log("Username is invalid");
+      return done(null, false, "Invalid username.");
     }
 
 

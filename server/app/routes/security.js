@@ -7,7 +7,14 @@ var AllUsers = require('../models/allusers'),
 
 module.exports = function(app, passport) {
 
+// Takes a username and capitalizes the first letter and makes the rest
+// of the string lowercase.
+toUsernameFormat = function(username) {
+  return username.charAt(0).toUpperCase() + username.slice(1);
+}
+
 app.post('/login', function(req, res, next) {
+  req.body.username = toUsernameFormat(req.body.username);
   passport.authenticate('local-login', function(err, user, message) {
     if(err) {
       console.log(err);

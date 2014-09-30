@@ -11,7 +11,7 @@ login.controller('LoginCtrl', ['$scope', '$rootScope', '$location','AuthService'
  function($scope, $rootScope, $location, AuthService, User) {
 	$scope.message;
 	$scope.formData = {};
-
+	
 	$scope.login = function() {
 		if(!$scope.formData.username)
 		{
