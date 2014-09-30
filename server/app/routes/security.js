@@ -14,7 +14,9 @@ toUsernameFormat = function(username) {
 }
 
 app.post('/login', function(req, res, next) {
+  console.log("pre Username: "+ req.body.username);
   req.body.username = toUsernameFormat(req.body.username);
+console.log("post Username: "+ req.body.username);
   passport.authenticate('local-login', function(err, user, message) {
     if(err) {
       console.log(err);

@@ -31,10 +31,8 @@ module.exports = function(passport) {
     });
   });
 
-  // Takes string and return whether it is a valid username
-  // Username can only contain alphanumeric characters.
-  isValidUsername = function(username) {
-    return /^[0-9a-zA-Z]+$/.test(username);
+  toUsernameFormat = function(username) {
+    return username.charAt(0).toUpperCase() + username.slice(1);
   }
 
   // ========================================================================
@@ -111,7 +109,7 @@ module.exports = function(passport) {
       console.log("Username is invalid");
       return done(null, false, "Invalid username.");
     }
-
+    username = toUsernameFormat(username);
 
    // find a user whose username is the same as the forms username
    // we are checking to see if the user trying to login already exists

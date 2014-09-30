@@ -21,7 +21,7 @@ var QRCode = require('./app/models/qrcode');
 
 createJoeUser = function(SO, done) {
 	var joeUser = new User();
-	joeUser.username = "joe";
+	joeUser.username = "Joe";
 	joeUser.password = AllUsers.generateHash("password");
 	joeUser.local.firstName = "Joseph";
 	joeUser.local.lastName = "DeWilde";
@@ -88,7 +88,7 @@ createJoesComments = function(joeUser, post, done) {
 
 createBobUser = function(SO, done) {
 	var bobUser = new User();
-	bobUser.username = "bob";
+	bobUser.username = "Bob";
 	bobUser.password = AllUsers.generateHash("password");
 	bobUser.local.firstName = "Robert";
 	bobUser.local.lastName = "Smith";
