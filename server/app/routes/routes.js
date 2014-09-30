@@ -95,8 +95,12 @@ module.exports = function(app, jwtauth) {
 			if(!user) {
 				throw new Error("Did not find user");
 			} else {
-				res.json({user: userInfo(user),
+				if(req.isUser) {
+					res.json({user: userInfo(user),
 					coins: req.user.coins, likes: req.user.likes});
+				} else {
+					res.json({user: userInfo(user)});
+				}
 			}
 		}).then(null, function(err) {
 			console.log(err);
@@ -109,11 +113,11 @@ module.exports = function(app, jwtauth) {
 			if(!storeOwner) {
 				throw new Error("Did not find store owner");
 			} else {
-				if(req.isSO)
-					res.json({storeOwner: sOInfo(storeOwner)});
-				else {
+				if(req.isUser)
 					res.json({storeOwner: sOInfo(storeOwner),
 					coins: req.user.coins, likes: req.user.likes});
+				else {
+					res.json({storeOwner: sOInfo(storeOwner)});
 				}
 			}
 		}).then(null, function(err) {

@@ -10,6 +10,7 @@ var passport = require('passport');
 var flash 	 = require('connect-flash');
 var path     = require('path');
 var configDB = require('./config/database.js');
+var cors = require('cors');
 
 var jwt = require('jwt-simple');
 app.set('jwtTokenSecret', 'klemon_devauld');
@@ -24,7 +25,7 @@ mongoose.connect(configDB.url); // connect to our database
 require('./config/passport')(passport); // pass passport for configuration
 var distFolder = path.resolve(__dirname, '../client');
 app.configure(function() {
-	
+	app.use(cors());
 	// set up our express application
 	app.use(express.static(path.resolve(__dirname, '../client')));
 	app.use(express.logger('dev')); // log every request to the console
@@ -32,6 +33,7 @@ app.configure(function() {
 	//app.use(express.bodyParser()); // get information from html forms
 	app.use(express.json());
 	app.use(express.urlencoded());
+	//app.use(app.router);
 	app.use(express.methodOverride()); // simulate DELETE and PUT
 	app.use(express.favicon());
 
@@ -50,7 +52,8 @@ jwtauth = function(req, res, next) {
 	req.nonUser = false;
 	req.isSO = false;
 	req.isUser = false;
-	if((req.url == "/items" || req.url == "/posts" || req.url == "/comments") && !req.body.token) {
+	if((req.url == "/items" || req.url == "/posts" || req.url == "/comments" ||
+	 req.url=="/user" || req.url == "/storeOwner") && !req.body.token) {
 		req.nonUser = true;
 		next();
 		return;
@@ -117,9 +120,9 @@ jwtauth = function(req, res, next) {
 
 // Add headers
 app.use(function (req, res, next) {
-
+	//console.log(req);
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3319');
+    //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3319');
 
     // Request methods you wish to allow
     //res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');

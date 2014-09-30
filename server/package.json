@@ -16,7 +16,9 @@
     "jwt-simple": "~0.2.0",
     "moment": "~2.7.0",
     "mongoose-schema-extend": "~0.1.7",
-    "mongoosastic": "~0.4.1"
+    "mongoosastic": "~0.4.1",
+    "connect": "~3.2.0",
+    "cors": "~2.4.2"
   },
   "engines": {
     "node": "0.10.20"

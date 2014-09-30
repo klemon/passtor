@@ -7,8 +7,8 @@
 					<p>{{iF.numItems}} items</p>
 				</div>
 				<div class="col-md-6">
-					<select class="orderby pull-right push-bottom" name="orderby" ng-model="iF.selectedSort" ng-options="s.text for s in iF.sorts" ng-click="changeSort()"></select>
-				</div>
+                    <button type="button" class="btn btn-lg btn-primary" data-animation="am-flip-x" bs-dropdown="iF.sorts">{{iF.selectedSort.text}}</button>
+                </div>
 			</div>
 			<div ng-repeat="item in iF.items">
 				<div class="featured-box">
@@ -17,7 +17,7 @@
 							<div class="row">
 								<div class="col-md-12">
 									<div class="post-content">
-										<h2><a href="">{{item.name}}</a></h2>
+										<h2><a>{{item.name}}</a></h2>
 										<p style="white-space: pre; word-wrap: break-word;" dotdotdot ng-bind="item.description"></p>
 									</div>
 								</div>

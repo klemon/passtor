@@ -8,7 +8,7 @@
 							<div class="row">
 								<div class="col-md-12">
 									<div class="post-content">
-										<h2><a href="">{{post.title}}</a></h2>
+										<h2><a>{{post.title}}</a></h2>
 										<p style="white-space: pre; word-wrap: break-word;" nodotdotdot ng-bind="post.description"></p>
 									</div>
 								</div>
@@ -16,7 +16,7 @@
 							<div class="row">
 								<div class="col-md-12">
 									<div class="post-meta">
-										<span><i class="icon icon-user"></i> By <a href="/userProfile">{{post.creator}}</a> </span>
+										<span><i class="icon icon-user"></i> By <a ng-click="userProfile()">{{post.creator}}</a> </span>
 										<span><i class="icon icon-calendar"></i>{{post.created.month}} {{post.created.day}}, {{post.created.year}}</span>
 										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>{{post.likes}}</span>
 									</div>

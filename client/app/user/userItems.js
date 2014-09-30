@@ -10,7 +10,7 @@ userItems.config(['$routeProvider', function ($routeProvider) {
 
 userItems.controller('UserItemsCtrl', ['$scope', '$location','User', 'Posts', '$rootScope', 'Items',
  function($scope, $location, User, Posts, $rootScope, Items) {
-	$scope.iF = new Items(false); // iF = Items Factory
+	$scope.iF = new Items(false); // iF = Items Factory, iF name must be used
 	$scope.iF.showMore();
 	$scope.view = function(item) {
 		$rootScope.item = item;

@@ -79,15 +79,15 @@
 									<i class="icon  icon-dot-circle-o"></i>{{user.coins}}
 								</li>
 								<li>
-									<a href="/editProfile"><span  class="label label-default">Edit Profile</span></a>
+									<a ng-click="editProfile()"><span  class="label label-default">Edit Profile</span></a>
 								</li>
 							</ul>
 						</div>
 					</div>
 				</div>
-				<a href="/userPosts"><span  class="label label-default">See Posts</span></a>
-				<a href="/userItems"><span  class="label label-default">See Items</span></a>
-				<a href="/wishlist"><span  class="label label-default">See Wishlist</span></a>
+				<a ng-click="userPosts()"><span  class="label label-default">See Posts</span></a>
+				<a ng-click="userItems()"><span  class="label label-default">See Items</span></a>
+				<a ng-click="wishlist()"><span  class="label label-default">See Wishlist</span></a>
 				<p class="portfolio-description taller lead">{{user.description}}</p>
 			</div>
 		</div>

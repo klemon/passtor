@@ -9,6 +9,18 @@ userProfile.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('UserProfileCtrl', ['$scope', 'User', function($scope, User) {
+.controller('UserProfileCtrl', ['$scope', 'User', '$location', function($scope, User, $location) {
 	$scope.user = User.currentUser();
+	$scope.editProfile = function() {
+		$location.path('/editProfile');
+	}
+	$scope.userPosts = function() {
+		$location.path('/userPosts');
+	}
+	$scope.userItems = function() {
+		$location.path('/userItems');
+	}
+	$scope.wishlist = function() {
+		$location.path('/wishlist');
+	}
 }]);

@@ -14,6 +14,6 @@ sOItem.controller('SOItemCtrl', ['$scope', '$location', 'User', '$rootScope',
 	$scope.message;
 	$scope.edit = function() {
 		$rootScope.item = $scope.item;
-		$location.path('/editSOItem');
+		$location.path('/editItem');
 	}
 }]);

@@ -37,4 +37,7 @@ createItem.controller('CreateItemCtrl', ['$scope', '$location', 'User', function
 				$location.path('/sOItems');
 		});
 	}
+	$scope.sOItems = function() {
+		$location.path('/sOItems');
+	}
 }]);

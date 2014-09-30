@@ -41,4 +41,7 @@ editItem.controller('EditItemCtrl', ['$scope', '$location', 'User', '$rootScope'
 				$location.path('/sOItems');
 		});
 	}
+	$scope.sOItems = function() {
+		$location.path('/sOItems')
+	}
 }]);

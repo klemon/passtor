@@ -40,4 +40,7 @@ userPost.config(['$routeProvider', function ($routeProvider) {
 		$rootScope.username = username;
 		$location.path('/otherProfile');
 	}
+	$scope.userProfile = function() {
+		$location.path('/userProfile');
+	}
 }]);

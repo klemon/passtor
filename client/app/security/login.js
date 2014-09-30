@@ -7,8 +7,6 @@ login.config(['$routeProvider', function ($routeProvider) {
   });
 }]);
 
-
-
 login.controller('LoginCtrl', ['$scope', '$rootScope', '$location','AuthService', 'User',
  function($scope, $rootScope, $location, AuthService, User) {
 	$scope.message;

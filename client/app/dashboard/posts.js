@@ -10,7 +10,7 @@ posts.config(['$routeProvider', function ($routeProvider) {
 
 posts.controller('PostsCtrl', ['$scope', '$location', 'User', '$rootScope', 'Posts',
 	function($scope, $location, User, $rootScope, Posts) {
- 	$scope.pF = new Posts(null); // pF = postsFactory
+ 	$scope.pF = new Posts(null); // pF = postsFactory, must use pF as name
 	$scope.view = function(post) {
 		$rootScope.post = post;
 		if(post.creator == User.currentUser().username)

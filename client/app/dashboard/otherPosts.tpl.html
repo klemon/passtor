@@ -7,8 +7,8 @@
 					<p>{{pF.numPosts}} posts</p>
 				</div>
 				<div class="col-md-6">
-					<select class="orderby pull-right push-bottom" name="orderby" ng-model="pF.selectedSort" ng-options="s.text for s in pF.sorts" ng-click="pF.changeSort()"></select>
-				</div>
+                    <button type="button" class="btn btn-lg btn-primary" data-animation="am-flip-x" bs-dropdown="pF.sorts">{{pF.selectedSort.text}}</button>
+                </div>
 			</div>
 			<div ng-repeat="post in pF.posts">
 				<div class="featured-box">
@@ -17,7 +17,7 @@
 							<div class="row">
 								<div class="col-md-12">
 									<div class="post-content">
-										<h2><a href="">{{post.title}}</a></h2>
+										<h2><a>{{post.title}}</a></h2>
 										<p style="white-space: pre; word-wrap: break-word;" dotdotdot ng-bind="post.description"></p>
 									</div>
 								</div>

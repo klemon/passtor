@@ -16,6 +16,6 @@
   ],
   "dependencies": {
     "angular-qr": "latest",
-    "clamp": "https://github.com/josephschmitt/Clamp.js.git"
+    "angular-strap": "~2.1.1"
   }
 }

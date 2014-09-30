@@ -9,7 +9,9 @@ redeem.config(['$routeProvider', function ($routeProvider) {
 }]);
 
 redeem.controller('RedeemCtrl', ['$scope', 'User', function($scope, User) {
-	$scope.legitItem = false;
+	console.log("redeem mode");
+    $scope.url = "";
+    $scope.legitItem = false;
 	$scope.qrcode = "";
 	$scope.message = "";
 	$scope.item = {};
@@ -38,4 +40,24 @@ redeem.controller('RedeemCtrl', ['$scope', 'User', function($scope, User) {
 		$scope.message = "";
 		$scope.qrcode = "";
 	}
+    $scope.scan = function() {
+        document.addEventListener("intel.xdk.device.barcode.scan", barcodeScanned, false);
+        function barcodeScanned(evt) {
+            intel.xdk.notification.beep(1);
+            if (evt.type == "intel.xdk.device.barcode.scan") {
+                if (evt.success == true) {
+                    //var url = evt.codedata;
+                    $scope.url = evt.codedata;
+                    console.log("data: " + evt.codedata);
+                    //intel.xdk.device.showRemoteSite(url, 264, 0,56, 48)
+                } else {
+                  //scan cancelled
+                  //$scope.url = "Scan cancelled";
+                  //console.log("Scan cancelled");
+                }
+            }
+            $scope.$apply();
+        }
+        intel.xdk.device.scanBarcode();
+    }
 }]);

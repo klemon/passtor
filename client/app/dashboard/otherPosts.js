@@ -11,7 +11,7 @@ otherPosts.config(['$routeProvider', function ($routeProvider) {
 
 .controller('OtherPostsCtrl', ['$scope', 'User', 'Posts', '$location', '$rootScope',
  function($scope, User, Posts, $location, $rootScope) {
- 	$scope.pF = new Posts($rootScope.username); // pF = postsFactory
+ 	$scope.pF = new Posts($rootScope.username); // pF = postsFactory, pF name must be used
  	$scope.creator = $rootScope.username;
 	$scope.view = function(post) {
 		$rootScope.post = post;

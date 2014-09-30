@@ -27,61 +27,89 @@ var app = angular.module('app', [
 	'wishItem',
 	'wishlist',
 	'infinite-scroll',
-	'ja.qr'
+	'ja.qr',
+    'mgcrea.ngStrap',
+    'mgcrea.ngStrap.dropdown'
 	]);
 
 app.config(['$routeProvider', '$locationProvider',
  function ($routeProvider, $locationProvider) {
-  $routeProvider.otherwise({redirectTo:'/'});
-  $locationProvider.html5Mode(true);
+  //$routeProvider.otherwise({redirectTo:'/'});
+  //$locationProvider.html5Mode(true);
   
   }])
-.controller('AppCtrl', ['$rootScope', '$location', 'User', '$timeout',
-	function($rootScope, $location, User, $timeout) {
-	User.restoreData();
+.controller('AppCtrl', ['User','$scope', '$location', '$rootScope', function(User, sc, loc, rsc) {
+    User.restoreData();
 	if(User.isLoggedIn()) {
-		$rootScope.$broadcast('loggedIn');
+		rsc.$broadcast('loggedIn');
 		if(User.isSO())
-			$location.path('/sOItems');
+			loc.path('/sOItems');
 		else 
-			$location.path('/posts');
+			loc.path('/posts');
 	}
 	else
-		$location.path('/login');
+		loc.path('/login');
 }])
-.controller('HeaderCtrl', ['$scope', '$location','AuthService', 'User', '$route',
-	function($scope, $location, AuthService, User, $route){
-	$scope.username = User.currentUser().username;
-	$scope.isSO = User.isSO();
-	$scope.isLoggedIn = User.isLoggedIn();
+.controller('HeaderCtrl', ['$scope', 'AuthService', 'User', '$location',
+	function(sc, AuthService, User, loc){
+	sc.username = User.currentUser().username;
+	sc.isSO = User.isSO();
+	sc.isLoggedIn = User.isLoggedIn();
 	// Listen to 'loggedIn' event
-	$scope.$on('loggedIn', function(event, args) {
-		$scope.isLoggedIn = true;
-		$scope.isSO = User.isSO();
+	sc.$on('loggedIn', function(event, args) {
+		sc.isLoggedIn = true;
+		sc.isSO = User.isSO();
 		if(User.currentUser().username)
-			$scope.username = User.currentUser().username;
+			sc.username = User.currentUser().username;
 		else
-			$scope.storeName = User.currentUser().storeName;
+			sc.storeName = User.currentUser().storeName;
 	});
-	$scope.logout = function() {
+	sc.logout = function() {
 		User.clearData();
-		$scope.username = "";
-		$scope.storeName = "";
-		$scope.isSO = false;
-		$scope.isLoggedIn = false;
-		$location.path('/login');
+		sc.username = "";
+		sc.storeName = "";
+		sc.isSO = false;
+		sc.isLoggedIn = false;
+		loc.path('/login');
 	}
+    sc.signup = function() {
+        loc.path('/signup');
+    }
+    sc.login = function() {
+    	loc.path('/login');
+    }
+    sc.storeItems = function() {
+        loc.path('/storeItems');
+    }
+    sc.posts = function() {
+        loc.path('/posts');
+    }
+    sc.userProfile = function() {
+        loc.path('/userProfile');
+    }
+    sc.sOItems = function() {
+        loc.path('/sOItems');
+    }
+    sc.redeem = function() {
+        loc.path('/redeem');
+    }
+    sc.sOProfile = function() {
+        loc.path('/sOProfile');
+    }
 }]);
 
 app.factory('MySave', ['$window', function($window) {
 	return {
-		set: function(str, obj) {
-			$window.localStorage.setItem(str, obj);
+		set: function(name, value) {
+			//intel.xdk.cache.setCookie(name, value, -1);
+			$window.localStorage.setItem(name, value);
 		},
-		get: function(str) {
-			return $window.localStorage.getItem(str);
+		get: function(name) {
+			//return intel.xdk.cache.getCookie(name);
+			return $window.localStorage.getItem(name);
 		},
 		clear: function() {
+			//intel.xdk.cache.clearAllCookies();
 			$window.localStorage.clear();
 		}
 	}
@@ -91,13 +119,20 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
  function($http, $location, $rootScope, MySave) {
 	var expires;
 	var token;
+	function successCallback(res) {
+		done(false, res);
+	}
+	function errorCallback(err) {
+		done(err, null);
+	}
 	return {
 		send: function(url, data, done){
 			data.token = token;
-			$http.post('http://localhost:8080' + url, data)
+			/*intel.xdk.device.getRemoteData("http://localhost:8080" + url, "POST", data, successCallback, errorCallback);*/
+            $http.post('http://192.168.1.130:8080' + url, data)
 			.success(function(res) {
 				if(res.exp) {
-					$http.post('http://localhost:8080/login', {username: $rootScope.username, password: $rootScope.password}, 
+					$http.post('http://192.168.1.130:8080/login', {username: $rootScope.username, password: $rootScope.password}, 
 						function(res) {
 						// TODO: set login message here somehow
 					});
@@ -107,7 +142,7 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
 			.error(function(data) {
 				console.log('Error: ' + data);
 				done(data, null);
-			})
+			});
 		},
 		setToken: function(tok){
 			token = tok;
@@ -218,10 +253,10 @@ app.factory('Posts', ['$http', '$location', 'AuthService', 'User',
 	function($http, $location, AuthService, User) {
 	var data = function(username) {
 		this.username = username; // null means get all posts
-		this.sorts = [{text: "Date added (newest - oldest)", id: 0},
-		 {text: "Date added (oldest - newest)", id: 1}, {text: "Most popular", id: 2}];
-		this.selectedSort = this.sorts[0];
-		this.prevSort = this.selectedSort;
+		this.sorts = [{text: "Date added (newest - oldest)", click: "pF.changeSort(0)"},
+		 {text: "Date added (oldest - newest)", click: "pF.changeSort(1)"}, {text: "Most popular", click: "pF.changeSort(2)"}];
+		this.selectedSort = {text: this.sorts[0].text, click: this.sorts[0].click};
+		this.prevIndex = 0;
 		this.numPosts = 0;
 		this.posts = [];
 		this.lastDate = null;
@@ -229,10 +264,11 @@ app.factory('Posts', ['$http', '$location', 'AuthService', 'User',
 		this.monthToStr = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
 		"October", "November", "December"];
 	};
-	data.prototype.showMore = function() {
+	data.prototype.showMore = function(done) {
+        console.log("showMore");
 		User.send('/posts', {username: this.username, 
-			sort: this.selectedSort.id, lastDate: this.lastDate, page: this.page}, function(err, res) {
-			if(this.selectedSort.id == 2) {
+			sort: this.prevIndex, lastDate: this.lastDate, page: this.page}, function(err, res) {
+			if(this.prevIndex == 2) {
 				++this.page;
 			} else if(res.posts.length) {
 				this.lastDate = res.posts[res.posts.length-1].created;
@@ -244,12 +280,16 @@ app.factory('Posts', ['$http', '$location', 'AuthService', 'User',
 				this.posts.push(res.posts[i]);
 			}
 			this.numPosts = res.numPosts;
+            if(done)
+                done();
 		}.bind(this));
 	}
-	data.prototype.changeSort = function() {
-		if(this.prevSort.id == this.selectedSort.id)
+	data.prototype.changeSort = function(index) {
+        if(this.prevIndex == index)
 			return;
-		this.prevSort = this.selectedSort;
+        var t = this.sorts[index];
+        this.selectedSort = {text: t.text, click: t.click};
+		this.prevIndex = index;
 		this.posts = [];
 		this.lastDate =  null;
 		this.page = 0;
@@ -269,15 +309,14 @@ app.factory('MyDate', [function() {
 	};
 }]);
 
-app.factory('Items', ['$http', '$location', 'AuthService', 'User', 
-	function($http, $location, AuthService, User) {
+app.factory('Items', ['$location', 'AuthService', 'User', 
+	function($location, AuthService, User) {
 	var data = function(all, url) {
 		this.url = url || '/items'; // default parameter for url
 		this.all = all;
-		this.sorts = [{text: "Date added (newest - oldest)", id: 0}, {text: "Date added (oldest - newest)", id: 1},
-			{text: "Most sold", id: 2}, {text: "Most redeemed", id:3}];
-		this.selectedSort = this.sorts[0];
-		this.prevSort = this.selectedSort;
+		this.sorts = [{text: "Date added (newest - oldest)", click: "iF.changeSort(0)"}, {text: "Date added (oldest - newest)", click: "iF.changeSort(1)"}, {text: "Most sold", click: "iF.changeSort(2)"}, {text: "Most redeemed", click: "iF.changeSort(3)"}];
+		this.selectedSort = {text: this.sorts[0].text, click: this.sorts[0].click};
+		this.prevIndex = 0;
 		this.numItems = 0;
 		this.items = [];
 		this.lastDate = null;
@@ -287,8 +326,8 @@ app.factory('Items', ['$http', '$location', 'AuthService', 'User',
 	};
 	data.prototype.showMore = function(done) {
 		User.send(this.url, {all: this.all, isSO: User.isSO(), isUser: User.isUser(), isNonUser: User.isNonUser(),
-		 sort: this.selectedSort.id, lastDate: this.lastDate, page: this.page}, function(err, res) {
-			if(this.selectedSort.id > 1) {
+		 sort: this.prevIndex, lastDate: this.lastDate, page: this.page}, function(err, res) {
+			if(this.prevIndex > 1) {
 		 		++this.page;
 		 	} else if(res.items.length) {
 		 		this.lastDate = res.items[res.items.length-1].created;
@@ -317,17 +356,16 @@ app.factory('Items', ['$http', '$location', 'AuthService', 'User',
 				done();
 		}.bind(this));
 	}
-	data.prototype.changeSort = function(done) {
-		if(this.prevSort.id == this.selectedSort.id)
+	data.prototype.changeSort = function(index) {
+		if(this.prevIndex == index)
 			return;
-		this.prevSort = this.selectedSort;
+        var t = this.sorts[index];
+        this.selectedSort = {text: t.text, click: t.click};
+		this.prevIndex = index;
 		this.items = [];
 		this.lastDate =  null;
 		this.page = 0;
-		this.showMore(function() {
-			if(done)
-				done();
-		});
+		this.showMore();
 	}
 	data.prototype.delete = function(index) {
 		User.send('/deleteItem', {id: this.items[index].id}, function(err, res) {

@@ -9,6 +9,9 @@ sOProfile.config(['$routeProvider', function ($routeProvider) {
 }])
 	
 
-.controller('SOProfileCtrl', ['$scope', 'User', '$rootScope', function($scope, User, $rootScope) {
-	$scope.user = User.currentUser();
+.controller('SOProfileCtrl', ['$scope', 'User', '$location', function(sc, User, loc) {
+	sc.user = User.currentUser();
+	sc.editSOProfile = function() {
+		loc.path('/editSOProfile');
+	}
 }]);

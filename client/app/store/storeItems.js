@@ -10,7 +10,7 @@ storeItems.config(['$routeProvider', function ($routeProvider) {
 
 storeItems.controller('StoreItemsCtrl', ['$scope', '$location', 'Items', '$rootScope', 'User',
  function($scope, $location, Items, $rootScope, User) {
-	$scope.iF = new Items(true); // iF = Items Factory
+	$scope.iF = new Items(true); // iF = Items Factory, must use iF as name
 	$scope.canWish = User.isUser();
 	$scope.itemsShown = 0;
 	$scope.showMore = function() {
@@ -37,23 +37,22 @@ storeItems.controller('StoreItemsCtrl', ['$scope', '$location', 'Items', '$rootS
 		});
 	} else {
 		$scope.showMore();
-	}
-	$scope.changeSort = function() {
-		$scope.iF.changeSort(function() {
-			$scope.itemsShown = $scope.iF.items.length;
-			for(var i = 0; i < $scope.iF.items.length; ++i) {
-				$scope.iF.items[i].onWishlist = false;
-				if(User.isUser()) {
-					for(var j = 0; j < $scope.wishlistIds.length; ++j) {
-						if($scope.wishlistIds[j] == $scope.iF.items[i].id) {
-							$scope.iF.items[i].onWishlist = true;		
-							break;
-						}
+	}    
+	$scope.$watch('iF.selectedSort', function() {
+		$scope.itemsShown = $scope.iF.items.length;
+		for(var i = 0; i < $scope.iF.items.length; ++i) {
+			$scope.iF.items[i].onWishlist = false;
+			if(User.isUser()) {
+				for(var j = 0; j < $scope.wishlistIds.length; ++j) {
+					if($scope.wishlistIds[j] == $scope.iF.items[i].id) {
+						$scope.iF.items[i].onWishlist = true;		
+						break;
 					}
 				}
 			}
-		});
-	}
+		}
+        $scope.$apply();
+    });
 	$scope.view = function(item) {
 		$rootScope.item = item;
 		$location.path('/storeItem');

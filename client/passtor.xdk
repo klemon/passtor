@@ -2,16 +2,15 @@
   "project": {
     "projectSettingsVersion": "1.1",
     "creationData": {
-      "type": "Blank Project",
+      "type": "Import",
       "createDefaultBuildConfigs": true,
       "projectTypeName": "com.intel.xdk.projecttype.jsapp",
-      "src": "blankproject",
-      "sourceDirectory": "./",
-      "projectGuid": "ee8c42e3-9a60-430b-913b-72ffa2cf8417",
-      "lastModifiedDate": 1409267385977,
-      "creationDate": 1409267385777
+      "src": "",
+      "projectGuid": "cc565479-0058-40b0-bac8-127a051b982d",
+      "lastModifiedDate": 1412058826212,
+      "creationDate": 1412058826058
     },
-    "sourceDirectory": "./",
+    "sourceDirectory": "",
     "cordovaPluginsDirectory": "plugins",
     "startFile": "index.html",
     "projectFiles": {},

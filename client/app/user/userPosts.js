@@ -11,11 +11,14 @@ userPosts.config(['$routeProvider', function ($routeProvider) {
 
 .controller('UserPostsCtrl', ['$scope', 'User', 'Posts', '$location', '$rootScope',
  function($scope, User, Posts, $location, $rootScope) {
- 	$scope.pF = new Posts(User.currentUser().username); // pF = postsFactory
+ 	$scope.pF = new Posts(User.currentUser().username); // pF = postsFactory, pF name must be used
  	$scope.creator = User.currentUser().username;
 	$scope.view = function(post) {
 		$rootScope.post = post;
 		$location.path('/userPost');
 	}
 	$scope.pF.showMore();
+	$scope.userProfile = function() {
+		$location.path('/userProfile');
+	}
 }]);
