@@ -16,6 +16,7 @@
   ],
   "dependencies": {
     "angular-qr": "latest",
-    "angular-strap": "~2.1.1"
+    "angular-strap": "~2.1.1",
+    "ng-focus-on": "~0.2.2"
   }
 }

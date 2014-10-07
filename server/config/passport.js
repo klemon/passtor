@@ -31,10 +31,6 @@ module.exports = function(passport) {
     });
   });
 
-  toUsernameFormat = function(username) {
-    return username.charAt(0).toUpperCase() + username.slice(1);
-  }
-
   // ========================================================================
   // LOCAL LOGIN ============================================================
   // ========================================================================
@@ -98,22 +94,46 @@ module.exports = function(passport) {
     passReqToCallback : true // allows us to pass back the entire request to the callback
   },
   function(req, username, password, done) {
-
     // asynchronous
     // User.findOne won't fire unless data is sent back
     process.nextTick(function() {
-    if(!req.body.email) {
-      console.log("User must provide an email.");
-      return done(null, false, "Please provide an email.");
-    } else if(!isValidUsername(username)) {
-      console.log("Username is invalid");
-      return done(null, false, "Invalid username.");
-    }
-    username = toUsernameFormat(username);
+      if(username == "") {
+        return done(null, false, "Username cannot be blank.");
+      }
+      var re = /^\w+$/;
+      if(!re.test(username)) {
+        return done(null, false, "Username must contain only letters, numbers, and underscores.");
+      }
+      if(password != "") {
+        if(password.length < 6) {
+          return done(null, false, "Password must contain at least six characters.");
+        }
+        if(password == username) {
+          return done(null, false, "Password must be different from Username.");
+        }
+        re = /[0-9]/;
+        if(!re.test(password)) {
+          return done(null, false, "Password must contain at least one number (0-9).");
+        }
+        re = /[a-z]/;
+        if(!re.test(password)) {
+          return done(null, false, "Password must contain at least one lowercase letter (a-z).");
+        }
+        re = /[A-Z]/;
+        if(!re.test(password)) {
+          return done(null, false, "Password must contain at least one uppercase letter (A-Z).");
+        }
+      } else {
+        return done(null, false, "Please provide a password.");
+      }
+      if(!req.body.email) {
+        return done(null, false, "Please provide an email.");
+      }
+
 
    // find a user whose username is the same as the forms username
    // we are checking to see if the user trying to login already exists
-    User.findOne({'username' : username}, function(err, user) {
+    User.findOne({'username' : username.toLowerCase()}, function(err, user) {
       // if there are any errors, return the error
       
       if (err) {
@@ -138,8 +158,9 @@ module.exports = function(passport) {
           } else {
             var newUser                 = new User();
             // set the user's local credentials
-            newUser.username      = username;
-            newUser.password      = AllUsers.generateHash(password);
+            newUser.username            = username.toLowerCase();
+            newUser.username_display    = username;
+            newUser.password            = AllUsers.generateHash(password);
             newUser.local.email         = req.body.email;
             newUser.local.firstName     = req.body.firstName;
             newUser.local.lastName      = req.body.lastName;

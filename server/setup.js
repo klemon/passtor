@@ -22,6 +22,7 @@ var QRCode = require('./app/models/qrcode');
 createJoeUser = function(SO, done) {
 	var joeUser = new User();
 	joeUser.username = "Joe";
+	joeUser.username_display = "Joe";
 	joeUser.password = AllUsers.generateHash("password");
 	joeUser.local.firstName = "Joseph";
 	joeUser.local.lastName = "DeWilde";
@@ -39,32 +40,11 @@ createJoeUser = function(SO, done) {
 	});
 }
 
-/*
-createJoeUser = function(SO, done) {
-	var joeUser = new User();
-	joeUser.local.username = "joe";
-	joeUser.local.firstName = "Joseph";
-	joeUser.local.lastName = "DeWilde";
-	joeUser.local.email = "jzdewilde@alaska.edu";
-	joeUser.local.password = joeUser.generateHash("password");
-	joeUser.local.coins = 27;
-	joeUser.local.likes = 12;
-	joeUser.save(function(err, user) {
-		if(err) {
-			console.log("error in saving joeUser");
-			console.log(err);
-		} else {
-			console.log("created joeUser");
-			done(user);
-		}
-	});
-}*/
-
 createJoesPosts = function(joeUser, done) {
 	Post.create({
 		title: "I created my first post!",
 		description: " 	Coralline breezeway rue remillable quathlamba photonasty insulter guiro. Alister prearrestment chansonniers pembroke rhg paleface shipentine tocantins. Sphericality reembarcation verso restorable femur humphrey incertitude cnidus.\n\n 	Masticate aviaries pettish rsj dalila moil hemikaryotic ajee. Outtease synechiae dyersville hagriding kingwood mantling furtive incur. Reengaged monumentalising sweetbells unoutspoken hydrazone reroute argillite entomogenous.\n\n 	Upbuilt ligatured purely charlyn predatory unfasting istrian guesthouse. Energy kordofan liou galavant bhadgaon sphingomyelin winery poking. Lozengy peyton proapportionment goddamnit minify achieve eccentricity bani.",
-		creator: joeUser.username,
+		creator: joeUser.username_display,
 		likes: 8,
 		numComments: 2
 	}, function(err, p1) {
@@ -79,7 +59,7 @@ createJoesComments = function(joeUser, post, done) {
 			text: i,
 			Post: post._id,
 			created: moment().subtract('h', i),
-			creator: joeUser.username
+			creator: joeUser.username_display
 		}, function(c) {});
 	}
 	console.log("created joes comments");
@@ -88,7 +68,8 @@ createJoesComments = function(joeUser, post, done) {
 
 createBobUser = function(SO, done) {
 	var bobUser = new User();
-	bobUser.username = "Bob";
+	bobUser.username = "BOB";
+	bobUser.username_display = "BOB";
 	bobUser.password = AllUsers.generateHash("password");
 	bobUser.local.firstName = "Robert";
 	bobUser.local.lastName = "Smith";
@@ -111,25 +92,25 @@ createBobsPosts = function(bobUser, done) {
 		title: "started working out",
 		description: "i ran 3  miles, woo!",
 		created: moment().subtract('months', 13).subtract('days', 4).subtract('hours', 3).subtract('minutes', 13).toDate(),
-		creator: bobUser.username
+		creator: bobUser.username_display
 	}, function(err, p1) {
 		Post.create({
 			title: "Ran a long time",
 			description: "Been running for over 6 months w/ no breaks",
 			created: moment().subtract('months', 9).subtract('days', 13).subtract('hours', 6).subtract('minutes', 1).toDate(),
-			creator: bobUser.username
+			creator: bobUser.username_display
 		}, function(err, p2) {
 			Post.create({
 				title: "Ran a half marathon",
 				description: "I ran a half marathon in 1:24:30 which a personal record",
 				created: moment().subtract('months', 6).subtract('minutes', 8).toDate(),
-				creator: bobUser.username
+				creator: bobUser.username_display
 			}, function(err, p3) {
 				Post.create({
 					title: "Ran a marathon",
 					description: "Ran my first marathon at 3:45:33!",
 					created: moment().subtract('months', 1).subtract('h', 2).subtract('m', 28).toDate(),
-					creator: bobUser.username,
+					creator: bobUser.username_display,
 					numComments: 14,
 					likes: 14
 				}, function(err, p4){
@@ -146,13 +127,13 @@ createBobsComments = function(bobUser, post, done) {
 		text: "Nice!",
 		Post: post._id,
 		created: moment().subtract('h', 48).subtract('minutes', 48).toDate(),
-		creator: bobUser.username
+		creator: bobUser.username_display
 	}, function(err, c1) {
 		Comment.create({
 			text: "Liking this again!",
 			Post: post._id,
 			created: moment().subtract('h', 4).toDate(),
-			creator: bobUser.username
+			creator: bobUser.username_display
 		}, function(err, c2) {
 			console.log("created bobs comments");
 			done();
@@ -210,6 +191,7 @@ createDavesItems = function(daveSO, done) {
 
 var daveSO = new StoreOwner();
 daveSO.username = "Dave";
+daveSO.username_display = "Dave";
 daveSO.password = AllUsers.generateHash("password");
 daveSO.local.firstName = "David";
 daveSO.local.lastName = "Davidson";

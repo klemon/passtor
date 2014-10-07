@@ -29,7 +29,8 @@ var app = angular.module('app', [
 	'infinite-scroll',
 	'ja.qr',
     'mgcrea.ngStrap',
-    'mgcrea.ngStrap.dropdown'
+    'mgcrea.ngStrap.dropdown',
+    'focusOn'
 	]);
 
 app.config(['$routeProvider', '$locationProvider',
@@ -129,10 +130,10 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
 		send: function(url, data, done){
 			data.token = token;
 			/*intel.xdk.device.getRemoteData("http://localhost:8080" + url, "POST", data, successCallback, errorCallback);*/
-            $http.post('http://192.168.1.137:8080' + url, data)
+            $http.post('http://192.168.1.136:8080' + url, data)
 			.success(function(res) {
 				if(res.exp) {
-					$http.post('http://192.168.1.137:8080/login', {username: $rootScope.username, password: $rootScope.password}, 
+					$http.post('http://192.168.1.136:8080/login', {username: $rootScope.username, password: $rootScope.password}, 
 						function(res) {
 						// TODO: set login message here somehow
 					});
@@ -265,7 +266,6 @@ app.factory('Posts', ['$http', '$location', 'AuthService', 'User',
 		"October", "November", "December"];
 	};
 	data.prototype.showMore = function(done) {
-        console.log("showMore");
 		User.send('/posts', {username: this.username, 
 			sort: this.prevIndex, lastDate: this.lastDate, page: this.page}, function(err, res) {
 			if(this.prevIndex == 2) {

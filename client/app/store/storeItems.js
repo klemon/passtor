@@ -51,7 +51,7 @@ storeItems.controller('StoreItemsCtrl', ['$scope', '$location', 'Items', '$rootS
 				}
 			}
 		}
-        $scope.$apply();
+        //$scope.$apply();
     });
 	$scope.view = function(item) {
 		$rootScope.item = item;

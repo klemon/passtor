@@ -7,16 +7,18 @@ var AllUsers = require('../models/allusers'),
 
 module.exports = function(app, passport) {
 
-// Takes a username and capitalizes the first letter and makes the rest
-// of the string lowercase.
-toUsernameFormat = function(username) {
-  return username.charAt(0).toUpperCase() + username.slice(1);
+userInfo = function(user) {
+  return {username: user.username_display, email: user.local.email, firstName: user.local.firstName, lastName: user.local.lastName,
+    coins: user.coins, likes: user.likes};
+}
+
+sOInfo = function(SO) {
+  return {username: SO.username_display, email: SO.local.email, 
+    firstName: SO.local.firstName, lastName: SO.local.lastName, storeName: SO.storeName};
 }
 
 app.post('/login', function(req, res, next) {
-  console.log("pre Username: "+ req.body.username);
-  req.body.username = toUsernameFormat(req.body.username);
-console.log("post Username: "+ req.body.username);
+  req.body.username = req.body.username.toLowerCase();
   passport.authenticate('local-login', function(err, user, message) {
     if(err) {
       console.log(err);
@@ -36,13 +38,9 @@ console.log("post Username: "+ req.body.username);
       isRedeemer: (user._type == "Redeemer") 
     }, app.get('jwtTokenSecret'));
     if(user._type == "StoreOwner") {
-          return res.json({token : token, expires : expires, storeOwner: {username: user.username,
-            password: req.body.password, email: user.local.email, firstName: user.local.firstName, lastName: user.local.lastName,
-            storeName: user.storeName}});
+          return res.json({token : token, expires : expires, storeOwner: sOInfo(user)});
     } else if(user._type == "User") {
-      return res.json({token : token, expires : expires, user: {username: user.username,
-        password: req.body.password, coins : user.coins, likes : user.likes, email: user.local.email,
-        firstName: user.local.firstName, lastName: user.local.lastName}, coins: user.coins, 
+      return res.json({token : token, expires : expires, user: userInfo(user), coins: user.coins, 
         likes: user.likes});
     }
   })(req, res, next);

@@ -1,0 +1,6 @@
+{
+  "name": "client",
+  "main": "index.html",
+  "dependencies": {
+  }
+}

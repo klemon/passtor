@@ -25,5 +25,8 @@ posts.controller('PostsCtrl', ['$scope', '$location', 'User', '$rootScope', 'Pos
 		else
 			$location.path('/otherProfile');
 	}
+	$scope.createPost = function() {
+		$location.path('/createPost');
+	}
 	$scope.pF.showMore();
 }]);

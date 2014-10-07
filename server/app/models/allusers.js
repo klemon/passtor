@@ -14,7 +14,8 @@ var extend = require('mongoose-schema-extend');
 // define the schema for our abstract user model
 // commented out local, facebook, etc. for easier programming for now
 var AbstractUserSchema = new Schema({
-  username            : String,
+  username            : {type: String, lowercase: true},
+  username_display    : String,
   password            : String
 }, {
 	collection : 'users', // everything will get saved in the same collection

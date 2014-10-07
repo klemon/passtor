@@ -15,12 +15,12 @@ postInfo = function(post) {
 }
 
 userInfo = function(user) {
-	return {username: user.username, email: user.local.email, firstName: user.local.firstName, lastName: user.local.lastName,
+	return {username: user.username_display, email: user.local.email, firstName: user.local.firstName, lastName: user.local.lastName,
 		coins: user.coins, likes: user.likes};
 }
 
 sOInfo = function(SO) {
-	return {username: SO.username, email: SO.local.email, 
+	return {username: SO.username_display, email: SO.local.email, 
 		firstName: SO.local.firstName, lastName: SO.local.lastName, storeName: SO.storeName};
 }
 
@@ -41,18 +41,18 @@ module.exports = function(app, jwtauth) {
 	// HOME PAGE (with login links) =========
 	// ======================================
 	app.get('/', function(req, res) {
-	  res.render('index.ejs'); // load the index.ejs file
+	  res.render('index.html'); // load the index.ejs file
 	});
 
 	app.post('/', function(req, res) {
-	  res.render('index.ejs'); // load the index.ejs file
+	  res.render('index.html'); // load the index.ejs file
 	});
 	
 	app.post('/posts', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
 		var count;
 		var userFilter = {};
 		if(req.body.username) {
-			userFilter = {'creator': req.body.username};
+			userFilter = {'creator': req.body.username_display};
 		}
 		Post.count(userFilter).exec().then(function(c) {
 			count = c;
@@ -91,7 +91,7 @@ module.exports = function(app, jwtauth) {
 	});
 
 	app.post('/user', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
-		User.findOne({'username' : req.body.otherUsername}).exec().then(function(user) {
+		User.findOne({'username_display' : req.body.otherUsername}).exec().then(function(user) {
 			if(!user) {
 				throw new Error("Did not find user");
 			} else {
@@ -130,7 +130,7 @@ module.exports = function(app, jwtauth) {
 		Post.findById(req.body.id).exec().then(function(post) {
 			if(!post) {
 				throw new Error("Did not find post.");
-			} else if(post.creator != req.user.username) {
+			} else if(post.creator != req.user.username_display) {
 				throw new Error("Wrong user editing post.");
 			} else {
 				var text = "\nEdit: ";
@@ -149,7 +149,7 @@ module.exports = function(app, jwtauth) {
 		Post.create({
 			title: req.body.title,
 			description: req.body.description,
-			creator: req.user.username
+			creator: req.user.username_display
 		}).then(function(post) {
 			res.json({post: postInfo(post)});
 		}).then(null, function(err) {
@@ -207,11 +207,11 @@ module.exports = function(app, jwtauth) {
 			Post.findById(req.body.postId).exec().then(function(post) {
 				if(!post) {
 					throw new Error("Did not find post.");
-				} else if(post.creator == req.user.username) {
+				} else if(post.creator == req.user.username_display) {
 					throw new Error("User cannot like their own post.");
 				} else {
 					postId = post._id;
-					return User.findOneAndUpdate({'username' : post.creator}, {$inc: {'coins': 1}}).exec();
+					return User.findOneAndUpdate({'username_display' : post.creator}, {$inc: {'coins': 1}}).exec();
 				}
 			}).then(function(user) {
 				if(!user) {
@@ -232,7 +232,7 @@ module.exports = function(app, jwtauth) {
 					return Comment.create({
 						text: req.body.text,
 						Post : req.body.postId,
-						creator: req.user.username
+						creator: req.user.username_display
 					});
 				}
 			}).then(function(comment) {
