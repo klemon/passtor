@@ -22,6 +22,18 @@ var AbstractUserSchema = new Schema({
 	discriminatorKey : '_type'
 });
 
+// This useer needs to verify the email address they gave in order
+// to become a regular User. Once they verify their email then
+// the "_type" field can be changed from "LockedUser" to "User".
+var LockedUserSchema = AbstractUserSchema.extend({
+  local                 : {
+    email               : String,
+    firstName           : String,
+    lastName            : String
+  },
+  createdAt: {type: Date, expires: 60*60*24*3, default: Date.now }
+});
+
 var GeneralUserSchema = AbstractUserSchema.extend({
   local                 : {
     email               : String,
@@ -80,6 +92,8 @@ module.exports.validPassword = function(password, bpassword) {
 // create the model for users and expose it to our app
 
 module.exports.AbstractUser = mongoose.model('AbstractUser', AbstractUserSchema);
+
+module.exports.LockedUser = mongoose.model('LockedUser', LockedUserSchema);
 
 module.exports.GeneralUser = mongoose.model('GeneralUser', GeneralUserSchema);
 

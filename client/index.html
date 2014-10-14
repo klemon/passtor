@@ -64,6 +64,8 @@
 		<!-- Responsive CSS -->
 		<link rel="stylesheet" href="public/css/theme-responsive.css" />
 
+		<link rel="stylesheet" href="bower_components/angular-busy/dist/angular-busy.min.css">
+
 		<!-- Head Libs -->
 		<script src="public/vendor/modernizr.js"></script>
 
@@ -97,6 +99,7 @@
         <script src="bower_components/angular-strap/dist/modules/dropdown.js"></script>
         <script src="bower_components/angular-strap/dist/modules/dropdown.tpl.js"></script>
         <script src="bower_components/ng-focus-on/ng-focus-on.min.js"></script>
+        <script src="bower_components/angular-busy/dist/angular-busy.min.js"></script>
         
 		 <!-- <script src="bower_components/clamp/clamp.js"></script> -->
 		<script src="clamp.js"></script>
@@ -138,16 +141,18 @@
         <script src="app/user/userProfile.js"></script>
         <script src="app/user/wishItem.js"></script>
         <script src="app/user/wishlist.js"></script>
-        
+        <style>
+
+        </style>
 		<div ng-controller="AppCtrl" class="body">
 			<header>
 				<div ng-include src="'app/header.tpl.html'"></div>
 			</header>
-	  		<!--<div role="main" class="main shop">
-                <div role="main" class="main shop">-->
+			<div role="main" class="main">
+				<div role="main" class="main">
 	  		       <div ng-view></div>
-	  		   <!--</div>
-            </div>-->
+	  		    </div>
+			</div>
 			<footer>
 				<div ng-include src="'app/footer.tpl.html'"></div>
 			</footer> 

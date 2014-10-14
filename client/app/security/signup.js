@@ -10,6 +10,8 @@ signup.config(['$routeProvider', function ($routeProvider) {
 signup.controller('SignupCtrl', ['$scope', '$location','User', 'focus', function($scope, $location, User, focus) {
 	$scope.message = "";
 	$scope.formData = {};
+	$scope.signUpPromise;
+	$scope.submittedSuccessfully = false;
 	$scope.signup = function(){
 	    if(!$scope.formData.username) {
 	      $scope.message = "Please provide a username.";
@@ -57,14 +59,15 @@ signup.controller('SignupCtrl', ['$scope', '$location','User', 'focus', function
 	      return;
 	    }
 		if(!$scope.formData.email) {
-			$scope.message = "Please provide an email.";
+			$scope.message = "Please provide a valid email.";
 			focus('email');
 			return;
 		}
-		User.send('/signup', $scope.formData, function(err, res) {
-			$scope.message = res.message;
+		$scope.signUpPromise = User.sendPromise('/signup', $scope.formData);
+		$scope.signUpPromise.then(function(res) {
+			$scope.message = res.data.message;
 			if(!$scope.message)
-				$location.path('/login');
+				$scope.submittedSuccessfully = true;
 		});
 	}
 }]);

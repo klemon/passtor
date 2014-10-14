@@ -18,6 +18,9 @@ otherPost.config(['$routeProvider', function ($routeProvider) {
 	$scope.lastDate = null;
 	$scope.posts = new Posts();
 	$scope.numLikesLeft = User.currentUser().likes;
+	$scope.noMoreComments = false;
+	$scope.timeToRefresh = false;
+	$scope.prevTime = 0;
 	$scope.like = function() {
 		User.send('/like', {text: $scope.text, postId: $scope.post.id}, function(err, res) {
 			var postDate = new Date(res.post.created);
@@ -44,11 +47,26 @@ otherPost.config(['$routeProvider', function ($routeProvider) {
 		}
 	}
 	$scope.nextPage = function() {
-		if($scope.busy) return;
+		if($scope.noMoreComments) {
+			var d = new Date();
+			var currTime = d.getTime();
+			if(currTime-$scope.prevTime > 10000) {
+				$scope.timeToRefresh = true;
+				$scope.prevTime = currTime;
+			}
+			else
+				$scope.timeToRefresh = false;
+		}
+		if($scope.busy || ($scope.noMoreComments && !$scope.timeToRefresh))
+			return;
 		$scope.busy = true;
 		User.send('/comments', {postId: $scope.post.id, lastDate: $scope.lastDate}, function(err, res) {
-			if(res.comments.length)
+			if(res.comments.length) {
 				$scope.lastDate = res.comments[res.comments.length-1].created;
+				$scope.noMoreComments = false;
+			}
+			else
+				$scope.noMoreComments = true;
 			for(var i = 0; i < res.comments.length; ++i) {
 				var date = new Date(res.comments[i].created);
 				res.comments[i].created = {month:$scope.posts.monthToStr[date.getMonth()],

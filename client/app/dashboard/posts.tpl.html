@@ -19,40 +19,36 @@
                     <button type="button" class="btn btn-lg btn-primary" data-animation="am-flip-x" bs-dropdown="pF.sorts">{{pF.selectedSort.text}}</button>
                 </div>
     		</div>
-			<div ng-repeat="post in pF.posts">
-				<div class="featured-box">
-					<div class="box-content">
-						<article class="post post-medium">
-							<div class="row">
-								<!-- used index-blog.html, look at it having images-->
-								<div class="col-md-12">
-									<div class="post-content">
-										<h2><a>{{post.title}}</a></h2>
-										<p style="white-space: pre; word-wrap: break-word;" dotdotdot ng-bind="post.description"></p>
+    		<div infinite-scroll="pF.showMore()" infinite-scroll-disable="busy" infinite-scroll-distance="1">
+				<div ng-repeat="post in pF.posts">
+					<div class="featured-box">
+						<div class="box-content">
+							<article class="post post-medium">
+								<div class="row">
+									<!-- used index-blog.html, look at it having images-->
+									<div class="col-md-12">
+										<div class="post-content">
+											<h2><a>{{post.title}}</a></h2>
+											<p style="white-space: pre; word-wrap: break-word;" dotdotdot ng-bind="post.description"></p>
+										</div>
 									</div>
 								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<div class="post-meta">
-										<span><i class="icon icon-user"></i> By <a ng-click="profile(post.creator)">{{post.creator}}</a> </span>
-										<span><i class="icon icon-calendar"></i>{{post.created.month}} {{post.created.day}}, {{post.created.year}}</span>
-										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>{{post.likes}}</span>
-										<a ng-click="view(post)" class="btn btn-xs btn-primary pull-right">Read more...</a>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="post-meta">
+											<span><i class="icon icon-user"></i> By <a ng-click="profile(post.creator)">{{post.creator}}</a> </span>
+											<span><i class="icon icon-calendar"></i>{{post.created.month}} {{post.created.day}}, {{post.created.year}}</span>
+											<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>{{post.likes}}</span>
+											<a ng-click="view(post)" class="btn btn-xs btn-primary pull-right">Read more...</a>
+										</div>
 									</div>
 								</div>
-							</div>
-						</article>
+							</article>
+						</div>
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-md-12">
-					<div class="post-meta">
-						<a ng-hide="pF.numPosts == pF.posts.length" ng-click="pF.showMore()" class="btn btn-xs btn-primary pull-right">Show More</a>
-					</div>
-				</div>
-			</div>
+			<div cg-busy="pF.promise"></div>
 		</div>
 	</div>
 </div>

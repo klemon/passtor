@@ -30,7 +30,8 @@ var app = angular.module('app', [
 	'ja.qr',
     'mgcrea.ngStrap',
     'mgcrea.ngStrap.dropdown',
-    'focusOn'
+    'focusOn',
+    'cgBusy'
 	]);
 
 app.config(['$routeProvider', '$locationProvider',
@@ -130,10 +131,10 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
 		send: function(url, data, done){
 			data.token = token;
 			/*intel.xdk.device.getRemoteData("http://localhost:8080" + url, "POST", data, successCallback, errorCallback);*/
-            $http.post('http://192.168.1.136:8080' + url, data)
+            $http.post('http://192.168.1.103:8080' + url, data)
 			.success(function(res) {
 				if(res.exp) {
-					$http.post('http://192.168.1.136:8080/login', {username: $rootScope.username, password: $rootScope.password}, 
+					$http.post('http://192.103.1.108:8080/login', {username: $rootScope.username, password: $rootScope.password}, 
 						function(res) {
 						// TODO: set login message here somehow
 					});
@@ -144,6 +145,10 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
 				console.log('Error: ' + data);
 				done(data, null);
 			});
+		},
+		sendPromise: function(url, data) {
+			data.token = token;
+			return $http.post('http://192.168.1.103:8080' + url, data);
 		},
 		setToken: function(tok){
 			token = tok;
@@ -184,6 +189,9 @@ app.factory('User', ['AuthService', 'MySave', function(AuthService, MySave) {
 				}
 				done(err, res);
 			});
+		},
+		sendPromise: function(url, data) {
+			return AuthService.sendPromise(url, data);
 		},
 		addItem: function(itemId) {
 			//=user.Items.push(itemId);
@@ -264,9 +272,50 @@ app.factory('Posts', ['$http', '$location', 'AuthService', 'User',
 		this.page = 0; // For Most Popular
 		this.monthToStr = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
 		"October", "November", "December"];
+		this.promise;
+		this.noMorePosts = false;
+		this.timeToRefresh = false;
+		this.prevTime = 0;
 	};
 	data.prototype.showMore = function(done) {
-		User.send('/posts', {username: this.username, 
+		if(this.noMorePosts) {
+			var d = new Date();
+			var currTime = d.getTime();
+			if(currTime-this.prevTime > 10000) {
+				this.timeToRefresh = true;
+				this.prevTime = currTime;
+			}
+			else
+				this.timeToRefresh = false;
+		}
+		if(this.busy || (this.noMorePosts && !this.timeToRefresh))
+			return;
+		this.busy = true;
+		this.promise = User.sendPromise('/posts', {username: this.username, 
+			sort: this.prevIndex, lastDate: this.lastDate, page: this.page});
+		this.promise.then(function(res) {
+			res = res.data;
+			if(this.prevIndex == 2) {
+				++this.page;
+			} else if(res.posts.length) {
+				this.lastDate = res.posts[res.posts.length-1].created;
+			}
+			if(res.posts.length)
+				this.noMorePosts = false;
+			else
+				this.noMorePosts = true;
+			for(var i = 0; i < res.posts.length; ++i) {
+				var date = new Date(res.posts[i].created);
+				res.posts[i].created = {month: this.monthToStr[date.getMonth()], day: date.getDate(),
+				 year: date.getFullYear()};
+				this.posts.push(res.posts[i]);
+			}
+			this.numPosts = res.numPosts;
+			this.busy = false;
+            if(done)
+                done();
+		}.bind(this));
+		/*User.send('/posts', {username: this.username, 
 			sort: this.prevIndex, lastDate: this.lastDate, page: this.page}, function(err, res) {
 			if(this.prevIndex == 2) {
 				++this.page;
@@ -282,7 +331,7 @@ app.factory('Posts', ['$http', '$location', 'AuthService', 'User',
 			this.numPosts = res.numPosts;
             if(done)
                 done();
-		}.bind(this));
+		}.bind(this));*/
 	}
 	data.prototype.changeSort = function(index) {
         if(this.prevIndex == index)
@@ -323,8 +372,65 @@ app.factory('Items', ['$location', 'AuthService', 'User',
 		this.page = 0; // For Most sold/redeemed
 		this.monthToStr = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
 		"October", "November", "December"];
+		this.promise;
+		this.noMoreItems = false;
+		this.timeToRefresh = false;
+		this.prevTime = 0;
+		this.showMoreCB = null;
 	};
-	data.prototype.showMore = function(done) {
+	data.prototype.showMore = function() {
+		if(this.noMoreItems) {
+			var d = new Date();
+			var currTime = d.getTime();
+			if(currTime-this.prevTime > 10000) {
+				this.timeToRefresh = true;
+				this.prevTime = currTime;
+			}
+			else
+				this.timeToRefresh = false;
+		}
+		if(this.busy || (this.noMoreItems && !this.timeToRefresh))
+			return;
+		this.busy = true;
+		this.promise = User.sendPromise(this.url, {all: this.all, isSO: User.isSO(), isUser: User.isUser(),
+		 isNonUser: User.isNonUser(), sort: this.prevIndex, lastDate: this.lastDate, page: this.page});
+		this.promise.then(function(res) {
+			res = res.data;
+			if(this.prevIndex > 1) {
+		 		++this.page;
+		 	} else if(res.items.length) {
+		 		this.lastDate = res.items[res.items.length-1].created;
+		 	}
+		 	if(res.items.length)
+				this.noMoreItems = false;
+			else
+				this.noMoreItems = true;
+			for(var i = 0; i < res.items.length; ++i) {
+				var date = new Date(res.items[i].created);
+				res.items[i].created = {month: this.monthToStr[date.getMonth()], day: date.getDate(), year: date.getFullYear()};
+				if(User.isUser()) {
+					var ownsItem = false;
+					for(var j = 0; j < res.extraItemInfo.length; ++j) {
+						if(res.extraItemInfo[j].id == res.items[i].id) {
+							ownsItem = true;
+							res.items[i].num = res.extraItemInfo[j].num;
+							if(User.isUser() && !this.all)
+								res.items[i].QRCode = res.extraItemInfo[j].QRCode;
+							break;
+						}
+					}
+					if(!ownsItem)
+						res.items[i].num = 0;
+				}
+				this.items.push(res.items[i]);
+			}
+			this.numItems = res.numItems;
+			this.busy = false;
+			if(this.showMoreCB)
+				this.showMoreCB();
+		}.bind(this));
+
+/*
 		User.send(this.url, {all: this.all, isSO: User.isSO(), isUser: User.isUser(), isNonUser: User.isNonUser(),
 		 sort: this.prevIndex, lastDate: this.lastDate, page: this.page}, function(err, res) {
 			if(this.prevIndex > 1) {
@@ -354,7 +460,7 @@ app.factory('Items', ['$location', 'AuthService', 'User',
 			this.numItems = res.numItems;
 			if(done)
 				done();
-		}.bind(this));
+		}.bind(this));*/
 	}
 	data.prototype.changeSort = function(index) {
 		if(this.prevIndex == index)

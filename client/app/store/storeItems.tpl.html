@@ -10,43 +10,39 @@
                     <button type="button" class="btn btn-lg btn-primary" data-animation="am-flip-x" bs-dropdown="iF.sorts">{{iF.selectedSort.text}}</button>
                 </div>
 			</div>
-			<div ng-repeat="item in iF.items">
-				<div class="featured-box">
-					<div class="box-content">
-						<article class="post post-medium">
-							<div class="row">
-								<div class="col-md-12">
-									<div class="post-content">
-										<h2><a>{{item.name}}</a></h2>
-										<p style="white-space: pre; word-wrap: break-word;" dotdotdot ng-bind="item.description"></p>
+			<div infinite-scroll="iF.showMore()" infinite-scroll-disable="busy" infinite-scroll-distance="1">
+				<div ng-repeat="item in iF.items">
+					<div class="featured-box">
+						<div class="box-content">
+							<article class="post post-medium">
+								<div class="row">
+									<div class="col-md-12">
+										<div class="post-content">
+											<h2><a>{{item.name}}</a></h2>
+											<p style="white-space: pre; word-wrap: break-word;" dotdotdot ng-bind="item.description"></p>
+										</div>
 									</div>
 								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<div class="post-meta">
-										<span><i class="icon icon-user"></i> From <a ng-click="profile(item.storeName)">{{item.storeName}}</a> </span>
-										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Cost: {{item.cost}}</span>
-										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Sold: {{item.sold}}</span>
-										<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Redeemed: {{item.redeemed}}</span>
-										<span ng-show=item.num rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Own: {{item.num}}</span>
-										<span ng-show="item.onWishlist" rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>On Wishlist</span>
-										<a ng-show="(!item.onWishlist && canWish)" ng-click="addToWishlist($index)" class="btn btn-xs btn-primary pull-right">Add to Wishlist</a>
-										<a ng-click="view(item)" class="btn btn-xs btn-primary pull-right">Read more...</a>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="post-meta">
+											<span><i class="icon icon-user"></i> From <a ng-click="profile(item.storeName)">{{item.storeName}}</a> </span>
+											<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Cost: {{item.cost}}</span>
+											<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Sold: {{item.sold}}</span>
+											<span rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Redeemed: {{item.redeemed}}</span>
+											<span ng-show=item.num rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>Own: {{item.num}}</span>
+											<span ng-show="item.onWishlist" rel="tooltip" data-original-title="Like"><i class="icon icon-rub"></i>On Wishlist</span>
+											<a ng-show="(!item.onWishlist && canWish)" ng-click="addToWishlist($index)" class="btn btn-xs btn-primary pull-right">Add to Wishlist</a>
+											<a ng-click="view(item)" class="btn btn-xs btn-primary pull-right">Read more...</a>
+										</div>
 									</div>
 								</div>
-							</div>
-						</article>
+							</article>
+						</div>
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-md-12">
-					<div class="post-meta">
-						<a ng-hide="iF.numItems == iF.items.length" ng-click="showMore()" class="btn btn-xs btn-primary pull-right">Show More</a>
-					</div>
-				</div>
-			</div>
+			<div cg-busy="iF.promise"></div>
 		</div>
 	</div>
 </div>

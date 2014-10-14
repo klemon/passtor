@@ -1,15 +1,15 @@
 <div class="container" ng-controller="HeaderCtrl">
     <div ng-hide="isSO">
-        <!--<h1 class="logo">
+        <h1 class="logo">
             <a href="/">
                 <img alt="Tucson" src="/public/img/logo.png" data-small-height="44">
             </a>
-        </h1> -->
+        </h1>
         <div class="navbar-collapse nav-main-collapse collapse">
-            <div class="cart">
+            <div class="cart" ng-show=false>
                 <a href="shop-cart.html"><i class="icon icon-shopping-cart"></i></a>
             </div>
-            <div class="search" id="headerSearch">
+            <div class="search" id="headerSearch" ng-show=false>
                 <a href="#" id="headerSearchOpen"><i class="icon icon-search"></i></a>
                 <div class="search-input">
                     <form id="headerSearchForm" action="page-search-results.html" method="get">

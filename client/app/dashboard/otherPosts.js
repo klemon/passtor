@@ -21,5 +21,4 @@ otherPosts.config(['$routeProvider', function ($routeProvider) {
 		$rootScope.username = post.creator;
 		$location.path('/otherProfile');
 	}
-	$scope.pF.showMore();
 }]);

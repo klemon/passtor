@@ -33,7 +33,7 @@ commentInfo = function(comment) {
 	return {text: comment.text, created: comment.created, creator: comment.creator};
 }
 
-module.exports = function(app, jwtauth) {
+module.exports = function(app, jwtauth, transporter) {
 
 	// api --------------------------------------------------------------------
 	
@@ -47,12 +47,68 @@ module.exports = function(app, jwtauth) {
 	app.post('/', function(req, res) {
 	  res.render('index.html'); // load the index.ejs file
 	});
+
+	app.post('/sendEmail', function(req, res) {
+		User.findOne({'username_display': req.body.username}).exec().then(function(user) {
+			if(!user)
+				res.json({message: "That account has been deleted because the email was not confirmed within 1 day."});
+			else {
+				console.log("1");
+				var link="http://"+req.get('host')+"/verify?id="+user._id;
+		        var mailOptions = {
+		        	from: "Joshua Devauld <devauld@gmail.com>",
+		          	to : user.local.email,
+		          	subject : "Please confirm your Email account",
+		          	html : "This email is addressed to the user <b>" + user.username_display + "</b> of ProjectPasstor.<br>Please Click on the link to verify your email.<br><a href="+link+">Click here to verify</a>" 
+		        }
+		        console.log("2");
+		        transporter.sendMail(mailOptions, function(err, info) {
+		        	console.log("3");
+		          if(err){
+		          	console.log("4");
+		            console.log(err);
+		            res.json({err: err});
+		          } else {
+		          	console.log("5");
+		            console.log("Message sent: " + info.message);
+		            console.log("info: " + JSON.stringify(info));
+		            res.json({err: false}); 
+		          }
+		        });
+		    }
+		}).then(null, function(err) {
+			console.log("7");
+			console.log(err);
+		});
+	});
+
+	app.get('/verify',function(req, res){
+		console.log(req.protocol+":/"+req.get('host'));
+		console.log("id: " +req.param.id);
+		User.findById(req.params.id).exec().then(function(user) {
+			if(!user) {
+				console.log("LockedUser not found, it may have expired.");
+				res.end("<h1>Sorry, your account has already been deleted because your email was not confirmed within 1 day, please try creating another account and confirming it.")
+			} else if(user._type == "User") {
+				console.log("Already a User.");
+				res.end("<h1>Your email has already been verified.</h1>");
+			} else {
+				return User.findByIdAndUpdate({$set: [{'createdAt.expires': null}, {_type: 'User'}]}).exec();
+			}
+		}).then(function(user) {
+			console.log("Email has been verified.");
+			res.end("<h1>Email " + user.local.email + " has been successfully confirmed</h1>");
+		}).then(null, function(err) {
+			console.log(err);
+			res.end('<h1>There was an error in confirming the email, please try the following:</h1><p>1: Confirming the email again.</p><p>2: Try logging in to send another confirmation email.</p><p>3: Contact our support team via "support email goes here".</p>');
+		});
+	});
 	
 	app.post('/posts', [express.json(), express.urlencoded(), jwtauth], function(req, res) {
 		var count;
 		var userFilter = {};
 		if(req.body.username) {
-			userFilter = {'creator': req.body.username_display};
+			userFilter = {'creator': req.body.username};
 		}
 		Post.count(userFilter).exec().then(function(c) {
 			count = c;
@@ -80,6 +136,7 @@ module.exports = function(app, jwtauth) {
 				for (var i = 0; i < posts.length; i++) {
 					postList.push(postInfo(posts[i]));
 				}
+				console.log("numPOsts; " + posts.length);
 				if(req.isUser)
 					res.json({posts: postList, coins: req.user.coins, likes: req.user.likes, numPosts: count});
 				else

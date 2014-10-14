@@ -17,7 +17,6 @@ userPosts.config(['$routeProvider', function ($routeProvider) {
 		$rootScope.post = post;
 		$location.path('/userPost');
 	}
-	$scope.pF.showMore();
 	$scope.userProfile = function() {
 		$location.path('/userProfile');
 	}

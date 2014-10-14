@@ -10,11 +10,16 @@ storeItems.config(['$routeProvider', function ($routeProvider) {
 
 storeItems.controller('StoreItemsCtrl', ['$scope', '$location', 'Items', '$rootScope', 'User',
  function($scope, $location, Items, $rootScope, User) {
+	if(User.isUser()) {
+		User.send('/wishlistIds', {}, function(err, res) {
+			$scope.wishlistIds = res.wishlistIds;
+		});
+	}
 	$scope.iF = new Items(true); // iF = Items Factory, must use iF as name
 	$scope.canWish = User.isUser();
 	$scope.itemsShown = 0;
 	$scope.showMore = function() {
-		$scope.iF.showMore(function() {
+		//$scope.iF.showMore(function() {
 			var prevItemsShown = $scope.itemsShown;
 			$scope.itemsShown = $scope.iF.items.length;
 			for(var i = prevItemsShown; i < $scope.iF.items.length; ++i) {
@@ -28,16 +33,9 @@ storeItems.controller('StoreItemsCtrl', ['$scope', '$location', 'Items', '$rootS
 					}
 				}
 			}
-		});
+		//});
 	}
-	if(User.isUser()) {
-		User.send('/wishlistIds', {}, function(err, res) {
-			$scope.wishlistIds = res.wishlistIds;
-			$scope.showMore();
-		});
-	} else {
-		$scope.showMore();
-	}    
+	$scope.iF.showMoreCB = $scope.showMore;
 	$scope.$watch('iF.selectedSort', function() {
 		$scope.itemsShown = $scope.iF.items.length;
 		for(var i = 0; i < $scope.iF.items.length; ++i) {

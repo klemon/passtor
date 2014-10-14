@@ -11,7 +11,11 @@ login.controller('LoginCtrl', ['$scope', '$rootScope', '$location','AuthService'
  function($scope, $rootScope, $location, AuthService, User) {
 	$scope.message;
 	$scope.formData = {};
-	
+	$scope.loginPromise;
+	$scope.sendEmailPromise;
+	$scope.lockedUser = false;
+	$scope.expires = null;
+	$scope.message2;
 	$scope.login = function() {
 		if(!$scope.formData.username)
 		{
@@ -23,60 +27,29 @@ login.controller('LoginCtrl', ['$scope', '$rootScope', '$location','AuthService'
 			$scope.message = "Please provide a password.";
 			return;
 		}
-		User.send('/login', $scope.formData, function(err, res){
-			if(err)
-				$scope.message = err;
-			else if(res.message) {
-				console.log("res.messsage: " + res.messsage);
-				$scope.message = res.message;
-				$location.path('/login');
+		$scope.loginPromise = User.sendPromise('/login', $scope.formData);
+		$scope.loginPromise.then(function(res) {
+			if(res.data.message) {
+				$scope.message = res.data.message;
+			} else if(res.data.LockedUser) {
+				$scope.lockedUser = true;
+				$scope.expires = res.data.expires;
+				$scope.formData = res.data.user;
 			} else {
-				User.setUser(res);
+				User.setUser(res.data);
 				$rootScope.$broadcast('loggedIn');
-				AuthService.setToken(res.token, res.expires);
-				if(res.storeOwner) {
+				AuthService.setToken(res.data.token, res.data.expires);
+				if(res.data.storeOwner)
 					$location.path('/sOItems');
-				} else {
+				else
 					$location.path('/posts');
-				}
 			}
 		});
 	}
+	$scope.sendEmail = function() {
+		$scope.sendEmailPromise = User.sendPromise('/sendEmail', $scope.formData);
+		$scope.sendEmailPromise.then(function(res) {
+			$scope.message2 = "Another confirmation email was sent to you. Please check your email to complete your registration.";
+		})
+	}
 }]);
-/*
-
-login: function(data, done) {
-		$http.post('/login', data)
-			.success(function(res) {
-				$rootScope.username = data.username;
-				$window.localStorage.setItem('username', $rootScope.username);
-				$rootScope.password = data.password;
-				$window.localStorage.setItem('password', $rootScope.password);
-				$rootScope.storeName = res.storeName;
-				$rootScope.firstName = res.firstName;
-				$rootScope.lastName = res.lastName;
-				$rootScope.coins = res.coins;
-				$rootScope.likes = res.likes;
-				$rootScope.email  = res.email;
-				expires = res.expires;
-				$rootScope.token = res.token;
-				$window.localStorage.setItem('token', $rootScope.token);
-
-			if(storeName) {
-				console.log("to the store");
-				$location.path('/inventory');
-			}
-			else if(!res.message) {
-				console.log("to the dashboard");
-				$location.path('/dashboard');
-			} else {
-				console.log("res.messsage: " + res.messsage);
-				$location.path('/login');
-			}
-
-				done(res.message);
-			})
-			.error(function(data) {
-				console.log('Error: ' + data);
-			});
-		},*/

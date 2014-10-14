@@ -17,12 +17,26 @@ userPost.config(['$routeProvider', function ($routeProvider) {
 	$scope.busy = false;
 	$scope.lastDate = null;
 	$scope.posts = new Posts();
+	$scope.noMoreComments = false;
+	$scope.timeToRefresh = false;
+	$scope.prevTime = 0;
 	$scope.edit = function() {
 		$rootScope.post = $scope.post;
 		$location.path('/editPost');
 	}
 	$scope.nextPage = function() {
-		if($scope.busy) return;
+		if($scope.noMoreComments) {
+			var d = new Date();
+			var currTime = d.getTime();
+			if(currTime-$scope.prevTime > 10000) {
+				$scope.timeToRefresh = true;
+				$scope.prevTime = currTime;
+			}
+			else
+				$scope.timeToRefresh = false;
+		}
+		if($scope.busy || ($scope.noMoreComments && !$scope.timeToRefresh))
+			return;
 		$scope.busy = true;
 		User.send('/comments', {postId: $scope.post.id, lastDate: $scope.lastDate}, function(err, res) {
 			if(res.comments.length)

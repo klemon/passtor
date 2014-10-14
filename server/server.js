@@ -18,6 +18,27 @@ var AllUsers = require('./app/models/allusers'),
 	User = AllUsers.User,
 	StoreOwner = AllUsers.StoreOwner;
 var moment = require('moment');
+var nodemailer = require("nodemailer");
+var smtpTransport = require('nodemailer-smtp-transport');
+
+var generator = require('xoauth2').createXOAuth2Generator({
+	user: 'devauld@gmail.com',
+	clientId: '369007573338-hj2ukicjbmgb30oe8e96h42ufkcd6fkd.apps.googleusercontent.com',
+	clientSecret: 'k3lHtHWZtOAJDWHmGQ61S9PS',
+	refreshToken: '1/nRk0nhqYX15I0jeCYx0jcs6CzJm4M2SreuXFBSDsC14',
+	accessToken: 'ya29.ngB6ssqqA9Sp_pv5gaY7TK9Zi09Xb9t0DT7rjBzPs0EFE936oGQk6yPW'
+});
+
+generator.on('token', function(token){
+	console.log('New token for %s: %s', token.user, token.accessToken);
+});
+
+var transporter = nodemailer.createTransport(smtpTransport({
+	service: 'gmail',
+	auth: {
+		xoauth2: generator
+	}
+}));
 
 // configuration ===============================================================
 mongoose.connect(configDB.url); // connect to our database
@@ -42,7 +63,7 @@ app.configure(function() {
 
 	// required for passport
 	//app.use(express.session({ secret: 'ilovescotchscotchyscotchscotch' })); // session secret
-	app.use(passport.initialize());
+	//app.use(passport.initialize());
 	//app.use(passport.session()); // persistent login  sessions
 	//app.use(flash()); // use connect-flash for flash messages stored in session
 });
@@ -120,6 +141,7 @@ jwtauth = function(req, res, next) {
 
 // Add headers
 app.use(function (req, res, next) {
+	setTimeout(next, 0);
 	//console.log(req);
     // Website you wish to allow to connect
     //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3319');
@@ -135,12 +157,12 @@ app.use(function (req, res, next) {
     //res.setHeader('Access-Control-Allow-Credentials', true);
 
     // Pass to next layer of middleware
-    next();
+    //next();
 });
 
 //app.use(express.static(path.join(__dirname, 'views')));
-require('./app/routes/security.js')(app, passport, jwtauth); // load our routes and pass in our app and fully configure passport
-require('./app/routes/routes.js')(app, jwtauth);
+require('./app/routes/security.js')(app, passport, transporter); // load our routes and pass in our app and fully configure passport
+require('./app/routes/routes.js')(app, jwtauth, transporter);
 require('./app/routes/appFile.js')(app, distFolder);
 
 

@@ -6,25 +6,35 @@
 		body 		{ padding-top:80px; }
 	</style>
 	<div class="container" ng-controller="LoginCtrl">
-		<div class="col-sm-6 col-sm-offset-3">
-			<h1><span class="fa fa-sign-in"></span> Login</h1>
-			<!-- show any messages that come back with authentication -->
-			<div class="alert alert-danger" ng-show="message">{{message}}</div>
+		<div ng-hide="lockedUser">
+			<div class="col-sm-6 col-sm-offset-3">
+				<h1><span class="fa fa-sign-in"></span> Login</h1>
+				<!-- show any messages that come back with authentication -->
+				<div class="alert alert-danger" ng-show="message">{{message}}</div>
 
-			<!-- LOGIN FORM -->
-			<form action="" method="post">
-				<div class="form-group">
-					<label>Username</label>
-					<input type="text" ng-model="formData.username" class="form-control" name="username">
-				</div>
-				<div class="form-group">
-					<label>Password</label>
-					<input type="password" ng-model="formData.password" class="form-control" name="password">
-				</div>
+				<!-- LOGIN FORM -->
+				<form cg-busy="loginPromise" action="" method="post">
+					<div class="form-group">
+						<label>Username</label>
+						<input type="text" ng-model="formData.username" class="form-control" name="username">
+					</div>
+					<div class="form-group">
+						<label>Password</label>
+						<input type="password" ng-model="formData.password" class="form-control" name="password">
+					</div>
 
-				<button type="submit" ng-click="login()" class="btn btn-warning btn-lg">Login</button>
-			</form>
-			<hr>
+					<button type="submit" ng-click="login()" class="btn btn-warning btn-lg">Login</button>
+				</form>
+				<hr>
+			</div>
+		</div>
+		<div ng-show="lockedUser" cg-busy="sendEmailPromise">
+			<h3>Your Account is Locked</h3>
+			<p>Please check if you have a received a confirmation email. If you have then follow the instructions in the email to complete your registration.</p>
+			<p>You have {{expires}} seconds to confirm your email before your account is deleted.</p>
+			<p>You can send another confirmation email by clicking the "Send Email" button.</p>
+			<button type="submit" ng-click="sendEmail()" class="btn btn-warning btn-lg">Send Email</button>
+			<p>{{message2}}</p>
 		</div>
 	</div>
 </div>
