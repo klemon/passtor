@@ -166,7 +166,8 @@ module.exports = function(passport) {
                    console.log("Email is already in use. :)");
                    return done(null, false, "That email is already being used.");
                  } else {
-                   var newUser                 = new LockedUser();
+                   //var newUser                 = new LockedUser();
+                   var newUser                 = new User();
                    // set the user's local credentials
                    newUser.username            = username.toLowerCase();
                    newUser.username_display    = username;

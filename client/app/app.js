@@ -130,11 +130,14 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
 	return {
 		send: function(url, data, done){
 			data.token = token;
-			/*intel.xdk.device.getRemoteData("http://localhost:8080" + url, "POST", data, successCallback, errorCallback);*/
-            $http.post('http://192.168.1.103:8080' + url, data)
+			/*
+ec2-54-172-93-78.compute-1.amazonaws.com
+
+			intel.xdk.device.getRemoteData("http://localhost:8080" + url, "POST", data, successCallback, errorCallback);*/
+            $http.post('http://54.172.93.78:8080' + url, data)
 			.success(function(res) {
 				if(res.exp) {
-					$http.post('http://192.103.1.108:8080/login', {username: $rootScope.username, password: $rootScope.password}, 
+					$http.post('http://54.172.93.78:8080/login', {username: $rootScope.username, password: $rootScope.password}, 
 						function(res) {
 						// TODO: set login message here somehow
 					});
@@ -148,7 +151,7 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
 		},
 		sendPromise: function(url, data) {
 			data.token = token;
-			return $http.post('http://192.168.1.103:8080' + url, data);
+			return $http.post('http://54.172.93.78:8080' + url, data);
 		},
 		setToken: function(tok){
 			token = tok;
