@@ -31,7 +31,8 @@ var app = angular.module('app', [
     'mgcrea.ngStrap',
     'mgcrea.ngStrap.dropdown',
     'focusOn',
-    'cgBusy'
+    'cgBusy',
+    'FBAngular'
 	]);
 
 app.config(['$routeProvider', '$locationProvider',
@@ -40,17 +41,21 @@ app.config(['$routeProvider', '$locationProvider',
   //$locationProvider.html5Mode(true);
   
   }])
-.controller('AppCtrl', ['User','$scope', '$location', '$rootScope', function(User, sc, loc, rsc) {
+.controller('AppCtrl', ['User','$scope', '$location', '$rootScope', 'avatars', function(User, $scope, $location, $rootScope, avatars) {
     User.restoreData();
 	if(User.isLoggedIn()) {
-		rsc.$broadcast('loggedIn');
+		$rootScope.$broadcast('loggedIn');
 		if(User.isSO())
-			loc.path('/sOItems');
+			$location.path('/sOItems');
 		else 
-			loc.path('/posts');
+			$location.path('/posts');
 	}
 	else
-		loc.path('/login');
+		$location.path('/login');
+    $scope.exit = function() {
+        console.log("exito");
+        avatars.setExitFullScreen(true);
+    }
 }])
 .controller('HeaderCtrl', ['$scope', 'AuthService', 'User', '$location',
 	function(sc, AuthService, User, loc){
@@ -116,6 +121,49 @@ app.factory('MySave', ['$window', function($window) {
 		}
 	}
 }]);
+
+app.factory("avatars", function($rootScope) {
+    var scope = $rootScope.$new(true);
+    scope.avatars = []; // {id: "aCanvas", isFullScreen: false}
+    scope.exitFullScreen = false;
+    scope.isFullScreen = {isFullScreen: false};
+    return {
+        all: function() {
+            return scope.avatars;
+        },
+        exitFullScreen: function() {
+            return scope.exitFullScreen;
+        },
+        setFullScreen: function(index, isFullScreen) {
+            scope.isFullScreen = isFullScreen;
+            scope.avatars[index].isFullScreen = isFullScreen;
+        },
+        setExitFullScreen: function(exitFullScreen) {
+            scope.isFullScreen = exitFullScreen;
+            scope.exitFullScreen = exitFullScreen;
+        },
+        set: function(index, value) {
+            scope.avatars[index] = value;
+        },
+        get: function(index) {
+            return scope.avatars[index];
+        },
+        index: function(id) {
+            for(var i = 0; i < scope.avatars.length; ++i) {
+                if(scope.avatars[i].id == id) {
+                    return i;
+                }
+            }
+            return -1;
+        },
+        push: function(id, isFullScreen) {
+            scope.avatars.push({id: id, isFullScreen: isFullScreen});
+        },
+        isFullScreen: function() {
+            return scope.isFullScreen;
+        }
+    }
+});
 
 app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
  function($http, $location, $rootScope, MySave) {

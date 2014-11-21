@@ -4,12 +4,14 @@
 <!--[if gt IE 9]><!-->	<html> <!--<![endif]-->
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
+	
+    <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<style type="text/css">
 		/* Prevent copy paste for all elements except text fields */
 		*  { -webkit-user-select:none; -webkit-tap-highlight-color:rgba(255, 255, 255, 0); }
 		input, textarea  { -webkit-user-select:text; }
 		body { background-color:white; color:black }
+        canvas{background-color:#000000;}
 	</style>
 	<script src='intelxdk.js'></script>
 	<script type="text/javascript">
@@ -20,6 +22,7 @@
 		};
 		document.addEventListener("intel.xdk.device.ready",onDeviceReady,false);
 	</script>
+    
     <style type="text/css"> 
     div.mx 
     { 
@@ -27,7 +30,7 @@
         padding:10px; 
         border:5px solid gray; 
         margin-right:20px; 
-    } 
+    }
     </style>
 		<!-- Basic -->
 		<meta charset="utf-8">
@@ -36,7 +39,7 @@
 		<meta name="description" content="Tucson - Responsive HTML5 Template - 1.1.0">
 		<meta name="author" content="okler.net">
 		<!-- Mobile Metas -->
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
 		<!-- Web Fonts -->
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Alegreya|Alegreya+SC|Oswald:400,300" rel="stylesheet" type="text/css">
 		<!-- BEGIN THEME STYLES -->
@@ -65,6 +68,8 @@
 		<link rel="stylesheet" href="public/css/theme-responsive.css" />
 
 		<link rel="stylesheet" href="bower_components/angular-busy/dist/angular-busy.min.css">
+
+		<link rel="stylesheet" href="public/jquery-ui/jquery-ui.css">
 
 		<!-- Head Libs -->
 		<script src="public/vendor/modernizr.js"></script>
@@ -108,7 +113,24 @@
 		<script src="public/js/theme.js"></script>
 		<!-- Custom JS -->
 		<script src="public/js/custom.js"></script>
+    
+         <!-- Babylon.js -->
+        <script src="hand-1.3.8.js"></script>
+        <script src="cannon.js"></script>
+        <script src="oimo.js"></script>
+        <script src="babylon.2.0-alpha.debug.js"></script>
+        <script src="angular-fullscreen.js"></script>
 
+        <script src="public/jquery-ui/jquery-ui.js"></script>
+
+        <style>
+            html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        </style>
 	</head>
 	<body id="afui" ng-app="app">
         
@@ -141,21 +163,41 @@
         <script src="app/user/userProfile.js"></script>
         <script src="app/user/wishItem.js"></script>
         <script src="app/user/wishlist.js"></script>
-        <style>
-
-        </style>
-		<div ng-controller="AppCtrl" class="body">
-			<header>
-				<div ng-include src="'app/header.tpl.html'"></div>
-			</header>
-			<div role="main" class="main">
-				<div role="main" class="main">
-	  		       <div ng-view></div>
-	  		    </div>
-			</div>
-			<footer>
-				<div ng-include src="'app/footer.tpl.html'"></div>
-			</footer> 
+        
+        
+		<div ng-controller="AppCtrl" class="body" id="body">
+			<!--<div id="avatar">
+				<div id="swap">swap</div>
+				<button ng-click="exit()" id="exit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" role="button"><span class="ui-icon ui-icon-circle-close"></span></button>
+			</div>-->
+            <style>
+                #avatar {
+                    position: relative;
+                }
+                #exit {
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                }
+            </style>
+            <script>
+                //$("#exit").button();
+			//$("#exit").button().click(function(event) {
+                //angular.element(document.getElementById("body")).scope().exit();
+                //angular.element(document.getElementById("body")).scope().$apply();
+            //});
+			</script>
+            <header>
+                <div ng-include src="'app/header.tpl.html'"></div>
+            </header>
+            <div role="main" class="main">
+                <div role="main" class="main">
+                   <div ng-view></div>
+                </div>
+            </div>
+            <footer>
+                <div ng-include src="'app/footer.tpl.html'"></div>
+            </footer>
 		</div>
 	</body>
 

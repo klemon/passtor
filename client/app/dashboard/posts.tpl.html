@@ -10,6 +10,14 @@
 					</div>
 				</div>
 			</article>
+            <div id="avatar" fullscreen="isFullScreen">
+                <a ng-click='fullScreen("aCanvas")' class="btn btn-xs btn-primary pull-right" ng-hide="isFullScreen">Fullscreen</a>
+                <canvas id="aCanvas"></canvas>
+                <button ng-click="exit()" id="exit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" role="button" ng-show="isFullScreen"><span class="ui-icon ui-icon-circle-close"></span></button>
+                <script>
+                    $("#exit").button();
+                </script>
+            </div>
 			<div class="row">
 				<div class="col-md-6">
 					<h2 class="shorter"><strong>All Posts</strong></h2>
