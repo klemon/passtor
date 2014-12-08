@@ -30,7 +30,7 @@ posts.controller('PostsCtrl', ['$scope', '$location', 'User', '$rootScope', 'Pos
 	$scope.createPost = function() {
 		$location.path('/createPost');
 	}
-    $scope.start = function(canvasObj) {
+   /* $scope.start = function(canvasObj) {
         var canvas = document.getElementById(canvasObj.id);
         var engine = new BABYLON.Engine(canvas, true);
         var createScene = function () {
@@ -169,5 +169,5 @@ posts.controller('PostsCtrl', ['$scope', '$location', 'User', '$rootScope', 'Pos
     $scope.exit = function() {
         console.log("exitohohohj");
         avatars.setExitFullScreen(true);
-    }
+    }*/
 }]);

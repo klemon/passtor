@@ -4,9 +4,8 @@ var jwt = require('jwt-simple');
 var express = require('express');
 var AllUsers = require('../models/allusers'),
     StoreOwner = AllUsers.StoreOwner;
-var nodemailer = require("nodemailer");
 
-module.exports = function(app, passport, smtpTransport) {
+module.exports = function(app, passport) {
 
 userInfo = function(user) {
   return {username: user.username_display, email: user.local.email, firstName: user.local.firstName, lastName: user.local.lastName,
@@ -67,21 +66,7 @@ app.post('/login', function(req, res, next) {
           console.log(err);
           return next(err);
         }
-        var link="http://"+req.get('host')+"/verify?id="+user._id;
-        var mailOptions = {
-          to : user.local.email,
-          subject : "Please confirm your Email account",
-          html : "This email is addressed to the user <b>" + user.username_display + "</b> of ProjectPasstor.<br>Please Click on the link to verify your email.<br><a href="+link+">Click here to verify</a>" 
-        }
-        smtpTransport.sendMail(mailOptions, function(err, res){
-          if(err){
-            console.log(err);
-            res.json({err: err});
-          } else {
-            console.log("Message sent: " + res.message);
-            res.json({err: false, user: user.username}); 
-          }
-        });
+        res.json({err: false, user: user.username});
     });
   })(req, res, next);
 });

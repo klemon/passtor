@@ -4,7 +4,6 @@
 var LocalStrategy = require('passport-local').Strategy;
 var moment = require('moment');
 var validator = require('validator');
-var emailExistence = require('email-existence');
 
 
 // load up the user model
@@ -136,58 +135,51 @@ module.exports = function(passport) {
       if(!validator.isEmail(req.body.email)) {
         return done(null, false, "Please provide a valid email.");
       }
-      emailExistence.check(req.body.email, function(err, res) {
-        if(!res) {
-          console.log("res: " + res);
-          done(null, false, "That email does not exist.");
-        } else {
-          // find a user whose username is the same as the forms username
-          // we are checking to see if the user trying to login already exists
-           User.findOne({'username' : username.toLowerCase()}, function(err, user) {
-             // if there are any errors, return the error
-             
-             if (err) {
-               console.log("Error in signing up user.")
-               return done(err);
-             }
+      // find a user whose username is the same as the forms username
+      // we are checking to see if the user trying to login already exists
+       User.findOne({'username' : username.toLowerCase()}, function(err, user) {
+         // if there are any errors, return the error
+         
+         if (err) {
+           console.log("Error in signing up user.")
+           return done(err);
+         }
 
-             // check to see if theres already a user with that username
+         // check to see if theres already a user with that username
+         if (user) {
+           console.log("User already exists.");
+           return done(null, false, "That username is already taken.");
+         } else {
+           User.findOne({'local.email' : req.body.email}, function(err, user) {
+             // if there are any errors, return the error before anything else
+             if (err) {
+               console.log("Error in finding if email exists.");
+               throw err;
+             }
              if (user) {
-               console.log("User already exists.");
-               return done(null, false, "That username is already taken.");
+               console.log("Email is already in use. :)");
+               return done(null, false, "That email is already being used.");
              } else {
-               User.findOne({'local.email' : req.body.email}, function(err, user) {
-                 // if there are any errors, return the error before anything else
-                 if (err) {
-                   console.log("Error in finding if email exists.");
+               //var newUser                 = new LockedUser();
+               var newUser                 = new User();
+               // set the user's local credentials
+               newUser.username            = username.toLowerCase();
+               newUser.username_display    = username;
+               newUser.password            = AllUsers.generateHash(password);
+               newUser.local.email         = req.body.email;
+               newUser.local.firstName     = req.body.firstName;
+               newUser.local.lastName      = req.body.lastName;
+               // save the user
+               newUser.save(function(err, newUser2) {
+                 if(err)
                    throw err;
-                 }
-                 if (user) {
-                   console.log("Email is already in use. :)");
-                   return done(null, false, "That email is already being used.");
-                 } else {
-                   //var newUser                 = new LockedUser();
-                   var newUser                 = new User();
-                   // set the user's local credentials
-                   newUser.username            = username.toLowerCase();
-                   newUser.username_display    = username;
-                   newUser.password            = AllUsers.generateHash(password);
-                   newUser.local.email         = req.body.email;
-                   newUser.local.firstName     = req.body.firstName;
-                   newUser.local.lastName      = req.body.lastName;
-                   // save the user
-                   newUser.save(function(err, newUser2) {
-                     if(err)
-                       throw err;
-                     console.log("Created a new user.");
-                     return done(null, newUser2);
-                   });
-                 }
+                 console.log("Created a new user.");
+                 return done(null, newUser2);
                });
              }
            });
-        }
-      });
+         }
+       });
     });
   }));
 };
