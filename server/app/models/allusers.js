@@ -14,37 +14,21 @@ var extend = require('mongoose-schema-extend');
 // define the schema for our abstract user model
 // commented out local, facebook, etc. for easier programming for now
 var AbstractUserSchema = new Schema({
-  username            : {type: String, lowercase: true},
-  username_display    : String,
-  password            : String
+  username            : Number // We could encrypt this for safety?
 }, {
 	collection : 'users', // everything will get saved in the same collection
 	discriminatorKey : '_type'
 });
 
-// This useer needs to verify the email address they gave in order
-// to become a regular User. Once they verify their email then
-// the "_type" field can be changed from "LockedUser" to "User".
-var LockedUserSchema = AbstractUserSchema.extend({
-  local                 : {
-    email               : String,
-    firstName           : String,
-    lastName            : String
-  },
-  createdAt: {type: Date, expires: 60*60*24*3, default: Date.now }
-});
-
 var GeneralUserSchema = AbstractUserSchema.extend({
-  local                 : {
-    email               : String,
-    firstName           : String,
-    lastName            : String
-  }, 
   facebook              : {
-    id                  : String,
-    token               : String,
+    id                  : String, // Do we need this?
+    token               : String, // Do we need this?
     email               : String,
-    name                : String
+    name                : String,
+    firstName           : String,
+    lastName            : String,
+    gender              : String
   },
   twitter               : {
     id                  : String,
@@ -92,8 +76,6 @@ module.exports.validPassword = function(password, bpassword) {
 // create the model for users and expose it to our app
 
 module.exports.AbstractUser = mongoose.model('AbstractUser', AbstractUserSchema);
-
-module.exports.LockedUser = mongoose.model('LockedUser', LockedUserSchema);
 
 module.exports.GeneralUser = mongoose.model('GeneralUser', GeneralUserSchema);
 

@@ -19,7 +19,6 @@ var AllUsers = require('./app/models/allusers'),
 	StoreOwner = AllUsers.StoreOwner;
 var moment = require('moment');
 
-
 // configuration ===============================================================
 mongoose.connect(configDB.url); // connect to our database
 
@@ -82,15 +81,15 @@ jwtauth = function(req, res, next) {
 					} else {
 						console.log("found user in jwtauth");
 						if(req.isUser) {
-							var lastRefresh = moment(user.local.lastLikeRefresh);
+							var lastRefresh = moment(user.lastLikeRefresh);
 							var currRefresh = moment();
 							var days = currRefresh.diff(lastRefresh, 'days');
 							if(days) {
 								console.log("Refreshing likes");
 								currRefresh = currRefresh.add('day', days);
-								user.local.lastLikeRefresh = currRefresh.toDate();
-								console.log("new refresh date: " + user.local.lastLikeRefresh);
-								user.local.likes = 15;
+								user.lastLikeRefresh = currRefresh.toDate();
+								console.log("new refresh date: " + user.lastLikeRefresh);
+								user.likes = 15;
 							}
 						}
 						user.save(function(err, user2){

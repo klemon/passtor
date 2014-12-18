@@ -12,7 +12,7 @@ posts.controller('PostsCtrl', ['$scope', '$location', 'User', '$rootScope', 'Pos
 	function($scope, $location, User, $rootScope, Posts, $anchorScroll, avatars, Fullscreen) {
     $location.hash("body");
     $anchorScroll();
- 	$scope.pF = new Posts(null); // pF = postsFactory, must use pF as name
+ 	//$scope.pF = new Posts(null); // pF = postsFactory, must use pF as name
 	$scope.view = function(post) {
 		$rootScope.post = post;
 		if(post.creator == User.currentUser().username)
@@ -30,6 +30,27 @@ posts.controller('PostsCtrl', ['$scope', '$location', 'User', '$rootScope', 'Pos
 	$scope.createPost = function() {
 		$location.path('/createPost');
 	}
+    console.log("getting feed");
+    $scope.feed;
+    openFB.api({
+        path: '/140472815972081',
+        params: {
+          limit: 10,
+        },
+        success: function(data){
+            //console.log("feeds: " + JSON.stringify(data));
+            $scope.feed = data.data;
+            foo = $scope.feed;
+            //console.log("data: " + JSON.stringify($scope.feed, undefined, 2));
+            console.log("len: " + $scope.feed.length);
+        },
+        error: function(err) {
+          //window.localStorage.clear();
+          //window.sessionStorage.clear();
+          //$state.go('frontPage');
+          console.log(err);
+        }
+    });
    /* $scope.start = function(canvasObj) {
         var canvas = document.getElementById(canvasObj.id);
         var engine = new BABYLON.Engine(canvas, true);

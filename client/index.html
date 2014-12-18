@@ -14,11 +14,12 @@
         canvas{background-color:#000000;}
 	</style>
 	<script src='intelxdk.js'></script>
+    <script src="OpenFB-master/openfb.js"></script>
 	<script type="text/javascript">
 		/* Intel native bridge is available */
 		var onDeviceReady=function(){
-		//hide splash screen
-		intel.xdk.device.hideSplashScreen();
+            //hide splash screen
+            intel.xdk.device.hideSplashScreen();
 		};
 		document.addEventListener("intel.xdk.device.ready",onDeviceReady,false);
 	</script>
@@ -43,8 +44,6 @@
 		<!-- Web Fonts -->
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Alegreya|Alegreya+SC|Oswald:400,300" rel="stylesheet" type="text/css">
 		<!-- BEGIN THEME STYLES -->
-		<link rel="stylesheet" href="public/css/bootstrap.css">
-		<link rel="stylesheet" href="public/css/fonts/font-awesome/css/font-awesome.css">
 		<link rel="stylesheet" href="public/vendor/owl-carousel/owl.carousel.css" media="screen" />
 		<link rel="stylesheet" href="public/vendor/owl-carousel/owl.theme.css" media="screen" />
 		<link rel="stylesheet" href="public/vendor/rs-plugin/css/settings.css" media="screen" />
@@ -70,6 +69,9 @@
 		<link rel="stylesheet" href="bower_components/angular-busy/dist/angular-busy.min.css">
 
 		<link rel="stylesheet" href="public/jquery-ui/jquery-ui.css">
+    
+        <link rel="stylesheet" href="public/css/bootstrap.css">
+		<link rel="stylesheet" href="public/css/fonts/font-awesome/css/font-awesome.css">
 
 		<!-- Head Libs -->
 		<script src="public/vendor/modernizr.js"></script>
@@ -77,7 +79,7 @@
 		<!--[if IE]>
 			<link rel="stylesheet" href="css/ie.css">
 		<![endif]-->
-
+    
 		<!-- Libs -->
         <script src="public/vendor/jquery.js"></script>
 	    <script src="bower_components/angular/angular.js"></script>	
@@ -141,8 +143,8 @@
         <script src="app/dashboard/otherPosts.js"></script>
         <script src="app/dashboard/otherProfile.js"></script>
         <script src="app/dashboard/posts.js"></script>
+        <script src="app/dashboard/welcome.js"></script>
         <script src="app/security/login.js"></script>
-        <script src="app/security/signup.js"></script>
         <script src="app/store/storeItem.js"></script>
         <script src="app/store/storeItems.js"></script>
         <script src="app/store/storeProfile.js"></script>
@@ -190,11 +192,12 @@
             <header>
                 <div ng-include src="'app/header.tpl.html'"></div>
             </header>
-            <div role="main" class="main">
+            <div ng-view></div>
+            <!--<div role="main" class="main">
                 <div role="main" class="main">
                    <div ng-view></div>
                 </div>
-            </div>
+            </div>-->
             <footer>
                 <div ng-include src="'app/footer.tpl.html'"></div>
             </footer>

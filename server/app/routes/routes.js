@@ -15,13 +15,11 @@ postInfo = function(post) {
 }
 
 userInfo = function(user) {
-	return {username: user.username_display, email: user.local.email, firstName: user.local.firstName, lastName: user.local.lastName,
-		coins: user.coins, likes: user.likes};
+	return {username: user.username, facebook: user.facebook, coins: user.coins, likes: user.likes};
 }
 
 sOInfo = function(SO) {
-	return {username: SO.username_display, email: SO.local.email, 
-		firstName: SO.local.firstName, lastName: SO.local.lastName, storeName: SO.storeName};
+	return {username: SO.username, facebook: SO.facebook, storeName: SO.storeName};
 }
 
 itemInfo = function(item) {
@@ -46,28 +44,6 @@ module.exports = function(app, jwtauth) {
 
 	app.post('/', function(req, res) {
 	  res.render('index.html'); // load the index.ejs file
-	});
-
-	app.get('/verify',function(req, res){
-		console.log(req.protocol+":/"+req.get('host'));
-		console.log("id: " +req.param.id);
-		User.findById(req.params.id).exec().then(function(user) {
-			if(!user) {
-				console.log("LockedUser not found, it may have expired.");
-				res.end("<h1>Sorry, your account has already been deleted because your email was not confirmed within 1 day, please try creating another account and confirming it.")
-			} else if(user._type == "User") {
-				console.log("Already a User.");
-				res.end("<h1>Your email has already been verified.</h1>");
-			} else {
-				return User.findByIdAndUpdate({$set: [{'createdAt.expires': null}, {_type: 'User'}]}).exec();
-			}
-		}).then(function(user) {
-			console.log("Email has been verified.");
-			res.end("<h1>Email " + user.local.email + " has been successfully confirmed</h1>");
-		}).then(null, function(err) {
-			console.log(err);
-			res.end('<h1>There was an error in confirming the email, please try the following:</h1><p>1: Confirming the email again.</p><p>2: Try logging in to send another confirmation email.</p><p>3: Contact our support team via "support email goes here".</p>');
-		});
 	});
 	
 	app.post('/posts', [express.json(), express.urlencoded(), jwtauth], function(req, res) {

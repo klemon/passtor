@@ -22,7 +22,9 @@
     "passport-google-oauth": "~0.1.5",
     "passport-local": "~0.1.6",
     "passport-twitter": "~1.0.2",
+    "tumblr.js": "0.0.4",
     "validator": "^3.19.1",
+    "xmlhttprequest": "^1.6.0",
     "xoauth2": "^1.0.0"
   },
   "engines": {

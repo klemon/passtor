@@ -4,8 +4,8 @@ var app = angular.module('app', [
 	'otherPosts',
 	'otherProfile',
 	'posts',
+    'welcome',
 	'login',
-	'signup',
 	'storeItem',
 	'storeItems',
 	'storeProfile',
@@ -41,67 +41,120 @@ app.config(['$routeProvider', '$locationProvider',
   //$locationProvider.html5Mode(true);
   
   }])
-.controller('AppCtrl', ['User','$scope', '$location', '$rootScope', 'avatars', function(User, $scope, $location, $rootScope, avatars) {
+.controller('AppCtrl', ['User','$scope', '$location', '$rootScope', 'avatars', 'MySave', 
+                        function(User, $scope, $location, $rootScope, avatars, MySave) {
     User.restoreData();
-	if(User.isLoggedIn()) {
+    if(User.isLoggedIn()) {
 		$rootScope.$broadcast('loggedIn');
-		if(User.isSO())
-			$location.path('/sOItems');
-		else 
-			$location.path('/posts');
-	}
-	else
-		$location.path('/login');
-    $scope.exit = function() {
+        var tokenStore = [];
+        tokenStore['fbtoken'] = MySave.get('fbtoken');
+        openFB.init({appId: '1558759474355532', tokenStore: tokenStore});
+        $location.path('/posts');
+	} else {
+        openFB.init({appId: '1558759474355532'});
+		$location.path('/welcome');
+    }
+    
+    /*openFB.logout();
+    openFB.getLoginStatus(function(response) {
+        console.log("res: " + response.status);
+        if (response.status === 'connected') {
+            $location.path('/posts');
+        } else {
+            $location.path('/welcome');
+        }
+    });
+    User.restoreData();
+    
+    */
+    
+    // Using code from https://github.com/YoBanfa/yo-banfa
+    //openFB.logout(function() {
+      
+    //});
+    
+
+    /*$scope.exit = function() {
         console.log("exito");
         avatars.setExitFullScreen(true);
-    }
+    }*/
 }])
-.controller('HeaderCtrl', ['$scope', 'AuthService', 'User', '$location',
-	function(sc, AuthService, User, loc){
-	sc.username = User.currentUser().username;
-	sc.isSO = User.isSO();
-	sc.isLoggedIn = User.isLoggedIn();
+.controller('HeaderCtrl', ['$scope', 'AuthService', 'User', '$location', 'MySave', '$rootScope',
+	function($scope, AuthService, User, $location, MySave, $rootScope){
+	$scope.username = User.currentUser().username;
+	$scope.isSO = User.isSO();
+	$scope.isLoggedIn = User.isLoggedIn();
 	// Listen to 'loggedIn' event
-	sc.$on('loggedIn', function(event, args) {
-		sc.isLoggedIn = true;
-		sc.isSO = User.isSO();
+	$scope.$on('loggedIn', function(event, args) {
+		$scope.isLoggedIn = true;
+		$scope.isSO = User.isSO();
 		if(User.currentUser().username)
-			sc.username = User.currentUser().username;
+			$scope.username = User.currentUser().username;
 		else
-			sc.storeName = User.currentUser().storeName;
+			$scope.storeName = User.currentUser().storeName;
 	});
-	sc.logout = function() {
+	$scope.logout = function() {
 		User.clearData();
-		sc.username = "";
-		sc.storeName = "";
-		sc.isSO = false;
-		sc.isLoggedIn = false;
-		loc.path('/login');
+		$scope.username = "";
+		$scope.storeName = "";
+		$scope.isSO = false;
+		$scope.isLoggedIn = false;
+        openFB.logout();
+        $location.path('/welcome');
 	}
-    sc.signup = function() {
-        loc.path('/signup');
+    $scope.login = function() {
+        openFB.login(function(response) {
+        if(response.status === 'connected') {
+            MySave.set('fbtoken', response.authResponse.token);
+            openFB.api({path: '/me', success: function(data){
+                console.log("login data: " + JSON.stringify(data, undefined, 2));
+                MySave.set('FBuserID', data.id);
+                MySave.set('FBuserName', data.name);
+                MySave.set('FBuserLocale', data.locale);
+                openFB.api({
+                    path: '/me/picture',
+                    params: {redirect:false},
+                    success: function(data) {
+                        MySave.set('FBuserPic', data.data.url);
+                        console.log("MySaveID: " + MySave.get('FBuserID'));
+                        $scope.loginPromise = User.sendPromise('/login', {id: MySave.get('FBuserID'), access_token: MySave.get('fbtoken')});
+                        $scope.loginPromise.then(function(res) {
+                            if(res.data.message) {
+                                $scope.message = res.data.message;
+                                console.log("msg: " + $scope.message);
+                            } else {
+                                User.setUser(res.data);
+                                $rootScope.$broadcast('loggedIn');
+                                AuthService.setToken(res.data.token, res.data.expires);
+                                $location.path('/posts');
+                            }
+                        });
+                    },
+                    error: function(err) {console.log(err);}
+                });
+            }, error: function(err) {console.log(err);}});
+          } else {
+            alert('Facebook login failed: ' + response.error);
+          }
+        }, {scope: 'email, read_stream, user_groups'}); 
     }
-    sc.login = function() {
-    	loc.path('/login');
+    $scope.storeItems = function() {
+        $location.path('/storeItems');
     }
-    sc.storeItems = function() {
-        loc.path('/storeItems');
+    $scope.posts = function() {
+        $location.path('/posts');
     }
-    sc.posts = function() {
-        loc.path('/posts');
+    $scope.userProfile = function() {
+        $location.path('/userProfile');
     }
-    sc.userProfile = function() {
-        loc.path('/userProfile');
+    $scope.sOItems = function() {
+        $location.path('/sOItems');
     }
-    sc.sOItems = function() {
-        loc.path('/sOItems');
+    $scope.redeem = function() {
+        $location.path('/redeem');
     }
-    sc.redeem = function() {
-        loc.path('/redeem');
-    }
-    sc.sOProfile = function() {
-        loc.path('/sOProfile');
+    $scope.sOProfile = function() {
+        $location.path('/sOProfile');
     }
 }]);
 
@@ -169,6 +222,8 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
  function($http, $location, $rootScope, MySave) {
 	var expires;
 	var token;
+    //var serverIP = "http://54.172.93.78:8080";
+    var serverIP = "http://192.168.1.146:8080";
 	function successCallback(res) {
 		done(false, res);
 	}
@@ -182,10 +237,10 @@ app.factory('AuthService', ['$http', '$location', '$rootScope', 'MySave',
 ec2-54-172-93-78.compute-1.amazonaws.com
 
 			intel.xdk.device.getRemoteData("http://localhost:8080" + url, "POST", data, successCallback, errorCallback);*/
-            $http.post('http://54.172.93.78:8080' + url, data)
+            $http.post(serverIP + url, data)
 			.success(function(res) {
 				if(res.exp) {
-					$http.post('http://54.172.93.78:8080/login', {username: $rootScope.username, password: $rootScope.password}, 
+					$http.post(serverIP + '/login', {username: $rootScope.username, password: $rootScope.password}, 
 						function(res) {
 						// TODO: set login message here somehow
 					});
@@ -199,7 +254,7 @@ ec2-54-172-93-78.compute-1.amazonaws.com
 		},
 		sendPromise: function(url, data) {
 			data.token = token;
-			return $http.post('http://54.172.93.78:8080' + url, data);
+			return $http.post(serverIP + url, data);
 		},
 		setToken: function(tok){
 			token = tok;
@@ -301,10 +356,11 @@ app.factory('User', ['AuthService', 'MySave', function(AuthService, MySave) {
 				MySave.set('storeName', user.storeName);
 			}
 			MySave.set('username', user.username);
-			MySave.set('password', user.password);
-			MySave.set('email', user.email);
-			MySave.set('firstName', user.firstName);
-			MySave.set('lastName', user.lastName);
+			MySave.set('email', user.facebook.email);
+			MySave.set('firstName', user.facebook.firstName);
+			MySave.set('lastName', user.facebook.lastName);
+            MySave.set('name', user.facebook.name);
+            MySave.set('gender', user.facebook.gender);
 		}
 	};
 }]);

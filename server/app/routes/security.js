@@ -4,6 +4,7 @@ var jwt = require('jwt-simple');
 var express = require('express');
 var AllUsers = require('../models/allusers'),
     StoreOwner = AllUsers.StoreOwner;
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 module.exports = function(app, passport) {
 
@@ -18,38 +19,70 @@ sOInfo = function(SO) {
 }
 
 app.post('/login', function(req, res, next) {
-  req.body.username = req.body.username.toLowerCase();
-  passport.authenticate('local-login', function(err, user, message) {
-    if(err) {
-      console.log(err);
-      return next(err);
-    }
-    else if(!user) {
-      console.log("User not found for login request");
-      return res.json({err: err, user: false, message: message}); 
-    }
-    if(user._type == "LockedUser")
-    {
-      console.log("A LockedUser");
-      return res.json({user: {username: user.username_display, email: user.local.email, firstName: user.local.firstName,
-        lastName: user.local.lastName}, LockedUser: true, expires: user.createdAt.expires});
-    }
-    //user has authenticated correctly thus we create a JWT token
-    var expires = moment().add('days', 7).valueOf();
-    var token = jwt.encode({
-      iss: user._id,
-      exp: expires,
-      isSO: (user._type == "StoreOwner"),
-      isUser: (user._type == "User"),
-      isRedeemer: (user._type == "Redeemer") 
-    }, app.get('jwtTokenSecret'));
-    if(user._type == "StoreOwner") {
-          return res.json({token : token, expires : expires, storeOwner: sOInfo(user), LockedUser: false});
-    } else if(user._type == "User") {
-      return res.json({token : token, expires : expires, user: userInfo(user), coins: user.coins, 
-        likes: user.likes, LockedUser: false});
-    }
-  })(req, res, next);
+  // We are given an Id and access_token from user. 
+  // We send access_token to FB to get info on the FB user of that token.
+  // We need to make sure the Id from user == Id from FB.
+  function toQueryString(obj) {
+        var parts = [];
+        for (var i in obj) {
+            if (obj.hasOwnProperty(i)) {
+                parts.push(encodeURIComponent(i) + "=" + encodeURIComponent(obj[i]));
+            }
+        }
+        return parts.join("&");
+  }
+  var xhr = new XMLHttpRequest();
+  var params = {}
+  params['access_token'] = req.body.access_token;
+  var url = 'https://graph.facebook.com' + '/me' + '?' + toQueryString(params);
+  xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            console.log("successful");
+            var fbRes = JSON.parse(xhr.responseText);
+            req.body.username = fbRes.id;
+            req.body.password = "noPassword";
+            req.body.FBdata = fbRes;
+            console.log("fbRes.id: " + fbRes.id);
+            console.log("req.body.id: " + req.body.id);
+            if(fbRes.id == req.body.id) {
+              passport.authenticate('local-login', function(err, user, message) {
+                console.log("user in sec: " + JSON.stringify(user, undefined, 2));
+                if(err) {
+                  console.log(err);
+                  return next(err);
+                }
+                //user has authenticated correctly thus we create a JWT token
+                var expires = moment().add('days', 7).valueOf();
+                var token = jwt.encode({
+                  iss: user._id,
+                  exp: expires,
+                  isSO: (user._type == "StoreOwner"),
+                  isUser: (user._type == "User"),
+                  isRedeemer: (user._type == "Redeemer") 
+                }, app.get('jwtTokenSecret'));
+                console.log("successful login");
+                console.log("type: " + user._type);
+                if(user._type == "StoreOwner") {
+                  res.json({token : token, expires : expires, storeOwner: sOInfo(user)});
+                } else if(user._type == "User") {
+                  res.json({token : token, expires : expires, user: userInfo(user), coins: user.coins, likes: user.likes});
+                }
+              })(req, res, next);
+            } else {
+              console.log("Given Facebook Id does not match id returned by facebook.");
+              return res.json({err: null, user: false, message: "Sorry, your Facebook credentials don't match the ones in our database. Please try again or contact our support team."});
+            }
+          } else {
+              var error = xhr.responseText ? JSON.parse(xhr.responseText).error : {message: 'An error has occurred'};
+              console.log("error");
+              console.log(error);
+              return next(error);
+          }
+      }
+  };
+  xhr.open('GET', url, true);
+  xhr.send();
 });
 
   // process signup form
